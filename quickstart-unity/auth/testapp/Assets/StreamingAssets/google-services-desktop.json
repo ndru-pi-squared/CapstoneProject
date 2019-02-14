@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "901117795801",
+    "firebase_url": "https://testauth-25c31.firebaseio.com",
+    "project_id": "testauth-25c31",
+    "storage_bucket": "testauth-25c31.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:901117795801:android:6d2ff93c777ccefa",
+        "android_client_info": {
+          "package_name": "unity.Google.Firebase_Auth_Unity_Testapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "901117795801-6sdffdu93gfd1brs41rju2s8g26af9l6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBX6mZE7Sdk07sFEl2iQ55zN423P_7fsE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
