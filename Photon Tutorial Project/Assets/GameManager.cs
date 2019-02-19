@@ -24,21 +24,7 @@ namespace Com.Kabaj.PhotonTutorialProject
 
 
         #endregion
-
-        #region Photon Callbacks
-
-
-        ///<summary>
-        /// Called when the local player left the room. We need to load the launcher scene.
-        /// </summary>
-        public override void OnLeftRoom()
-        {
-            SceneManager.LoadScene(0);
-        }
-
-
-        #endregion
-
+        
 
         #region Public Methods
 
@@ -70,9 +56,9 @@ namespace Com.Kabaj.PhotonTutorialProject
                 if (PlayerManager.LocalPlayerInstance == null)
                 {
                     /** My comment: 
-                     * Below is the code from the tutorial but Application.loadLevelName is deprecated.
-                     * Possible alternative: 
-                     * Debug.LogFormat("We are Instantiating LocalPlayer from {0}", SceneManager.GetActiveScene().name);
+                     *   Below is the code from the tutorial but Application.loadLevelName is deprecated.
+                     *   Debug.LogFormat("We are Instantiating LocalPlayer from {0}", SceneManager.GetActiveScene().name);
+                     *   I replaced it with a version that is not depricated.
                      */
                     Debug.LogFormat("We are Instantiating LocalPlayer from {0}", Application.loadedLevelName);
                     // we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
@@ -85,6 +71,7 @@ namespace Com.Kabaj.PhotonTutorialProject
             }
         }
 
+        // Note: only called in OnPlayerEnteredRoom() and OnPlayerLeftRoom() by player on master client
         void LoadArena()
         {
             if (!PhotonNetwork.IsMasterClient)
@@ -109,27 +96,36 @@ namespace Com.Kabaj.PhotonTutorialProject
         #region Photon Callbacks
 
 
+        ///<summary>
+        /// Called when the local player left the room. We need to load the launcher scene.
+        /// </summary>
+        public override void OnLeftRoom()
+        {
+            SceneManager.LoadScene(0);
+        }
+
+        // Note: I think this function is called on every computer when someone enters the room except the person who is entering the room
         public override void OnPlayerEnteredRoom(Player other)
         {
             Debug.LogFormat("OnPlayerEnteredRoom() {0}", other.NickName); // not seen if you're the player connecting
 
+            // Note: I think this is only 
             if (PhotonNetwork.IsMasterClient)
             {
                 Debug.LogFormat("OnPlayerEnteredRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient); // called before OnPlayerLeftRoom
-
 
                 LoadArena();
             }
         }
 
+        // Note: I think this function is called on every computer when someone leaves the room except the person who is leaves the room
         public override void OnPlayerLeftRoom(Player other)
         {
             Debug.LogFormat("OnPlayerLeftRoom() {0}", other.NickName); //seen when other disconnects
 
-
             if (PhotonNetwork.IsMasterClient)
             {
-                Debug.LogFormat("OnPlayerEnteredRoom() IsMasterClient {0}", PhotonNetwork.IsMasterClient); // called before OnPlayerLeftRoom
+                Debug.LogFormat("OnPlayerLeftRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient); // called before OnPlayerLeftRoom
 
                 LoadArena();
             }

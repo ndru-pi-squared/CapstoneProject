@@ -98,6 +98,18 @@ namespace Com.Kabaj.PhotonTutorialProject
             progressLabel.SetActive(true);
             controlPanel.SetActive(false);
 
+            /** My Note:
+             *   I'm going to try to force connection to 'us' region for testing purposes.
+             *   If my two clients are in different regions they cannot enter the same room.
+             */
+            //PhotonNetwork.ConnectToRegion("us");
+            /*
+            Debug.Log("----------\\/");
+            LoadBalancingClient loadBalancingClient = new LoadBalancingClient();
+            loadBalancingClient.ConnectToRegionMaster("us");
+            Debug.Log("----------/\\");
+            */
+
             // we check if we are connected or not, we join if we are, else we initiate the connection to the server.
             if (PhotonNetwork.IsConnected)
             {

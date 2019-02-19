@@ -41,6 +41,7 @@ namespace Com.Kabaj.PhotonTutorialProject
 
         #endregion
 
+
         #region MonoBehaviour CallBacks
 
 
@@ -74,22 +75,23 @@ namespace Com.Kabaj.PhotonTutorialProject
         /// </summary>
         void Start()
         {
-            // Note from tutorial:
-            // First, it gets the CameraWork component, we expect this, so if we don't find it, we log an error.
+            /** Note from tutorial:
+             *   First, it gets the CameraWork component, we expect this, so if we don't find it, we log an error.
+             */
             CameraWork _cameraWork = this.gameObject.GetComponent<CameraWork>();
-
 
             if (_cameraWork != null)
             {
                 /** Note from tutorial: 
-                 * if photonView.IsMine is true, it means we need to follow this instance, and so we call _cameraWork.OnStartFollowing() 
-                 * which effectivly makes the camera follow that very instance in the scene. All other player instances will have their 
-                 * photonView.IsMine set as false, and so their respective _cameraWork will do nothing.
+                 *   if photonView.IsMine is true, it means we need to follow this instance, and so we call _cameraWork.OnStartFollowing() 
+                 *   which effectivly makes the camera follow that very instance in the scene. All other player instances will have their 
+                 *   photonView.IsMine set as false, and so their respective _cameraWork will do nothing.
                  */
                 if (photonView.IsMine)
                 {
-                    // Note from tutorial:
-                    // makes the camera follow that very instance in the scene.
+                    /** Note from tutorial:
+                     *   makes the camera follow that very instance in the scene.
+                     */
                     _cameraWork.OnStartFollowing();
                 }
             }
@@ -99,10 +101,10 @@ namespace Com.Kabaj.PhotonTutorialProject
             }
 
             /** Notes from tutorial:
-             * There is currently an added complexity because Unity has revamped "Scene Management" and Unity 5.4 has deprecated 
-             * some callbacks, which makes it slightly more complex to create a code that works across all Unity versions (from Unity 
-             * 5.3.7 to the latest). So we'll need different code based on the Unity version. It's unrelated to Photon Unity Networking, but 
-             * important to master for your projects to survive updates.
+             *   There is currently an added complexity because Unity has revamped "Scene Management" and Unity 5.4 has deprecated 
+             *   some callbacks, which makes it slightly more complex to create a code that works across all Unity versions (from Unity 
+             *   5.3.7 to the latest). So we'll need different code based on the Unity version. It's unrelated to Photon Unity Networking, but 
+             *   important to master for your projects to survive updates.
              */
 #if UNITY_5_4_OR_NEWER
             // Unity 5.4 has a new scene management. register a method to call CalledOnLevelWasLoaded.
@@ -113,20 +115,19 @@ namespace Com.Kabaj.PhotonTutorialProject
 #endif
 
             /** Notes from tutorial:
-             * All of this is standard Unity coding. However notice that we are sending a message to the instance we've just created. We 
-             * require a receiver, which means we will be alerted if the SetTarget did not find a component to respond to it. Another 
-             * way would have been to get the PlayerUI component from the instance, and then call SetTarget directly. It's generally 
-             * recommended to use components directly, but it's also good to know you can achieve the same thing in various ways.
+             *   All of this is standard Unity coding. However notice that we are sending a message to the instance we've just created. We 
+             *   require a receiver, which means we will be alerted if the SetTarget did not find a component to respond to it. Another 
+             *   way would have been to get the PlayerUI component from the instance, and then call SetTarget directly. It's generally 
+             *   recommended to use components directly, but it's also good to know you can achieve the same thing in various ways.
              */
             if (PlayerUiPrefab != null)
             {
-                // I added  if (photonView.IsMine) to fix a bug where the local player would see both players' UIs
+                /** Note:
+                 *   I tried adding "if (photonView.IsMine)" to fix a bug where the local player would see both players' UIs
+                 */
                 // This code is also CalledOnLevelWasLoaded()
-                //if (photonView.IsMine)
-                //{
-                    GameObject _uiGo = Instantiate(PlayerUiPrefab);
-                    _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
-                //}
+                GameObject _uiGo = Instantiate(PlayerUiPrefab);
+                _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
             }
             else
                 {
@@ -233,13 +234,11 @@ namespace Com.Kabaj.PhotonTutorialProject
              *   simple exercise, you can create a private method that would instantiate and send the "SetTarget" message, and from the 
              *   various places, call that method instead of duplicating the code.
              */
-            // I added  if (photonView.IsMine) to fix a bug where the local player would see both players' UIs
-            // This code is also Start()
-            //if (photonView.IsMine) 
-            //{
-                GameObject _uiGo = Instantiate(this.PlayerUiPrefab);
-                _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
-            //}
+            /** Note:
+             *   I tried adding "if (photonView.IsMine)" to fix a bug where the local player would see both players' UIs
+             */
+            GameObject _uiGo = Instantiate(this.PlayerUiPrefab);
+            _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
         }
 
 

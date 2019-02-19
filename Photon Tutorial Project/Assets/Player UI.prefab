@@ -477,3 +477,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerNameText: {fileID: 3286591977744805504}
   playerHealthSlider: {fileID: 4523192908012854149}
+  screenOffset: {x: 0, y: 30, z: 0}
+  targetTransform: {fileID: 7653204800539749509}

@@ -41,6 +41,7 @@ namespace Com.Kabaj.PhotonTutorialProject
 
         #region MonoBehaviour Callbacks
 
+
         void Awake()
         {
             /** Note from tutorial:
@@ -52,8 +53,6 @@ namespace Com.Kabaj.PhotonTutorialProject
              *   of the reference of the Canvas element that takes loading and unloading into account.
              */
             this.transform.SetParent(GameObject.Find("Canvas").GetComponent<Transform>(), false);
-
-
         }
 
         void Update()
@@ -91,6 +90,11 @@ namespace Com.Kabaj.PhotonTutorialProject
              */
             // #Critical
             // Follow the Target GameObject on screen.
+            /** My note:
+             *   How is targetTransform != null ?!?!?
+             *   Answer: I don't think it ever is! WTF!
+             */
+            //Debug.LogFormat(" ----> PlayerUI.LateUpdate(): targetTransform = {0}", targetTransform);
             if (targetTransform != null)
             {
                 targetPosition = targetTransform.position;
@@ -104,6 +108,7 @@ namespace Com.Kabaj.PhotonTutorialProject
 
 
         #region Public Methods
+
 
         /** My note:
          *   - This function is called in two places in PlayerManager after PlayerUiPrefab instantiation with this code:
@@ -123,7 +128,16 @@ namespace Com.Kabaj.PhotonTutorialProject
             {
                 playerNameText.text = target.photonView.Owner.NickName;
             }
-            
+
+            /** My Note: 
+             *   added this code to test a method of setting targetTransform to fix the PlayerUIPrefab position glitch
+             *   Tested by building and running a copy of the game while running game in unity. I pressed play button
+             *   on both game instances and PlayerUIPrefab appeared to be working properly for both players but the
+             *   players never joined the same room! No idea why that happened.
+             *   Result: apparent failure! 
+             */
+            targetTransform = _target.transform;
+
             /** Note from tutorial:
              *   We know our player to be based off a CharacterController, which features a Height property, we'll need 
              *   this to do a proper offset of the UI element above the Player.
