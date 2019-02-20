@@ -69,7 +69,9 @@ namespace Com.Kabaj.PhotonTutorialProject
              *   This avoids a lot of potential problems, and is very secure, no matter the reason why a target is missing, the related 
              *   UI will automatically destroy itself too, very handy and quick.
              */
-            // My note paraphrasing tutorial: it's so we don't have orphaned UIs when a player leaves the game
+            /** My note paraphrasing tutorial: 
+             *   - It's so we don't have orphaned UIs when a player leaves the game
+             */
             // Destroy itself if the target is null, It's a fail safe when Photon is destroying Instances of a Player over the network
             if (target == null)
             {
@@ -88,13 +90,13 @@ namespace Com.Kabaj.PhotonTutorialProject
              *   characterControllerHeight, and finally, after we've deduced the screen position of the top of the Player, we add the 
              *   screen offset.
              */
+            /** My note:
+             *   - How is targetTransform != null ?!?!?
+             *   - Answer: I don't think it ever is in the tutorial code! WTF!
+             *   - My Solution: I added "targetTransform = _target.transform;" in SetTarget()
+             */
             // #Critical
             // Follow the Target GameObject on screen.
-            /** My note:
-             *   How is targetTransform != null ?!?!?
-             *   Answer: I don't think it ever is! WTF!
-             */
-            //Debug.LogFormat(" ----> PlayerUI.LateUpdate(): targetTransform = {0}", targetTransform);
             if (targetTransform != null)
             {
                 targetPosition = targetTransform.position;
@@ -130,11 +132,12 @@ namespace Com.Kabaj.PhotonTutorialProject
             }
 
             /** My Note: 
-             *   added this code to test a method of setting targetTransform to fix the PlayerUIPrefab position glitch
-             *   Tested by building and running a copy of the game while running game in unity. I pressed play button
-             *   on both game instances and PlayerUIPrefab appeared to be working properly for both players but the
-             *   players never joined the same room! No idea why that happened.
-             *   Result: apparent failure! 
+             *   - I added this code to test a method of setting targetTransform to fix the PlayerUIPrefab position glitch
+             *     Tested by building and running a copy of the game while running game in unity. 
+             *   - Result: apparent success!
+             *   - Additional Note: I figured out later that the position "glitch" wasn't so much a glitch in position but 
+             *     a lack of positioning all together. I think this is explains everything. If targetTransform was never
+             *     being set it remains null and the positioning code at the bottom of LateUpdate() never gets executed.
              */
             targetTransform = _target.transform;
 

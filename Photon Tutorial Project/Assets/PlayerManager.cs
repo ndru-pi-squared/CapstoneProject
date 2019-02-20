@@ -122,10 +122,7 @@ namespace Com.Kabaj.PhotonTutorialProject
              */
             if (PlayerUiPrefab != null)
             {
-                /** Note:
-                 *   I tried adding "if (photonView.IsMine)" to fix a bug where the local player would see both players' UIs
-                 */
-                // This code is also CalledOnLevelWasLoaded()
+                // This code is also used in CalledOnLevelWasLoaded()
                 GameObject _uiGo = Instantiate(PlayerUiPrefab);
                 _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
             }
@@ -202,15 +199,19 @@ namespace Com.Kabaj.PhotonTutorialProject
         }
 
         // This won't be called on my system because it's newer than 5.4
- #if !UNITY_5_4_OR_NEWER
+#if !UNITY_5_4_OR_NEWER
         /// <summary>See CalledOnLevelWasLoaded. Outdated in Unity 5.4.</summary>
         void OnLevelWasLoaded(int level)
         {
             this.CalledOnLevelWasLoaded(level);
         }
 #endif
-        
 
+
+        /** My note:
+         *   - This function is going to be called when the event UnityEngine.SceneManagement.SceneManager.sceneLoaded is triggered
+         *     because we set it up to be called in the Start() function
+         */
         void CalledOnLevelWasLoaded(int level)
         {
             /** Note from tutorial:
@@ -218,11 +219,23 @@ namespace Com.Kabaj.PhotonTutorialProject
              *   if we hit anything. If we don't, this is means we are not above the arena's ground and we need to be repositioned back to 
              *   the center, exactly like when we are entering the room for the first time.
              */
-            // check if we are outside the Arena and if it's the case, spawn around the center of the arena in a safe zone
-            if (!Physics.Raycast(transform.position, -Vector3.up, 5f))
-            {
-                transform.position = new Vector3(0f, 5f, 0f);
-            }
+            /** My Note:
+             *   - I was getting this error when second player left room: 
+             *      MissingReferenceException: The object of type 'PlayerManager' has been destroyed but you are still trying to access it.
+             *      Your script should either check if it is null or you should not destroy the object.
+             *   - Trying to fix that, I check transform is null first. 
+             *   - Result: Didn't work! I get the same error on "if(transform != null)" (which makes no sense to me) after this debug log line:
+             *      Network destroy Instantiated GO: My Robot Kyle(Clone)
+             *      
+             */
+            //if (transform != null)
+            //{
+                // check if we are outside the Arena and if it's the case, spawn around the center of the arena in a safe zone
+                if (!Physics.Raycast(transform.position, -Vector3.up, 5f))
+                {
+                    transform.position = new Vector3(0f, 5f, 0f);
+                }
+            //}
 
             /** Note from tutorial:
              *   when a new level is loaded, the UI is being 
@@ -233,9 +246,6 @@ namespace Com.Kabaj.PhotonTutorialProject
              *   well. In our implementation, this is straight forward, at the cost of a duplication of where we instantiate our UI prefab. As a 
              *   simple exercise, you can create a private method that would instantiate and send the "SetTarget" message, and from the 
              *   various places, call that method instead of duplicating the code.
-             */
-            /** Note:
-             *   I tried adding "if (photonView.IsMine)" to fix a bug where the local player would see both players' UIs
              */
             GameObject _uiGo = Instantiate(this.PlayerUiPrefab);
             _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);

@@ -101,6 +101,10 @@ namespace Com.Kabaj.PhotonTutorialProject
             /** My Note:
              *   I'm going to try to force connection to 'us' region for testing purposes.
              *   If my two clients are in different regions they cannot enter the same room.
+             *   ...
+             *   Looks like I didn't need this code. The reason clients weren't ending up in the same rooms was because
+             *   they were connecting to different regional servers. I changed the whitelist to "us;" only. This seems
+             *   to be a good solution for testing but would need to change before publishing.
              */
             //PhotonNetwork.ConnectToRegion("us");
             /*
