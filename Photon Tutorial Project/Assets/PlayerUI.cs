@@ -7,6 +7,10 @@ using System.Collections;
 
 namespace Com.Kabaj.PhotonTutorialProject
 {
+    /// <summary>
+	/// Player UI. Constraint the UI to follow a PlayerManager GameObject in the world,
+	/// Affect a slider and text to display Player's name and health
+	/// </summary>
     public class PlayerUI : MonoBehaviour
     {
         #region Private Fields
@@ -15,7 +19,6 @@ namespace Com.Kabaj.PhotonTutorialProject
         [Tooltip("UI Text to display Player's Name")]
         [SerializeField]
         private Text playerNameText;
-
 
         [Tooltip("UI Slider to display Player's Health")]
         [SerializeField]
@@ -34,7 +37,7 @@ namespace Com.Kabaj.PhotonTutorialProject
         float characterControllerHeight = 0f;
         Transform targetTransform;
         Vector3 targetPosition;
-
+        Renderer targetRenderer; // Note: I don't think this is used
 
         #endregion
 
@@ -123,7 +126,7 @@ namespace Com.Kabaj.PhotonTutorialProject
          *     _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
          *   - _uiGo represents a user interface game object
          */
-        public void SetTarget(PlayerManager _target)
+        public void SetTarget_OLD(PlayerManager _target)
         {
             if (_target == null)
             {
@@ -159,7 +162,38 @@ namespace Com.Kabaj.PhotonTutorialProject
             }
         }
 
+        /// <summary>
+		/// Assigns a Player Target to Follow and represent.
+		/// </summary>
+		/// <param name="target">Target.</param>
+		public void SetTarget(PlayerManager _target)
+        {
 
+            if (_target == null)
+            {
+                Debug.LogError("<Color=Red><b>Missing</b></Color> PlayMakerManager target for PlayerUI.SetTarget.", this);
+                return;
+            }
+
+            // Cache references for efficiency because we are going to reuse them.
+            this.target = _target;
+            targetTransform = this.target.GetComponent<Transform>();
+            targetRenderer = this.target.GetComponent<Renderer>();
+
+
+            CharacterController _characterController = this.target.GetComponent<CharacterController>();
+
+            // Get data from the Player that won't change during the lifetime of this Component
+            if (_characterController != null)
+            {
+                characterControllerHeight = _characterController.height;
+            }
+
+            if (playerNameText != null)
+            {
+                playerNameText.text = this.target.photonView.Owner.NickName;
+            }
+        }
         #endregion
 
 
