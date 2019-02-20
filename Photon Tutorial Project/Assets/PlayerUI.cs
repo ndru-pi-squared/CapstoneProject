@@ -57,12 +57,6 @@ namespace Com.Kabaj.PhotonTutorialProject
 
         void Update()
         {
-            // Reflect the Player Health
-            if (playerHealthSlider != null)
-            {
-                playerHealthSlider.value = target.Health;
-            }
-
             /** Notes from tutorial:
              *   This code, while easy, is actually quite handy. Because of the way Photon deletes 
              *   Instances that are networked, it's easier for the UI instance to simply destroy itself if the target reference is null. 
@@ -78,6 +72,14 @@ namespace Com.Kabaj.PhotonTutorialProject
                 Destroy(this.gameObject);
                 return;
             }
+
+            // Reflect the Player Health
+            if (playerHealthSlider != null)
+            {
+                playerHealthSlider.value = target.Health;
+            }
+
+            
         }
 
         void LateUpdate()
@@ -112,6 +114,10 @@ namespace Com.Kabaj.PhotonTutorialProject
         #region Public Methods
 
 
+        /** Note from tutorial:
+         *   The PlayerUI script will need to know which player it represents for one reason amongst others: being able to show its health and name, let's 
+         *   create a public method for this binding to be possible.
+         */
         /** My note:
          *   - This function is called in two places in PlayerManager after PlayerUiPrefab instantiation with this code:
          *     _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);

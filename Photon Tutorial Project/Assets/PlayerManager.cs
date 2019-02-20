@@ -226,16 +226,21 @@ namespace Com.Kabaj.PhotonTutorialProject
              *   - Trying to fix that, I check transform is null first. 
              *   - Result: Didn't work! I get the same error on "if(transform != null)" (which makes no sense to me) after this debug log line:
              *      Network destroy Instantiated GO: My Robot Kyle(Clone)
-             *      
+             *   - Trying to comment out the repositioning code completely to see what happens...
+             *   - Result: I get this error:
+             *      <Color=Red><a>Missing</a></Color> PlayMakerManager target for PlayerUI.SetTarget.
+             *      UnityEngine.Debug:LogError(Object, Object)
+             *      Com.Kabaj.PhotonTutorialProject.PlayerUI:SetTarget(PlayerManager) (at Assets/PlayerUI.cs:130)
+             *      UnityEngine.GameObject:SendMessage()
+             *      Com.Kabaj.PhotonTutorialProject.PlayerManager:CalledOnLevelWasLoaded(Int32) (at Assets/PlayerManager.cs:262)
              */
-            //if (transform != null)
-            //{
-                // check if we are outside the Arena and if it's the case, spawn around the center of the arena in a safe zone
-                if (!Physics.Raycast(transform.position, -Vector3.up, 5f))
-                {
-                    transform.position = new Vector3(0f, 5f, 0f);
-                }
-            //}
+            // check if we are outside the Arena and if it's the case, spawn around the center of the arena in a safe zone
+            if (!Physics.Raycast(transform.position, -Vector3.up, 5f))
+            {
+                transform.position = new Vector3(0f, 5f, 0f);
+                Debug.LogFormat("CalledOnLevelWasLoaded() B-----> level={0}, photonView.IsMine={1}", level, photonView.IsMine);
+            }
+                        
 
             /** Note from tutorial:
              *   when a new level is loaded, the UI is being 
