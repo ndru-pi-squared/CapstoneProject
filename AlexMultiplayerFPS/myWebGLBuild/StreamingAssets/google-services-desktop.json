@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "540543771471",
+    "firebase_url": "https://testunityfireauthproject.firebaseio.com",
+    "project_id": "testunityfireauthproject",
+    "storage_bucket": "testunityfireauthproject.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:540543771471:android:60bb95643898e37d",
+        "android_client_info": {
+          "package_name": "com.Company.ProductName"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "540543771471-un1jqfsaif99s538j8e6n2gccsh8gi74.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCH4ycNmVCNMxyTBTa-5YalY2gpF83ZHxE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

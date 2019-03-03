@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources tools:keep="@string/firebase_database_url,@string/gcm_defaultSenderId,@string/google_storage_bucket,@string/project_id,@string/google_api_key,@string/google_crash_reporting_api_key,@string/google_app_id,@string/default_web_client_id" xmlns:tools="http://schemas.android.com/tools">
+  <string name="firebase_database_url" translatable="false">https://testunityfireauthproject.firebaseio.com</string>
+  <string name="gcm_defaultSenderId" translatable="false">540543771471</string>
+  <string name="google_storage_bucket" translatable="false">testunityfireauthproject.appspot.com</string>
+  <string name="project_id" translatable="false">testunityfireauthproject</string>
+  <string name="google_api_key" translatable="false">AIzaSyCH4ycNmVCNMxyTBTa-5YalY2gpF83ZHxE</string>
+  <string name="google_crash_reporting_api_key" translatable="false">AIzaSyCH4ycNmVCNMxyTBTa-5YalY2gpF83ZHxE</string>
+  <string name="google_app_id" translatable="false">1:540543771471:android:60bb95643898e37d</string>
+  <string name="default_web_client_id" translatable="false">540543771471-un1jqfsaif99s538j8e6n2gccsh8gi74.apps.googleusercontent.com</string>
+</resources>
