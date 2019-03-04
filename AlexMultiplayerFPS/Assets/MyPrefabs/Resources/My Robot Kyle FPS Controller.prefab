@@ -7126,7 +7126,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 10
   range: 100
-  fireRate: 15
+  fireRate: 10
   impactForce: 30
   gunshotSound: {fileID: 8300000, guid: ba931c756adb4d144a68cb6e4ae83218, type: 3}
   fpsCam: {fileID: 683}

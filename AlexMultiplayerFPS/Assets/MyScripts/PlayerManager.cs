@@ -291,9 +291,25 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     return;
                 }
 
+                //Debug.Log("PlayerManager: ProcessInputs() Input.GetButtonDown(\"Fire1\")");
+                
                 // Call the [PunRPC] Shoot method over photon network
-                photonView.RPC("Shoot", RpcTarget.All);
+                //photonView.RPC("Shoot", RpcTarget.AllViaServer);
 
+            }
+            // Check if the user is trying to fire gun continuously
+            if (Input.GetButton("Fire1"))
+            {
+                //Debug.Log("PlayerManager: ProcessInputs() Input.GetButton(\"Fire1\")");
+
+                // Check if gun is ready to shoot before sending the RPC to avoid overloading network
+                if (gun.IsReadyToShoot)
+                {
+                    //Debug.LogFormat("PlayerManager: ProcessInputs() gun.IsReadyToShoot = {0}", gun.IsReadyToShoot);
+                
+                    // Call the [PunRPC] Shoot method over photon network
+                    photonView.RPC("Shoot", RpcTarget.All);
+                }
             }
         }
         
@@ -304,7 +320,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [PunRPC]
         void Shoot(PhotonMessageInfo info)
         {
-            Debug.LogFormat("PlayerManager: [PunRPC] Shoot() {0}, {1}, {2}.", info.Sender, info.photonView, info.SentServerTime);
+            //Debug.LogFormat("PlayerManager: [PunRPC] Shoot() {0}, {1}, {2}.", info.Sender, info.photonView, info.SentServerTime);
+            
             // Tell the gun to shoot
             gun.Shoot();
         }
