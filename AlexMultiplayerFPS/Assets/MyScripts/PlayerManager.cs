@@ -269,50 +269,43 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         /// <summary>
-        /// Processes the inputs. Maintain a flag representing when the user is pressing Fire.
-        /// This method should only be called in Update if photonView.IsMine
+        /// Processes the inputs. 
+        /// (This method should only be called in Update if photonView.IsMine)
         /// </summary>
         void ProcessInputs()
         {
-
             if (Input.GetButtonDown("Fire1"))
             {
-                photonView.RPC("Shoot", RpcTarget.All);
-            }
-
-
-            // The following code is for robot laser eye beams from the tutorial
-            if (Input.GetButtonDown("Fire1"))
-            {
-
-                /** My Note: 
-                 *   Adding this from demo code
-                 */
                 // we don't want to fire when we interact with UI buttons for example. IsPointerOverGameObject really means IsPointerOver*UI*GameObject
                 // notice we don't use on on GetbuttonUp() few lines down, because one can mouse down, move over a UI element and release, which would lead to not lower the isFiring Flag.
                 if (EventSystem.current.IsPointerOverGameObject())
                 {
-                   	// return;
+                    //Debug.Log("PlayerManager: ProcessInputs() Mouse over UI GameObject -> Do not shoot gun");
+
+                    // Remove cursor lock to enable the Leave Game UI button to be clicked
+                    // I had to create a public SetCursorLock method inside FirstPersonController to access the MouseLook.SetCursorLock method
+                    // !! This might not have been the best way to handle this problem!
+                    GetComponent<FirstPersonController>().SetCursorLock(false);
+                    
+                    // Return so we don't shoot gun
+                    return;
                 }
 
-                if (!IsFiring)
-                {
-                    IsFiring = true;
-                }
-            }
-            if (Input.GetButtonUp("Fire1"))
-            {
-                if (IsFiring)
-                {
-                    IsFiring = false;
-                }
+                // Call the [PunRPC] Shoot method over photon network
+                photonView.RPC("Shoot", RpcTarget.All);
+
             }
         }
-
+        
+        /// <summary>
+        /// Shoot was invoked over photon network via RPC
+        /// </summary>
+        /// <param name="info">Info about the RPC call such as who sent it, and when it was sent</param>
         [PunRPC]
         void Shoot(PhotonMessageInfo info)
         {
             Debug.LogFormat("PlayerManager: [PunRPC] Shoot() {0}, {1}, {2}.", info.Sender, info.photonView, info.SentServerTime);
+            // Tell the gun to shoot
             gun.Shoot();
         }
 

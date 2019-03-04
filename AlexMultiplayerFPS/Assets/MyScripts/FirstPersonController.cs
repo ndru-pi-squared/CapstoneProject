@@ -44,6 +44,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private bool m_Jumping;
         private AudioSource m_AudioSource;
 
+        // I had to create this public SetCursorLock method to allow PlayerManager to access the MouseLook.SetCursorLock method
+        // so it could "Remove cursor lock to enable the Leave Game UI button to be clicked"
+        // !! This might not have been the best way to handle this problem!
+        public void SetCursorLock(bool value)
+        {
+            m_MouseLook.SetCursorLock(value);
+        }
+
         // Use this for initialization
         private void Start()
         {
