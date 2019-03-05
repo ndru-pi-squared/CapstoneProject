@@ -4877,7 +4877,7 @@ MonoBehaviour:
   range: 500
   fireRate: 10
   impactForce: 30
-  gunshotSound: {fileID: 8300000, guid: ba931c756adb4d144a68cb6e4ae83218, type: 3}
+  gunshotSound: {fileID: 8300000, guid: 5287744a939d70c4496596b7337b6a58, type: 3}
   fpsCam: {fileID: 0}
   muzzleFlash: {fileID: 6781967261238215150}
   impactEffect: {fileID: 5362399515342332101, guid: 9ffdb672b56f647438a9a5c784b32062,
