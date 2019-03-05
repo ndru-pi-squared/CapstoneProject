@@ -166,23 +166,31 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with weapon with name \"{0}\"", other.GetComponentInParent<Gun>().name);
                 // Get a reference to the gun we just picked up
-                Gun pickedUpGun = other.GetComponentInParent<Gun>();
-                // Put this gun in the GameObject heirarchy where the old gun was (i.e., make it a sibling to the old gun)
-                pickedUpGun.transform.parent = gun.transform.parent;
-                // Copy the old gun's position and rotation
-                pickedUpGun.transform.position = gun.transform.position;
-                pickedUpGun.transform.rotation = gun.transform.rotation;
-                // Disable old gun and enable new gun
-                gun.transform.gameObject.SetActive(false);
-                pickedUpGun.transform.gameObject.SetActive(true);
-                // Set FPS Cam and Player who owns this gun
-                pickedUpGun.fpsCam = gun.fpsCam;
-                pickedUpGun.playerWhoOwnsThisGun = gun.playerWhoOwnsThisGun;
-                // Keep track of what gun we want to shoot with now
-                gun = pickedUpGun;
-                // Make sure we don't collide with this gun again (while we're holding it)
-                DisableActiveGunCollider();
+                PickUpGun(other.GetComponentInParent<Gun>());
             }
+        }
+
+        /// <summary>
+        /// Picks up gun.
+        /// </summary>
+        /// <param name="pickedUpGun">The picked up gun.</param>
+        void PickUpGun(Gun pickedUpGun)
+        {
+            // Put this gun in the GameObject heirarchy where the old gun was (i.e., make it a sibling to the old gun)
+            pickedUpGun.transform.parent = gun.transform.parent;
+            // Copy the old gun's position and rotation
+            pickedUpGun.transform.position = gun.transform.position;
+            pickedUpGun.transform.rotation = gun.transform.rotation;
+            // Disable old gun and enable new gun
+            gun.transform.gameObject.SetActive(false);
+            pickedUpGun.transform.gameObject.SetActive(true);
+            // Set FPS Cam and Player who owns this gun
+            pickedUpGun.fpsCam = gun.fpsCam;
+            pickedUpGun.playerWhoOwnsThisGun = gun.playerWhoOwnsThisGun;
+            // Keep track of what gun we want to shoot with now
+            gun = pickedUpGun;
+            // Make sure we don't collide with this gun again (while we're holding it)
+            DisableActiveGunCollider();
         }
        
         /// <summary>
