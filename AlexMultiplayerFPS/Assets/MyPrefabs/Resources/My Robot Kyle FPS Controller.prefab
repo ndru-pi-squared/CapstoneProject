@@ -1003,6 +1003,7 @@ GameObject:
   - component: {fileID: 1189}
   - component: {fileID: 1184}
   - component: {fileID: 1185}
+  - component: {fileID: 2107224391578843113}
   m_Layer: 0
   m_Name: My Robot Kyle FPS Controller
   m_TagString: Untagged
@@ -1294,7 +1295,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Health: 100
-  gun: {fileID: 1186}
+  gun: {fileID: 4893998802107188274}
   playerUiPrefab: {fileID: 8596841759220518085, guid: 92ef125f36ae2e743b0604aebd8382dd,
     type: 3}
   usingPlayerUIPrefab: 0
@@ -1396,6 +1397,20 @@ MonoBehaviour:
     LayerIndex: 0
   - SynchronizeType: 0
     LayerIndex: 1
+--- !u!136 &2107224391578843113
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.2
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1 &166
 GameObject:
   m_ObjectHideFlags: 0
@@ -2220,11 +2235,11 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 422}
+  - {fileID: 4893998802107187510}
   m_Father: {fileID: 418}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &6781967261238216081
+--- !u!1001 &2158520208810542337
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -2234,7 +2249,7 @@ PrefabInstance:
     - target: {fileID: 6781967261238215981, guid: db4932928b1f2e648a7cbb22e950e0cf,
         type: 3}
       propertyPath: m_Name
-      value: Gun
+      value: Gun 1
       objectReference: {fileID: 0}
     - target: {fileID: 6781967261238215735, guid: db4932928b1f2e648a7cbb22e950e0cf,
         type: 3}
@@ -2244,7 +2259,7 @@ PrefabInstance:
     - target: {fileID: 6781967261238215735, guid: db4932928b1f2e648a7cbb22e950e0cf,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.21599996
+      value: 0.216
       objectReference: {fileID: 0}
     - target: {fileID: 6781967261238215735, guid: db4932928b1f2e648a7cbb22e950e0cf,
         type: 3}
@@ -2303,17 +2318,17 @@ PrefabInstance:
       objectReference: {fileID: 1183}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
---- !u!4 &422 stripped
+--- !u!4 &4893998802107187510 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6781967261238215735, guid: db4932928b1f2e648a7cbb22e950e0cf,
     type: 3}
-  m_PrefabInstance: {fileID: 6781967261238216081}
+  m_PrefabInstance: {fileID: 2158520208810542337}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1186 stripped
+--- !u!114 &4893998802107188274 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6781967261238214963, guid: db4932928b1f2e648a7cbb22e950e0cf,
     type: 3}
-  m_PrefabInstance: {fileID: 6781967261238216081}
+  m_PrefabInstance: {fileID: 2158520208810542337}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1

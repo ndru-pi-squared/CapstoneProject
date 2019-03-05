@@ -143,17 +143,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void OnTriggerEnter(Collider other)
         {
-            if (!photonView.IsMine)
+            /*if (!photonView.IsMine)
             {
                 return;
-            }
-            // We are only interested in Beamers
-            // we should be using tags but for the sake of distribution, let's simply check by name.
-            if (!other.name.Contains("Beam"))
+            }*/
+            Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with object with name \"{0}\"", other.name);
+
+            if (other.CompareTag("Weapon"))
             {
-                return;
+                Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with weapon with name \"{0}\"", other.name);
+                other.gameObject.SetActive(false);
             }
-            Health -= 0.1f;
         }
        
         /// <summary>
@@ -163,7 +163,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="other">Other.</param>
         void OnTriggerStay(Collider other)
         {
-            // we dont' do anything if we are not the local player.
+            /*// we dont' do anything if we are not the local player.
             if (!photonView.IsMine)
             {
                 return;
@@ -176,6 +176,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
             // we slowly affect health when beam is constantly hitting us, so player has to move to prevent death.
             Health -= 0.1f * Time.deltaTime;
+            */
         }
 
         // This won't be called on my system because it's newer than 5.4
@@ -191,7 +192,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
          *   - This function is going to be called when the event UnityEngine.SceneManagement.SceneManager.sceneLoaded is triggered
          *     because we set it up to be called in the Start() function
          */
-            void CalledOnLevelWasLoaded(int level)
+        void CalledOnLevelWasLoaded(int level)
         {
             /** Note from tutorial:
              *   raycast downwards the current player's position to see 
@@ -260,6 +261,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             this.CalledOnLevelWasLoaded(scene.buildIndex);
         }
 #endif
+
+        
 
         void Die()
         {
