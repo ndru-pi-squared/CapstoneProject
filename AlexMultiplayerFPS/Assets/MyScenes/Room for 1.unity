@@ -358,8 +358,8 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
-  field of view: 60
+  far clip plane: 10000
+  field of view: 45
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -384,13 +384,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 167139364}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 11.113246, y: 5.3161106, z: -7.8612204}
+  m_LocalRotation: {x: 0.06718399, y: 0.9328096, z: -0.25214687, w: 0.24854493}
+  m_LocalPosition: {x: -307.04492, y: 741.90027, z: 1271.5481}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 18.136002, y: 129.21501, z: -0.21100001}
 --- !u!45 &167139368
 Skybox:
   m_ObjectHideFlags: 0
@@ -2388,6 +2388,7 @@ GameObject:
   - component: {fileID: 2144925353}
   - component: {fileID: 2144925352}
   - component: {fileID: 2144925351}
+  - component: {fileID: 2144925354}
   m_Layer: 0
   m_Name: Team Dividing Wall
   m_TagString: Untagged
@@ -2467,6 +2468,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2144925349}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &2144925354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2144925349}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 977421e7aac7e4c4282969dc45da7c90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &7131260167666317221
 PrefabInstance:
   m_ObjectHideFlags: 0
