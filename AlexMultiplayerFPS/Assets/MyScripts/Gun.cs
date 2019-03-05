@@ -18,14 +18,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public ParticleSystem muzzleFlash;
         public GameObject impactEffect;
 
-        private AudioSource audioSource;
-        private float nextTimeToFire = 0f; // Used to make sure we don't fire faster than fireRate allows
-
         // Setting this reference in unity allows this class to know what player owns this gun
         // so we don't try to fire the wrong players' guns (or every players' guns) 
         // There could be a better way of figuring this out... this works for now though
-        [SerializeField]
-        private MonoBehaviourPun playerWhoOwnsThisGun;
+        public MonoBehaviourPun playerWhoOwnsThisGun;
+
+        private AudioSource audioSource;
+        private float nextTimeToFire = 0f; // Used to make sure we don't fire faster than fireRate allows
+
 
         [SerializeField]
         private bool gunShootsItselfImplementation = false;

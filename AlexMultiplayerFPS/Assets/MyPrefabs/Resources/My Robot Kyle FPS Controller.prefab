@@ -2316,6 +2316,11 @@ PrefabInstance:
       propertyPath: playerWhoOwnsThisGun
       value: 
       objectReference: {fileID: 1183}
+    - target: {fileID: 9010379389774575174, guid: db4932928b1f2e648a7cbb22e950e0cf,
+        type: 3}
+      propertyPath: m_UseGravity
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
 --- !u!4 &4893998802107187510 stripped

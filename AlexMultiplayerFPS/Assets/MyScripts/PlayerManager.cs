@@ -29,7 +29,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [Tooltip("Gun owned by player")]
         [SerializeField]
         private Gun gun;
-        
+       
         [Tooltip("The Player's UI GameObject Prefab")]
         [SerializeField]
         private GameObject playerUiPrefab;
@@ -67,7 +67,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void Start()
         {
-           /** Notes from tutorial:
+            DisableActiveGunCollider();
+
+            /** Notes from tutorial:
              *   All of this is standard Unity coding. However notice that we are sending a message to the instance we've just created. We 
              *   require a receiver, which means we will be alerted if the SetTarget did not find a component to respond to it. Another 
              *   way would have been to get the PlayerUI component from the instance, and then call SetTarget directly. It's generally 
@@ -108,6 +110,15 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         }
 
+        /// <summary>
+        /// Disables the active gun collider.
+        /// This is important to do whenever we have a new active gun so we don't collide with it.
+        /// </summary>
+        void DisableActiveGunCollider()
+        {
+            gun.GetComponentInChildren<BoxCollider>().enabled = false;
+        }
+
         /** My Note:
          *   Added this function because it's in the demo package script
          */
@@ -143,16 +154,34 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void OnTriggerEnter(Collider other)
         {
-            /*if (!photonView.IsMine)
+            if (!photonView.IsMine)
             {
                 return;
-            }*/
+            }
             Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with object with name \"{0}\"", other.name);
+
+            //other.gameObject.SetActive(false);
 
             if (other.CompareTag("Weapon"))
             {
-                Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with weapon with name \"{0}\"", other.name);
-                other.gameObject.SetActive(false);
+                Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with weapon with name \"{0}\"", other.GetComponentInParent<Gun>().name);
+                // Get a reference to the gun we just picked up
+                Gun pickedUpGun = other.GetComponentInParent<Gun>();
+                // Put this gun in the GameObject heirarchy where the old gun was (i.e., make it a sibling to the old gun)
+                pickedUpGun.transform.parent = gun.transform.parent;
+                // Copy the old gun's position and rotation
+                pickedUpGun.transform.position = gun.transform.position;
+                pickedUpGun.transform.rotation = gun.transform.rotation;
+                // Disable old gun and enable new gun
+                gun.transform.gameObject.SetActive(false);
+                pickedUpGun.transform.gameObject.SetActive(true);
+                // Set FPS Cam and Player who owns this gun
+                pickedUpGun.fpsCam = gun.fpsCam;
+                pickedUpGun.playerWhoOwnsThisGun = gun.playerWhoOwnsThisGun;
+                // Keep track of what gun we want to shoot with now
+                gun = pickedUpGun;
+                // Make sure we don't collide with this gun again (while we're holding it)
+                DisableActiveGunCollider();
             }
         }
        
