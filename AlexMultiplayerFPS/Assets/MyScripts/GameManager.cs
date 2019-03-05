@@ -24,6 +24,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [Tooltip("The prefab to use for representing the local player")]
         public GameObject PlayerPrefab; // used to instantiate the player pref on PhotonNetwork
 
+        [Tooltip("The prefab to use for representing the weapons")]
+        public GameObject[] weapons; // used to instantiate the weapons on PhotonNetwork
 
         #endregion
 
@@ -31,8 +33,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #region Private Fields 
 
         [SerializeField]
-        private Transform[] spawnPoints; // list of locations where a player can be spawned
-        
+        private Transform[] playerSpawnPoints; // list of locations where a player can be spawned
+
+        [SerializeField]
+        private Transform[] weaponSpawnPoints; // list of locations where a weapon can be spawned
 
         #endregion
 
@@ -86,8 +90,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     // we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
                     // old spawn point: new Vector3(0f, 5f, 0f)
                     // old rotation: Quaternion.identity
-                    Transform spawnPoint = spawnPoints[new System.Random().Next(spawnPoints.Length)];
-                    GameObject myPlayerGO = PhotonNetwork.Instantiate(this.PlayerPrefab.name, spawnPoint.position, spawnPoint.rotation, 0);
+                    Transform playerSpawnPoint = playerSpawnPoints[new System.Random().Next(playerSpawnPoints.Length)];
+                    GameObject myPlayerGO = PhotonNetwork.Instantiate(this.PlayerPrefab.name, playerSpawnPoint.position, playerSpawnPoint.rotation, 0);
                     
                     // We need to enable all the controlling components for the local player so we're not controlling other players
                     myPlayerGO.GetComponent<Animator>().enabled = true;
@@ -101,8 +105,15 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     myPlayerGO.GetComponentInChildren<AudioListener>().enabled = true;
                     myPlayerGO.GetComponentInChildren<FlareLayer>().enabled = true;
                     // Disable scene camera
-                   Camera.main.enabled = false;
-                   
+                    Camera.main.enabled = false;
+
+                    // Instantiate our two weapons at different spawn points for team A
+                    PhotonNetwork.Instantiate(this.weapons[0].name, weaponSpawnPoints[0].position, weaponSpawnPoints[0].rotation, 0);
+                    PhotonNetwork.Instantiate(this.weapons[1].name, weaponSpawnPoints[1].position, weaponSpawnPoints[1].rotation, 0);
+                    // Instantiate our two weapons at different spawn points for team B
+                    PhotonNetwork.Instantiate(this.weapons[0].name, weaponSpawnPoints[2].position, weaponSpawnPoints[2].rotation, 0);
+                    PhotonNetwork.Instantiate(this.weapons[1].name, weaponSpawnPoints[3].position, weaponSpawnPoints[3].rotation, 0);
+
                 }
                 else
                 {
