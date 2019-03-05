@@ -1295,7 +1295,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Health: 100
-  gun: {fileID: 4893998802107188274}
+  activeGun: {fileID: 4893998802107188274}
   playerUiPrefab: {fileID: 8596841759220518085, guid: 92ef125f36ae2e743b0604aebd8382dd,
     type: 3}
   usingPlayerUIPrefab: 0
@@ -2251,6 +2251,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: Gun 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6781967261238214963, guid: db4932928b1f2e648a7cbb22e950e0cf,
+        type: 3}
+      propertyPath: fpsCam
+      value: 
+      objectReference: {fileID: 683}
+    - target: {fileID: 6781967261238214963, guid: db4932928b1f2e648a7cbb22e950e0cf,
+        type: 3}
+      propertyPath: playerWhoOwnsThisGun
+      value: 
+      objectReference: {fileID: 1183}
     - target: {fileID: 6781967261238215735, guid: db4932928b1f2e648a7cbb22e950e0cf,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2306,16 +2316,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6781967261238214963, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: fpsCam
-      value: 
-      objectReference: {fileID: 683}
-    - target: {fileID: 6781967261238214963, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: playerWhoOwnsThisGun
-      value: 
-      objectReference: {fileID: 1183}
     - target: {fileID: 9010379389774575174, guid: db4932928b1f2e648a7cbb22e950e0cf,
         type: 3}
       propertyPath: m_UseGravity

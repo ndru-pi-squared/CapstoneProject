@@ -28,7 +28,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         [Tooltip("Gun owned by player")]
         [SerializeField]
-        private Gun gun;
+        private Gun activeGun;
        
         [Tooltip("The Player's UI GameObject Prefab")]
         [SerializeField]
@@ -116,7 +116,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void DisableActiveGunCollider()
         {
-            gun.GetComponentInChildren<BoxCollider>().enabled = false;
+            activeGun.GetComponentInChildren<BoxCollider>().enabled = false;
         }
 
         /** My Note:
@@ -165,34 +165,55 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (other.CompareTag("Weapon"))
             {
                 Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with weapon with name \"{0}\"", other.GetComponentInParent<Gun>().name);
-                // Get a reference to the gun we just picked up
-                PickUpGun(other.GetComponentInParent<Gun>());
+                
+                // Pick up gun
+                ReplaceCurrentGunWithPickedUpGun(other.GetComponentInParent<Gun>());
             }
         }
 
         /// <summary>
         /// Picks up gun.
+        /// Requires player to have a gun already to know how to position the new gun.
+        /// *This is not the best implementation!!
         /// </summary>
         /// <param name="pickedUpGun">The picked up gun.</param>
-        void PickUpGun(Gun pickedUpGun)
+        void ReplaceCurrentGunWithPickedUpGun(Gun pickedUpGun)
         {
-            // Put this gun in the GameObject heirarchy where the old gun was (i.e., make it a sibling to the old gun)
-            pickedUpGun.transform.parent = gun.transform.parent;
+            // Put this gun in the GameObject hierarchy where the old gun was (i.e., make it a sibling to the old gun)
+            pickedUpGun.transform.parent = activeGun.transform.parent;
             // Copy the old gun's position and rotation
-            pickedUpGun.transform.position = gun.transform.position;
-            pickedUpGun.transform.rotation = gun.transform.rotation;
+            pickedUpGun.transform.position = activeGun.transform.position;
+            pickedUpGun.transform.rotation = activeGun.transform.rotation;
             // Disable old gun and enable new gun
-            gun.transform.gameObject.SetActive(false);
+            // (Disabling the old gun is necessary if we change the code to all the player to pick up multiple guns)
+            activeGun.transform.gameObject.SetActive(false);
             pickedUpGun.transform.gameObject.SetActive(true);
             // Set FPS Cam and Player who owns this gun
-            pickedUpGun.fpsCam = gun.fpsCam;
-            pickedUpGun.playerWhoOwnsThisGun = gun.playerWhoOwnsThisGun;
+            pickedUpGun.fpsCam = activeGun.fpsCam;
+            pickedUpGun.playerWhoOwnsThisGun = activeGun.playerWhoOwnsThisGun;
+            // Keep a reference to what gun was active before replacement so we can return it as our "old gun"
+            Gun oldGun = activeGun;
             // Keep track of what gun we want to shoot with now
-            gun = pickedUpGun;
+            activeGun = pickedUpGun;
             // Make sure we don't collide with this gun again (while we're holding it)
             DisableActiveGunCollider();
+            // Return what gun we had before replacement
+            DropGun(oldGun);
         }
-       
+
+        void DropGun(Gun gun)
+        {
+            // Make this gun a sibling of the player in the GameObject hierarchy
+            gun.transform.parent = gun.transform.parent.parent.parent.parent;
+            // Toss gun away from player so we don't immediately collide with it again
+            // (For now, just move it forward a bit)
+            int howFarToToss = 3;
+            gun.transform.position = gun.transform.position + gun.transform.forward*howFarToToss;
+            // Re-enable the gun and its gun's collider so it can be picked up again
+            gun.transform.gameObject.SetActive(true);
+            gun.GetComponentInChildren<BoxCollider>().enabled = true;
+        }
+
         /// <summary>
         /// MonoBehaviour method called once per frame for every Collider 'other' that is touching the trigger.
         /// We're going to affect health while the beams are touching the player
@@ -343,7 +364,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 //Debug.Log("PlayerManager: ProcessInputs() Input.GetButton(\"Fire1\")");
 
                 // Check if gun is ready to shoot before sending the RPC to avoid overloading network
-                if (gun.IsReadyToShoot)
+                if (activeGun.IsReadyToShoot)
                 {
                     //Debug.LogFormat("PlayerManager: ProcessInputs() gun.IsReadyToShoot = {0}", gun.IsReadyToShoot);
                 
@@ -363,7 +384,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             //Debug.LogFormat("PlayerManager: [PunRPC] Shoot() {0}, {1}, {2}.", info.Sender, info.photonView, info.SentServerTime);
             
             // Tell the gun to shoot
-            gun.Shoot();
+            activeGun.Shoot();
         }
 
         #endregion
