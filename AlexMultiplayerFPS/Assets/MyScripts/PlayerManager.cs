@@ -34,6 +34,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField]
         private GameObject playerUiPrefab;
 
+        [Tooltip("How far to toss weapon in front of player when dropping weapon")]
+        [SerializeField]
+        int howFarToTossWeapon = 10;
+
         [Tooltip("The Player's UI GameObject Prefab")]
         [SerializeField]
         private bool usingPlayerUIPrefab = false;
@@ -60,6 +64,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // #Critical
             // we flag as don't destroy on load so that instance survives level synchronization, thus giving a seamless experience when levels load.
             DontDestroyOnLoad(this.gameObject);
+
+            DisableActiveGunCollider();
         }
 
         /// <summary>
@@ -67,7 +73,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void Start()
         {
-            DisableActiveGunCollider();
 
             /** Notes from tutorial:
              *   All of this is standard Unity coding. However notice that we are sending a message to the instance we've just created. We 
@@ -191,27 +196,41 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Set FPS Cam and Player who owns this gun
             pickedUpGun.fpsCam = activeGun.fpsCam;
             pickedUpGun.playerWhoOwnsThisGun = activeGun.playerWhoOwnsThisGun;
+            
+            // Make sure the gun is not moved by physics engine
+            // (Because gun is currently floating in our program it would otherwise just fall)
+            //pickedUpGun.GetComponentInChildren<Rigidbody>().isKinematic = true;
+            
             // Keep a reference to what gun was active before replacement so we can return it as our "old gun"
             Gun oldGun = activeGun;
             // Keep track of what gun we want to shoot with now
             activeGun = pickedUpGun;
             // Make sure we don't collide with this gun again (while we're holding it)
             DisableActiveGunCollider();
-            // Return what gun we had before replacement
+            // Drop the gun we had before replacement
             DropGun(oldGun);
         }
 
+        /// <summary>
+        /// Drops the gun.
+        /// </summary>
+        /// <param name="gun">The gun. Must be gun that is currently being held by a player.</param>
         void DropGun(Gun gun)
         {
             // Make this gun a sibling of the player in the GameObject hierarchy
-            gun.transform.parent = gun.transform.parent.parent.parent.parent;
+            Transform rootParent = gun.transform.parent.parent.parent.parent;
+            gun.transform.parent = rootParent;
             // Toss gun away from player so we don't immediately collide with it again
             // (For now, just move it forward a bit)
-            int howFarToToss = 3;
-            gun.transform.position = gun.transform.position + gun.transform.forward*howFarToToss;
+            gun.transform.position = gun.transform.position + LocalPlayerInstance.transform.forward * howFarToTossWeapon;
+            gun.transform.rotation = LocalPlayerInstance.transform.rotation;
             // Re-enable the gun and its gun's collider so it can be picked up again
             gun.transform.gameObject.SetActive(true);
             gun.GetComponentInChildren<BoxCollider>().enabled = true;
+            
+            // Re-enable the gun's ability to be moved by physics engine
+            // (Because we disable it when we pick it up)
+            //gun.GetComponentInChildren<Rigidbody>().isKinematic = false;
         }
 
         /// <summary>
