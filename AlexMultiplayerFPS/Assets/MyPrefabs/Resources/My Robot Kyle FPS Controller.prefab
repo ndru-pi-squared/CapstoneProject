@@ -1188,7 +1188,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bde3560059967f647ade22cc0276fb67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_IsWalking: 1
+  m_IsWalking: 0
   m_WalkSpeed: 10
   m_RunSpeed: 20
   m_RunstepLenghten: 0.2
@@ -1298,6 +1298,7 @@ MonoBehaviour:
   activeGun: {fileID: 4893998802107188274}
   playerUiPrefab: {fileID: 8596841759220518085, guid: 92ef125f36ae2e743b0604aebd8382dd,
     type: 3}
+  howFarToTossWeapon: 10
   usingPlayerUIPrefab: 0
 --- !u!114 &1182
 MonoBehaviour:
