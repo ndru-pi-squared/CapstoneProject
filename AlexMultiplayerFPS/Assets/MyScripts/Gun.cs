@@ -135,5 +135,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // I read somewhere online that this allows the sounds to overlap
             audioSource.PlayOneShot(gunshotSound);
         }
+
     }
 }
