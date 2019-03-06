@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
-
+using UnityEngine.UI;
+using System.Collections.Generic;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 { 
@@ -21,7 +22,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField]
         private GameObject progressLabel;
 
-
+        [SerializeField]
+        private ScrollRect existingRoomList;
+        
         #endregion
 
 
@@ -52,7 +55,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         string gameVersion = "1";
 
-
+        List<RoomInfo> _roomList;
 
         #endregion
 
@@ -76,6 +79,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             progressLabel.SetActive(false);
             controlPanel.SetActive(true);
+            
         }
 
 
@@ -83,6 +87,23 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
 
         #region Public Methods
+
+        /// <summary>
+        /// Lists the existing rooms.
+        /// </summary>
+        public void ListExistingRooms()
+        {
+            Debug.Log("Launcher: ListExistingRooms()");
+            
+            // Join the Default TypedLobby
+            PhotonNetwork.JoinLobby(TypedLobby.Default);
+
+            // Get the contents of the existing rooms list
+            RectTransform scrollableContent = existingRoomList.content;
+            VerticalLayoutGroup verticalLayoutGroup = scrollableContent.GetComponent<VerticalLayoutGroup>();
+            
+            
+        }
 
 
         /// <summary>
@@ -127,6 +148,22 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region MonoBehaviourPunCallbacks Callbacks
 
+        public override void OnJoinedLobby()
+        {
+            Debug.Log("Launcher: OnJoinedLobby()");
+            progressLabel.GetComponent<Text>().text = "Joined Lobby!";
+            progressLabel.SetActive(true);
+        }
+        
+        public override void OnRoomListUpdate(List<RoomInfo> roomList)
+        {
+            Debug.Log("Launcher: OnRoomListUpdate()");
+            _roomList = roomList;
+            foreach (RoomInfo game in _roomList)
+            {
+                Debug.LogFormat("Launcher: ListExisitingRooms() game.Name = {0}, game.PlayerCount = {1}, game.MaxPlayers{2}", game.Name, game.PlayerCount, game.MaxPlayers);
+            }
+        }
 
         public override void OnConnectedToMaster()
         {
