@@ -218,8 +218,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         void DropGun(Gun gun)
         {
             // Make this gun a sibling of the player in the GameObject hierarchy
-            Transform rootParent = gun.transform.parent.parent.parent.parent;
-            gun.transform.parent = rootParent;
+            gun.transform.parent = LocalPlayerInstance.transform.parent;
             // Toss gun away from player so we don't immediately collide with it again
             // (For now, just move it forward a bit)
             gun.transform.position = gun.transform.position + LocalPlayerInstance.transform.forward * howFarToTossWeapon;
