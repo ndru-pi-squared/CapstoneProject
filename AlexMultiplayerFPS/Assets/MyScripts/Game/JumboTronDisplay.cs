@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
@@ -18,7 +19,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // 1) We expect the jumbotron to be a child of Environment gameobject.
             // 2) We expect the team dividing wall to be a component in a child of Environment gameobject as well.
             WallDropTimer wallDropTimer = transform.root.GetComponentInChildren<WallDropTimer>();
-         
+
+            /*WallDropTimer wallDropTimer = null;
+            // Find Original Dividing Wall GO transform
+            foreach (GameObject rootGO in SceneManager.GetActiveScene().GetRootGameObjects())
+            {
+                if (rootGO.name.Contains("Original Dividing Wall"))
+                {
+                    wallDropTimer = rootGO.transform.GetComponent<WallDropTimer>();
+                    break;
+                }
+            }*/
+            
             // If wall has not dropped... 
             if (!wallDropTimer.WallDropped)
             {
@@ -34,6 +46,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Display "Fight!" instruction
                 infoTextMeshPro.text = "Fight!";
             }
+        }
+
+        Transform findEnvironmentGOTransform()
+        {
+            return null;
         }
     }
 }

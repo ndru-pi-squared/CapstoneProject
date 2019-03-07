@@ -32,7 +32,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public GameObject environment;
 
-        public GameObject dividingWallGO;
         #endregion
 
 
@@ -133,13 +132,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         // Instantiate the dividing wall
                         Vector3 wallPosition = new Vector3(258.3562f, 26.397f, 279.6928f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
                         Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, -45f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
-                        dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
-                        
-                        // Put the dividing wall gameobject in the correct place in the transform hierarchy 
-                        // #Important: Without it, JumboTronDisplay cannot find the wall to get its wallDropTimer component!
-                        dividingWallGO.transform.SetParent(environment.transform.Find("Scene Props").transform);
+                        GameObject dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
                     }
-
                 }
                 else
                 {
