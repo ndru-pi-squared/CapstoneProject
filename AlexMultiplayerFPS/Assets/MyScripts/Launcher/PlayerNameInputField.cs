@@ -13,7 +13,7 @@ using System.Collections;
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
     /// <summary>
-    ///  Player name input field. Let the user input his name, will appear above the player in the game.
+    ///  Player name input field. Let the user input his name
     /// </summary>
     [RequireComponent(typeof(InputField))]
     public class PlayerNameInputField : MonoBehaviour
