@@ -640,7 +640,7 @@ GameObject:
   - component: {fileID: 485483179}
   - component: {fileID: 485483178}
   m_Layer: 5
-  m_Name: Create Room Button
+  m_Name: Join or Create Room Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -707,7 +707,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1867529053}
-        m_MethodName: 
+        m_MethodName: JoinOrCreateRoom
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1529,7 +1529,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1254424216}
   m_Layer: 5
-  m_Name: Name InputField Panel
+  m_Name: Player Name InputField Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2035,7 +2035,7 @@ GameObject:
   - component: {fileID: 1521103971}
   - component: {fileID: 1521103970}
   m_Layer: 5
-  m_Name: Name InputField
+  m_Name: Player Name InputField
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2664,7 +2664,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1641285241}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e2619c21e05d49444988c5490a72a964, type: 3}
+  m_Script: {fileID: 11500000, guid: 79cc6645c149910458936d50c87fa676, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &1641285244
@@ -2723,7 +2723,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1641285243}
-        m_MethodName: SetPlayerName
+        m_MethodName: SetRoomName
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2849,7 +2849,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Create Room
+  m_Text: Join or Create Room
 --- !u!222 &1675948619
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2947,7 +2947,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1751742139}
   m_Layer: 5
-  m_Name: Create Room Panel
+  m_Name: Join or Create Room Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3006,10 +3006,10 @@ RectTransform:
   m_Father: {fileID: 1578858415}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 150, y: 100}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1785783102
 MonoBehaviour:
@@ -3044,7 +3044,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Connecting...
+  m_Text: Waiting for user to do something...
 --- !u!222 &1785783103
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3256,7 +3256,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1867529053}
-        m_MethodName: Connect
+        m_MethodName: JoinRandomRoom
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3336,6 +3336,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   controlPanel: {fileID: 2023223622}
   progressLabel: {fileID: 1785783100}
+  roomNameInputField: {fileID: 1641285244}
   existingRoomList: {fileID: 153116970}
   maxPlayersPerRoom: 4
 --- !u!4 &1867529054
