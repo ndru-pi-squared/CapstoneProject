@@ -7,19 +7,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
     public class JumboTronDisplay : MonoBehaviour
     {
-        [SerializeField] WallDropTimer wallDropTimer;
         [SerializeField] TextMeshPro stageTextMeshPro;
         [SerializeField] TextMeshPro infoTextMeshPro;
-
-        // Start is called before the first frame update
-        void Start()
-        {
-
-        }
-
+        
         // Update is called once per frame
         void Update()
         {
+            // Find the wallDropTimer on the wall. 
+            // transform.root will be the transform of the Environment gameobject because:
+            // 1) We expect the jumbotron to be a child of Environment gameobject.
+            // 2) We expect the team dividing wall to be a component in a child of Environment gameobject as well.
+            WallDropTimer wallDropTimer = transform.root.GetComponentInChildren<WallDropTimer>();
+         
             // If wall has not dropped... 
             if (!wallDropTimer.WallDropped)
             {

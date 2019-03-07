@@ -24,9 +24,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         // Update is called once per frame
         void Update()
         {
+            // If player is not mine...
             if (!photonView.IsMine)
             {
                 //transform.position = Vector3.Lerp(transform.position, position, Time.deltaTime * smoothing);
+
+                // Rotate the opponent's cameras in my local game (not on the network) based on rotation info gathered from network
                 playerCamera.transform.rotation = Quaternion.Lerp(playerCamera.transform.rotation, rotation, Time.deltaTime * smoothing);
             }
         }
