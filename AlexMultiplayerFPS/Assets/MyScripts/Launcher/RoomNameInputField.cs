@@ -42,7 +42,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 }
             }
 
-            PhotonNetwork.NickName = defaultName;
+            //PhotonNetwork.NickName = defaultName;
         }
 
 
