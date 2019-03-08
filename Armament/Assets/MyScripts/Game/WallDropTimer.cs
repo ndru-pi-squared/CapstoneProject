@@ -10,45 +10,60 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
     {
         [Tooltip("Time to drop wall (seconds)")]
         [SerializeField] private int time = 60;
-
-        private double startTime; // game time that the wall timer began
+        
         private double wallDropTime; // game time that the wall should be dropped
         private double timeLeft; // time left in timer (used to determine when the wall should come down)
-        private bool timeIsUp = false;
+        private bool timeIsUp = false; // will be set to true if timeLeft <= 0
+
+        private bool DEBUG = true; // indicates whether we are debugging the timer (Debug console output will show if true)
+        private int lastDebugTimeLeftOutput = int.MaxValue; // used for limiting the output of TimeLeft during debugging
+        
 
         #region Properties
 
-        public int TimeLeft { get; private set; } // Time left in seconds (used to display to players)
+        public int TimeLeft { get; private set; } // Time left in seconds (used to display to players on jumbotron)
         public bool TimeIsUp { get; private set; } = false; // Used to keep track of whether the timeLeft <= 0 (i.e., time is up)
 
         #endregion Properties
+
+        #region Public Methods
 
         public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
         {
             // Sync the wall position over the network
             if (stream.IsWriting)
             {
-                // Share timeLeft with other clients (Only the master client will be executing this)
+                // Share timeLeft and timeIsUp with other clients (Only the master client will be executing this)
                 stream.SendNext(timeLeft);
                 stream.SendNext(timeIsUp);
-                Debug.LogFormat("WallDropTimer: OnPhotonSerializeView() SENDING timeLeft = {0}, timeIsUp = {1}", timeLeft, timeIsUp);
+                // If we're debugging the timer...
+                if (DEBUG)
+                {
+                    Debug.LogFormat("WallDropTimer: OnPhotonSerializeView() SENDING timeLeft = {0}, timeIsUp = {1}", timeLeft, timeIsUp);
+                }
             }
             else
             {
-                // Get timeLeft from master client (All clients except for the master client will be executing this)
+                // Get timeLeft and timeIsUp from master client (All clients except for the master client will be executing this)
                 timeLeft = (double)stream.ReceiveNext();
                 timeIsUp = (bool)stream.ReceiveNext();
-                Debug.LogFormat("WallDropTimer: OnPhotonSerializeView() RECIEVING timeLeft = {0}, timeIsUp = {1}", timeLeft, timeIsUp);
+                // If we're debugging the timer...
+                if (DEBUG)
+                {
+                    Debug.LogFormat("WallDropTimer: OnPhotonSerializeView() RECIEVING timeLeft = {0}, timeIsUp = {1}", timeLeft, timeIsUp);
+                }
             }
         }
+
+        #endregion Public Methods
+
+        #region MonoBehaviour CallBacks
 
         // Start is called before the first frame update
         void Start()
         {
-            // Set the starting time
-            startTime = PhotonNetwork.Time;
             // Figure out the wall drop time
-            wallDropTime = startTime + time;
+            wallDropTime = PhotonNetwork.Time + time;
             // Initialize timeLeftDisplayed to be more than time
             timeLeft = TimeLeft = time + 1;
         }
@@ -63,42 +78,25 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Update the time left in timer
                 // timeLeft will be shared with all other clients
                 timeLeft = wallDropTime - PhotonNetwork.Time;
-                
-                // Set the 
-                //TimeLeft = (int)timeLeft;
-
-                // If the time is up...
                 if (timeLeft <= 0)
                 {
-                    if (!TimeIsUp)
-                    {
-                        timeIsUp = true;
-                        //photonView.RPC("DropWall", RpcTarget.All);
-                    }
-                }
-                else
-                {
-                    //photonView.RPC("SetTimer", RpcTarget.All, Convert.ToInt32(timeLeft));
+                    timeIsUp = true;
                 }
             }
 
+            // Update public properties for Jumbotron to use (All clients will do this)
             TimeLeft = Convert.ToInt32(timeLeft);
             TimeIsUp = timeIsUp;
-            Debug.LogFormat("WallDropTimer: Update() TimeLeft = {0}", TimeLeft);
-        }     
 
-        [PunRPC]
-        void SetTimer(int t)
-        {
-            TimeLeft = t;
-            Debug.LogFormat("WallDropTimer: SetTimer() TimeLeft = {0}", TimeLeft);
+            // If we're debugging the timer AND
+            // If it has been atleast 1 second since our last debug output...
+            if (DEBUG && TimeLeft <= lastDebugTimeLeftOutput - 1)
+            {
+                lastDebugTimeLeftOutput = TimeLeft;
+                Debug.LogFormat("WallDropTimer: Update() TimeLeft = {0}", TimeLeft);
+            }
         }
 
-        [PunRPC]
-        void DropWall()
-        {
-            TimeIsUp = true;
-            Debug.LogFormat("WallDropTimer: DropWall()");
-        }
+        #endregion MonoBehaviour CallBacks
     }
 }
