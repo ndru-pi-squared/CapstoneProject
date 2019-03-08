@@ -7,18 +7,15 @@ using Photon.Pun;
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
     /// <summary>
-    /// Player manager.
-    /// Handles fire Input and Beams.
+    /// Manages Player information
     /// </summary>
     public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable, ITarget
     {
-
-        // Note: I changed this from "Private Fields" to "Public Fields" because it didn't make any sense to me
+        
         #region Public Fields
 
         [Tooltip("The current Health of our player")]
         public float Health = 100f;
-
         [Tooltip("The local player instance. Use this to know if the local player is represented in the Scene")]
         public static GameObject LocalPlayerInstance;
 
@@ -26,30 +23,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region Private Fields
 
+        private const bool DEBUG = true;
+
         [Tooltip("Gun owned by player")]
-        [SerializeField]
-        private Gun activeGun;
-       
+        [SerializeField] private Gun activeGun;
         [Tooltip("The Player's UI GameObject Prefab")]
-        [SerializeField]
-        private GameObject playerUiPrefab;
-
+        [SerializeField] private GameObject playerUiPrefab;
         [Tooltip("How far to toss weapon in front of player when dropping weapon")]
-        [SerializeField]
-        int howFarToTossWeapon = 10;
-
+        [SerializeField] int howFarToTossWeapon = 10;
         [Tooltip("The Player's UI GameObject Prefab")]
-        [SerializeField]
-        private bool usingPlayerUIPrefab = false;
-
-        //True, when the user is firing
-        bool IsFiring;
+        [SerializeField] private bool usingPlayerUIPrefab = false;
 
         #endregion
 
         #region MonoBehaviour CallBacks
-
-
+        
         /// <summary>
         /// MonoBehaviour method called on GameObject by Unity during early initialization phase.
         /// </summary>
@@ -65,6 +53,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // we flag as don't destroy on load so that instance survives level synchronization, thus giving a seamless experience when levels load.
             DontDestroyOnLoad(this.gameObject);
 
+            // Make sure our player doesn't collide with the gun it is holding
             DisableActiveGunCollider();
         }
 
@@ -115,15 +104,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         }
 
-        /// <summary>
-        /// Disables the active gun collider.
-        /// This is important to do whenever we have a new active gun so we don't collide with it.
-        /// </summary>
-        void DisableActiveGunCollider()
-        {
-            activeGun.GetComponentInChildren<BoxCollider>().enabled = false;
-        }
-
         /** My Note:
          *   Added this function because it's in the demo package script
          */
@@ -153,9 +133,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         /// <summary>
         /// MonoBehaviour method called when the Collider 'other' enters the trigger.
-        /// Affect Health of the Player if the collider is a beam
-        /// Note: when jumping and firing at the same, you'll find that the player's own beam intersects with itself
-        /// One could move the collider further away to prevent this or check if the beam belongs to the player.
         /// </summary>
         void OnTriggerEnter(Collider other)
         {
@@ -163,101 +140,28 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 return;
             }
-            Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with object with name \"{0}\"", other.name);
 
-            //other.gameObject.SetActive(false);
-
+            if (DEBUG)
+            {
+                Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with object with name \"{0}\"", other.name);
+            }
+            
             if (other.CompareTag("Weapon"))
             {
-                Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with weapon with name \"{0}\"", other.GetComponentInParent<Gun>().name);
+                if (DEBUG)
+                {
+                    Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with weapon with name \"{0}\"", other.GetComponentInParent<Gun>().name);
+                }
                 
                 // Pick up gun
                 ReplaceCurrentGunWithPickedUpGun(other.GetComponentInParent<Gun>());
             }
         }
 
-        /// <summary>
-        /// Picks up gun.
-        /// Requires player to have a gun already to know how to position the new gun.
-        /// *This is not the best implementation!!
-        /// </summary>
-        /// <param name="pickedUpGun">The picked up gun.</param>
-        void ReplaceCurrentGunWithPickedUpGun(Gun pickedUpGun)
-        {
-            // Put this gun in the GameObject hierarchy where the old gun was (i.e., make it a sibling to the old gun)
-            pickedUpGun.transform.parent = activeGun.transform.parent;
-            // Copy the old gun's position and rotation
-            pickedUpGun.transform.position = activeGun.transform.position;
-            pickedUpGun.transform.rotation = activeGun.transform.rotation;
-            // Disable old gun and enable new gun
-            // (Disabling the old gun is necessary if we change the code to all the player to pick up multiple guns)
-            activeGun.transform.gameObject.SetActive(false);
-            pickedUpGun.transform.gameObject.SetActive(true);
-            // Set FPS Cam and Player who owns this gun
-            pickedUpGun.fpsCam = activeGun.fpsCam;
-            pickedUpGun.playerWhoOwnsThisGun = activeGun.playerWhoOwnsThisGun;
-            
-            // Make sure the gun is not moved by physics engine
-            // (Because gun is currently floating in our program it would otherwise just fall)
-            //pickedUpGun.GetComponentInChildren<Rigidbody>().isKinematic = true;
-            
-            // Keep a reference to what gun was active before replacement so we can return it as our "old gun"
-            Gun oldGun = activeGun;
-            // Keep track of what gun we want to shoot with now
-            activeGun = pickedUpGun;
-            // Make sure we don't collide with this gun again (while we're holding it)
-            DisableActiveGunCollider();
-            // Drop the gun we had before replacement
-            DropGun(oldGun);
-        }
-
-        /// <summary>
-        /// Drops the gun.
-        /// </summary>
-        /// <param name="gun">The gun. Must be gun that is currently being held by a player.</param>
-        void DropGun(Gun gun)
-        {
-            // Make this gun a sibling of the player in the GameObject hierarchy
-            gun.transform.parent = LocalPlayerInstance.transform.parent;
-            // Toss gun away from player so we don't immediately collide with it again
-            // (For now, just move it forward a bit)
-            gun.transform.position = gun.transform.position + LocalPlayerInstance.transform.forward * howFarToTossWeapon;
-            gun.transform.rotation = LocalPlayerInstance.transform.rotation;
-            // Re-enable the gun and its gun's collider so it can be picked up again
-            gun.transform.gameObject.SetActive(true);
-            gun.GetComponentInChildren<BoxCollider>().enabled = true;
-            
-            // Re-enable the gun's ability to be moved by physics engine
-            // (Because we disable it when we pick it up)
-            //gun.GetComponentInChildren<Rigidbody>().isKinematic = false;
-        }
-
-        /// <summary>
-        /// MonoBehaviour method called once per frame for every Collider 'other' that is touching the trigger.
-        /// We're going to affect health while the beams are touching the player
-        /// </summary>
-        /// <param name="other">Other.</param>
-        void OnTriggerStay(Collider other)
-        {
-            /*// we dont' do anything if we are not the local player.
-            if (!photonView.IsMine)
-            {
-                return;
-            }
-            // We are only interested in Beamers
-            // we should be using tags but for the sake of distribution, let's simply check by name.
-            if (!other.name.Contains("Beam"))
-            {
-                return;
-            }
-            // we slowly affect health when beam is constantly hitting us, so player has to move to prevent death.
-            Health -= 0.1f * Time.deltaTime;
-            */
-        }
-
-        // This won't be called on my system because it's newer than 5.4
 #if !UNITY_5_4_OR_NEWER
-        /// <summary>See CalledOnLevelWasLoaded. Outdated in Unity 5.4.</summary>
+        /// <summary>
+        /// See CalledOnLevelWasLoaded. Outdated in Unity 5.4.
+        /// </summary>
         void OnLevelWasLoaded(int level)
         {
             this.CalledOnLevelWasLoaded(level);
@@ -327,7 +231,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
         }
 
-        #endregion
+        #endregion Public Methods
 
         #region Private Methods
 
@@ -338,8 +242,74 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 #endif
 
-        
+        /// <summary>
+        /// Picks up gun.
+        /// Requires player to have a gun already to know how to position the new gun.
+        /// *This is not the best implementation!!
+        /// </summary>
+        /// <param name="pickedUpGun">The picked up gun.</param>
+        void ReplaceCurrentGunWithPickedUpGun(Gun pickedUpGun)
+        {
+            // Put this gun in the GameObject hierarchy where the old gun was (i.e., make it a sibling to the old gun)
+            pickedUpGun.transform.parent = activeGun.transform.parent;
+            // Copy the old gun's position and rotation
+            pickedUpGun.transform.position = activeGun.transform.position;
+            pickedUpGun.transform.rotation = activeGun.transform.rotation;
+            // Disable old gun and enable new gun
+            // (Disabling the old gun is necessary if we change the code to all the player to pick up multiple guns)
+            activeGun.transform.gameObject.SetActive(false);
+            pickedUpGun.transform.gameObject.SetActive(true);
+            // Set FPS Cam and Player who owns this gun
+            pickedUpGun.fpsCam = activeGun.fpsCam;
+            pickedUpGun.playerWhoOwnsThisGun = activeGun.playerWhoOwnsThisGun;
 
+            // Make sure the gun is not moved by physics engine
+            // (Because gun is currently floating in our program it would otherwise just fall)
+            //pickedUpGun.GetComponentInChildren<Rigidbody>().isKinematic = true;
+
+            // Keep a reference to what gun was active before replacement so we can return it as our "old gun"
+            Gun oldGun = activeGun;
+            // Keep track of what gun we want to shoot with now
+            activeGun = pickedUpGun;
+            // Make sure we don't collide with this gun again (while we're holding it)
+            DisableActiveGunCollider();
+            // Drop the gun we had before replacement
+            DropGun(oldGun);
+        }
+
+        /// <summary>
+        /// Drops the gun.
+        /// </summary>
+        /// <param name="gun">The gun. Must be gun that is currently being held by a player.</param>
+        void DropGun(Gun gun)
+        {
+            // Make this gun a sibling of the player in the GameObject hierarchy
+            gun.transform.parent = LocalPlayerInstance.transform.parent;
+            // Toss gun away from player so we don't immediately collide with it again
+            // (For now, just move it forward a bit)
+            gun.transform.position = gun.transform.position + LocalPlayerInstance.transform.forward * howFarToTossWeapon;
+            gun.transform.rotation = LocalPlayerInstance.transform.rotation;
+            // Re-enable the gun and its gun's collider so it can be picked up again
+            gun.transform.gameObject.SetActive(true);
+            gun.GetComponentInChildren<BoxCollider>().enabled = true;
+
+            // Re-enable the gun's ability to be moved by physics engine
+            // (Because we disable it when we pick it up)
+            //gun.GetComponentInChildren<Rigidbody>().isKinematic = false;
+        }
+
+        /// <summary>
+        /// Disables the active gun collider.
+        /// This is important to do whenever we have a new active gun so we don't collide with it.
+        /// </summary>
+        void DisableActiveGunCollider()
+        {
+            activeGun.GetComponentInChildren<BoxCollider>().enabled = false;
+        }
+
+        /// <summary>
+        /// Handles what happens to a player when it dies
+        /// </summary>
         void Die()
         {
             GameManager.Instance.LeaveRoom();
@@ -392,6 +362,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
         }
         
+        #endregion Private Methods
+
+        #region RPC Methods
+
         /// <summary>
         /// Shoot was invoked over photon network via RPC
         /// </summary>
@@ -400,31 +374,35 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         void Shoot(PhotonMessageInfo info)
         {
             //Debug.LogFormat("PlayerManager: [PunRPC] Shoot() {0}, {1}, {2}.", info.Sender, info.photonView, info.SentServerTime);
-            
+
             // Tell the gun to shoot
             activeGun.Shoot();
         }
 
-        #endregion
+        #endregion RPC Methods
 
         #region IPunObservable implementation
 
+        /// <summary>
+        /// Handles custom synchronization of information over the network
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="info"></param>
         public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
         {
+            // Sync 
             if (stream.IsWriting)
             {
                 // We own this player: send the others our data
-                stream.SendNext(IsFiring);
                 stream.SendNext(Health);
             }
             else
             {
                 // Network player, receive data
-                this.IsFiring = (bool)stream.ReceiveNext();
                 this.Health = (float)stream.ReceiveNext();
             }
         }
 
-        #endregion
+        #endregion IPunObservable implementation
     }
 }

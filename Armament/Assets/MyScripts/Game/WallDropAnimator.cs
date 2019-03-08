@@ -10,22 +10,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] private WallDropTimer wallDropTimer;
         [Tooltip("Related to the time it takes for wall to drop the distance equal to its height")]
         [SerializeField] private float dropTime = 10;
+
+        private const bool DEBUG = true; // indicates whether we are debugging this class (Debug console output will show if true)
+
         private Vector3 dropPosition; // stores the final position of the wall after it is dropped
         private Vector3 position; // stores the current position we want the wall to be
 
-        public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-        {
-            Debug.Log("WallDropAnimator: OnPhotonSerializeView()");
-            // Sync the wall position over the network
-            if (stream.IsWriting)
-            {
-                stream.SendNext(transform.position);
-            }
-            else
-            {
-                position = (Vector3)stream.ReceiveNext();
-            }
-        }
+        #region MonoBehaviour Callbacks
 
         // Start is called before the first frame update
         void Start()
@@ -55,7 +46,43 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             
             // Set the *actual* position of the wall to be the position we want it to be
             transform.position = position;
-
         }
+
+        #endregion MonoBehaviour Callbacks
+
+        #region IPunObservable implementation
+        
+        /// <summary>
+        /// Handles custom synchronization of information over the network
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="info"></param>
+        public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+        {
+            
+            // Sync the wall position over the network
+            if (stream.IsWriting)
+            {
+                // Share wall position with other clients (Only the master client will be executing this)
+                stream.SendNext(transform.position);
+                // If we're debugging...
+                if (DEBUG)
+                {
+                    Debug.LogFormat("WallDropAnimator: OnPhotonSerializeView() SENDING transform.position = {0}", transform.position);
+                }
+            }
+            else
+            {
+                // Get position our wall should be from master client (All clients except for the master client will be executing this)
+                position = (Vector3)stream.ReceiveNext();
+                // If we're debugging...
+                if (DEBUG)
+                {
+                    Debug.LogFormat("WallDropAnimator: OnPhotonSerializeView() RECIEVING transform.position = {0}", transform.position);
+                }
+            }
+        }
+
+        #endregion IPunObservable implementation
     }
 }

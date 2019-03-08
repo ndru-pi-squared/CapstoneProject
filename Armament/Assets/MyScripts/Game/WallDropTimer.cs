@@ -8,16 +8,20 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
     public class WallDropTimer : MonoBehaviourPun, IPunObservable
     {
+
+        #region Private Fields 
+
         [Tooltip("Time to drop wall (seconds)")]
-        [SerializeField] private int time = 60;
-        
+        [SerializeField] private int time = 60; 
+
+        private const bool DEBUG = true; // indicates whether we are debugging the timer (Debug console output will show if true)
+        private int lastDebugTimeLeftOutput = int.MaxValue; // used for limiting the output of TimeLeft during debugging
+
         private double wallDropTime; // game time that the wall should be dropped
         private double timeLeft; // time left in timer (used to determine when the wall should come down)
         private bool timeIsUp = false; // will be set to true if timeLeft <= 0
-
-        private bool DEBUG = true; // indicates whether we are debugging the timer (Debug console output will show if true)
-        private int lastDebugTimeLeftOutput = int.MaxValue; // used for limiting the output of TimeLeft during debugging
         
+        #endregion Private Fields
 
         #region Properties
 
@@ -25,37 +29,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public bool TimeIsUp { get; private set; } = false; // Used to keep track of whether the timeLeft <= 0 (i.e., time is up)
 
         #endregion Properties
-
-        #region Public Methods
-
-        public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-        {
-            // Sync the wall position over the network
-            if (stream.IsWriting)
-            {
-                // Share timeLeft and timeIsUp with other clients (Only the master client will be executing this)
-                stream.SendNext(timeLeft);
-                stream.SendNext(timeIsUp);
-                // If we're debugging the timer...
-                if (DEBUG)
-                {
-                    Debug.LogFormat("WallDropTimer: OnPhotonSerializeView() SENDING timeLeft = {0}, timeIsUp = {1}", timeLeft, timeIsUp);
-                }
-            }
-            else
-            {
-                // Get timeLeft and timeIsUp from master client (All clients except for the master client will be executing this)
-                timeLeft = (double)stream.ReceiveNext();
-                timeIsUp = (bool)stream.ReceiveNext();
-                // If we're debugging the timer...
-                if (DEBUG)
-                {
-                    Debug.LogFormat("WallDropTimer: OnPhotonSerializeView() RECIEVING timeLeft = {0}, timeIsUp = {1}", timeLeft, timeIsUp);
-                }
-            }
-        }
-
-        #endregion Public Methods
 
         #region MonoBehaviour CallBacks
 
@@ -98,5 +71,41 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         #endregion MonoBehaviour CallBacks
+
+        #region IPunObservable implementation
+        
+        /// <summary>
+        /// Handles custom synchronization of information over the network
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="info"></param>
+        public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+        {
+            // Sync the wall position over the network
+            if (stream.IsWriting)
+            {
+                // Share timeLeft and timeIsUp with other clients (Only the master client will be executing this)
+                stream.SendNext(timeLeft);
+                stream.SendNext(timeIsUp);
+                // If we're debugging the timer...
+                if (DEBUG)
+                {
+                    Debug.LogFormat("WallDropTimer: OnPhotonSerializeView() SENDING timeLeft = {0}, timeIsUp = {1}", timeLeft, timeIsUp);
+                }
+            }
+            else
+            {
+                // Get timeLeft and timeIsUp from master client (All clients except for the master client will be executing this)
+                timeLeft = (double)stream.ReceiveNext();
+                timeIsUp = (bool)stream.ReceiveNext();
+                // If we're debugging the timer...
+                if (DEBUG)
+                {
+                    Debug.LogFormat("WallDropTimer: OnPhotonSerializeView() RECIEVING timeLeft = {0}, timeIsUp = {1}", timeLeft, timeIsUp);
+                }
+            }
+        }
+
+        #endregion IPunObservable implementation
     }
 }
