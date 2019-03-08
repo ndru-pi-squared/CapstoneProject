@@ -32,7 +32,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }*/
             
             // If wall has not dropped... 
-            if (!wallDropTimer.WallDropped)
+            if (!wallDropTimer.TimeIsUp)
             {
                 // Display stage "Stage 1"
                 stageTextMeshPro.text = "Stage 1";
@@ -47,10 +47,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 infoTextMeshPro.text = "Fight!";
             }
         }
-
-        Transform findEnvironmentGOTransform()
-        {
-            return null;
-        }
+        
     }
 }

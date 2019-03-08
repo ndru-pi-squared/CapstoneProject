@@ -15,6 +15,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
         {
+            Debug.Log("WallDropAnimator: OnPhotonSerializeView()");
             // Sync the wall position over the network
             if (stream.IsWriting)
             {
@@ -44,10 +45,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (PhotonNetwork.IsMasterClient)
             {
                 // If it is time to drop the wall...
-                if (wallDropTimer.WallDropped)
+                if (wallDropTimer.TimeIsUp)
                 {
                     // This code doesn't move the wall as I expected but I kind of like how the wall slows down as it drops...
-                    // Drop the wall
+                    // Drop the position of where we want the wall to be
                     position = Vector3.Lerp(transform.position, dropPosition, Time.deltaTime / dropTime);
                 }
             }

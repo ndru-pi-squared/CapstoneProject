@@ -1295,7 +1295,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Health: 100
-  activeGun: {fileID: 2158520208810541061}
+  activeGun: {fileID: 2158520208810541551}
   playerUiPrefab: {fileID: 8596841759220518085, guid: 92ef125f36ae2e743b0604aebd8382dd,
     type: 3}
   howFarToTossWeapon: 10
@@ -2106,7 +2106,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 1.59, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 727}
+  - {fileID: 511}
   m_Father: {fileID: 488}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2209,7 +2209,7 @@ Transform:
   m_Father: {fileID: 488}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &447
+--- !u!1 &219
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2217,7 +2217,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 727}
+  - component: {fileID: 511}
   m_Layer: 0
   m_Name: Active Weapon
   m_TagString: Untagged
@@ -2225,18 +2225,18 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &727
+--- !u!4 &511
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 447}
+  m_GameObject: {fileID: 219}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 2158520208810543063}
+  - {fileID: 2158520208810542335}
   m_Father: {fileID: 453}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2245,7 +2245,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 727}
+    m_TransformParent: {fileID: 511}
     m_Modifications:
     - target: {fileID: 6781967261238215981, guid: db4932928b1f2e648a7cbb22e950e0cf,
         type: 3}
@@ -2346,17 +2346,45 @@ PrefabInstance:
       propertyPath: m_UseGravity
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 217, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 511, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1265, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+      propertyPath: fpsCam
+      value: 
+      objectReference: {fileID: 728}
+    - target: {fileID: 1265, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+      propertyPath: playerWhoOwnsThisGun
+      value: 
+      objectReference: {fileID: 1254}
+    - target: {fileID: 1194, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1262, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+      propertyPath: fpsCam
+      value: 
+      objectReference: {fileID: 728}
+    - target: {fileID: 1262, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+      propertyPath: playerWhoOwnsThisGun
+      value: 
+      objectReference: {fileID: 1254}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
---- !u!4 &2158520208810543063 stripped
+--- !u!4 &2158520208810542335 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 726, guid: db4932928b1f2e648a7cbb22e950e0cf,
+  m_CorrespondingSourceObject: {fileID: 510, guid: db4932928b1f2e648a7cbb22e950e0cf,
     type: 3}
   m_PrefabInstance: {fileID: 2158520208810542337}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2158520208810541061 stripped
+--- !u!114 &2158520208810541551 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1284, guid: db4932928b1f2e648a7cbb22e950e0cf,
+  m_CorrespondingSourceObject: {fileID: 1262, guid: db4932928b1f2e648a7cbb22e950e0cf,
     type: 3}
   m_PrefabInstance: {fileID: 2158520208810542337}
   m_PrefabAsset: {fileID: 0}

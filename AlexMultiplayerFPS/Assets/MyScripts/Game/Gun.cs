@@ -30,6 +30,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField]
         private bool gunShootsItselfImplementation = false;
 
+
         private void Start()
         {
             audioSource = GetComponent<AudioSource>();
