@@ -60,6 +60,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         string gameVersion = "1";
 
         List<RoomInfo> _roomList;
+        /// <summary>
+        /// An InputField to store a reference to the players. There is no null checking, players can enter room w/ blank name. This may change when we implement playfab. 
+        /// </summary>
+        //private InputField PlayerName;//make read only?
 
         #endregion
 
@@ -157,10 +161,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             if (PhotonNetwork.IsConnected)
             {
-                Debug.Log("Launcher: JoinRandomRoom()");
                 progressLabel.GetComponent<Text>().text = "Joining Random Room...";
                 // #Critical we need at this point to attempt joining a Random Room. If it fails, we'll get notified in OnJoinRandomFailed() and we'll create one.
                 PhotonNetwork.JoinRandomRoom();
+
+                /*PlayerName = (InputField)GameObject.FindWithTag("PlayerName").GetComponent<InputField>();
+                Debug.Log("Launcher: JoinRandomRoom()");
+                if (PlayerName.text != "" || PlayerName.text != " ") //right now we're checking for either null or an accidental space. lets see if we can refine this
+                {
+                    
+                }*/
+                //else, tell user please enter name and reprompt?
             }
             else
             {
