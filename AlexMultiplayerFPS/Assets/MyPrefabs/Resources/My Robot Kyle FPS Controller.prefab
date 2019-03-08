@@ -2247,6 +2247,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 511}
     m_Modifications:
+    - target: {fileID: 1262, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+      propertyPath: fpsCam
+      value: 
+      objectReference: {fileID: 728}
+    - target: {fileID: 1262, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+      propertyPath: playerWhoOwnsThisGun
+      value: 
+      objectReference: {fileID: 1254}
     - target: {fileID: 6781967261238215981, guid: db4932928b1f2e648a7cbb22e950e0cf,
         type: 3}
       propertyPath: m_Name
@@ -2366,14 +2374,6 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1262, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: fpsCam
-      value: 
-      objectReference: {fileID: 728}
-    - target: {fileID: 1262, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: playerWhoOwnsThisGun
-      value: 
-      objectReference: {fileID: 1254}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
 --- !u!4 &2158520208810542335 stripped
