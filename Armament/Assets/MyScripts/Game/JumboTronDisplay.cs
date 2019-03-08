@@ -10,7 +10,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
     {
         [SerializeField] TextMeshPro stageTextMeshPro;
         [SerializeField] TextMeshPro infoTextMeshPro;
-        
+
+        #region Monobehaviour Callbacks
+
         // Update is called once per frame
         void Update()
         {
@@ -47,6 +49,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 infoTextMeshPro.text = "Fight!";
             }
         }
-        
+
+        #endregion Monobehaviour Callbacks
+
     }
 }
