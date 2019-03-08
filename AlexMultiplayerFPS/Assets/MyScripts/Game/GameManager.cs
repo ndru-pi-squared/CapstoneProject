@@ -27,6 +27,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [Tooltip("The prefab to use for representing the weapons")]
         public GameObject[] weapons; // used to instantiate the weapons on PhotonNetwork
 
+        [Tooltip("The prefab to use for representing the local player")]
+        public GameObject dividingWallPrefab; // used to instantiate the player pref on PhotonNetwork
+
+        public GameObject environment;
+
         #endregion
 
 
@@ -66,10 +71,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region Private Methods
 
+        private void Awake()
+        {
+            Instance = this;
+        }
 
         private void Start()
         {
-            Instance = this; if (PlayerPrefab == null)
+            if (PlayerPrefab == null)
             {
                 Debug.LogError("<Color=Red><a>Missing</a></Color> PlayerPrefab Reference. Please set it up in GameObject 'Game Manager'", this);
             }
@@ -107,13 +116,24 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     // Disable scene camera
                     Camera.main.enabled = false;
 
-                    // Instantiate our two weapons at different spawn points for team A
-                    PhotonNetwork.Instantiate(this.weapons[0].name, weaponSpawnPoints[0].position, weaponSpawnPoints[0].rotation, 0);
-                    PhotonNetwork.Instantiate(this.weapons[1].name, weaponSpawnPoints[1].position, weaponSpawnPoints[1].rotation, 0);
-                    // Instantiate our two weapons at different spawn points for team B
-                    PhotonNetwork.Instantiate(this.weapons[0].name, weaponSpawnPoints[2].position, weaponSpawnPoints[2].rotation, 0);
-                    PhotonNetwork.Instantiate(this.weapons[1].name, weaponSpawnPoints[3].position, weaponSpawnPoints[3].rotation, 0);
-
+                    // We instantiate most non-player networked objects like guns and the wall as scene objects so they are not owned by the client
+                    // who instantiates them (they are owned by the room) and won't be removed when the client leaves the room. The only client who
+                    // can instantiate them is the master client. 
+                    // If this is the master client...
+                    if (PhotonNetwork.IsMasterClient)
+                    {
+                        // Instantiate our two weapons at different spawn points for team A
+                        PhotonNetwork.InstantiateSceneObject(this.weapons[0].name, weaponSpawnPoints[0].position, weaponSpawnPoints[0].rotation, 0);
+                        PhotonNetwork.InstantiateSceneObject(this.weapons[1].name, weaponSpawnPoints[1].position, weaponSpawnPoints[1].rotation, 0);
+                        // Instantiate our two weapons at different spawn points for team B
+                        PhotonNetwork.InstantiateSceneObject(this.weapons[0].name, weaponSpawnPoints[2].position, weaponSpawnPoints[2].rotation, 0);
+                        PhotonNetwork.InstantiateSceneObject(this.weapons[1].name, weaponSpawnPoints[3].position, weaponSpawnPoints[3].rotation, 0);
+                        
+                        // Instantiate the dividing wall
+                        Vector3 wallPosition = new Vector3(258.3562f, 26.397f, 279.6928f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
+                        Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, -45f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
+                        GameObject dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
+                    }
                 }
                 else
                 {
