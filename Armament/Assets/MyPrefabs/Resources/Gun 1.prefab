@@ -63,7 +63,7 @@ MonoBehaviour:
   fireRate: 10
   impactForce: 30
   gunshotSound: {fileID: 8300000, guid: ba931c756adb4d144a68cb6e4ae83218, type: 3}
-  muzzleFlash: {fileID: 0}
+  muzzleFlash: {fileID: 6697862618359793286}
   impactEffect: {fileID: 5362399515342332101, guid: 9ffdb672b56f647438a9a5c784b32062,
     type: 3}
   playerWhoOwnsThisGun: {fileID: 0}
@@ -6111,8 +6111,8 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5931099338982552532}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 0
+  m_IsTrigger: 1
+  m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 3, y: 3, z: 1.5}
   m_Center: {x: 0, y: 1, z: 0}

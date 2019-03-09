@@ -2259,10 +2259,6 @@ PrefabInstance:
       propertyPath: muzzleFlash
       value: 
       objectReference: {fileID: 4685727273294463879}
-    - target: {fileID: 1194, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 6781967261238215981, guid: db4932928b1f2e648a7cbb22e950e0cf,
         type: 3}
       propertyPath: m_Name
@@ -2378,6 +2374,10 @@ PrefabInstance:
       propertyPath: playerWhoOwnsThisGun
       value: 
       objectReference: {fileID: 1254}
+    - target: {fileID: 1194, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 296286683770780998, guid: db4932928b1f2e648a7cbb22e950e0cf,
         type: 3}
       propertyPath: m_Enabled
@@ -2471,12 +2471,12 @@ PrefabInstance:
     - target: {fileID: 8272794413972013966, guid: db4932928b1f2e648a7cbb22e950e0cf,
         type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8272794413972013966, guid: db4932928b1f2e648a7cbb22e950e0cf,
         type: 3}
       propertyPath: m_IsTrigger
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 741004959262861693, guid: db4932928b1f2e648a7cbb22e950e0cf,
         type: 3}
