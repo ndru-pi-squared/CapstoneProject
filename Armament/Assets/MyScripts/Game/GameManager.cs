@@ -125,11 +125,23 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         // Instantiate our two weapons at different spawn points for team B
                         PhotonNetwork.InstantiateSceneObject(this.weapons[0].name, weaponSpawnPoints[2].position, weaponSpawnPoints[2].rotation, 0);
                         PhotonNetwork.InstantiateSceneObject(this.weapons[1].name, weaponSpawnPoints[3].position, weaponSpawnPoints[3].rotation, 0);
-                        
-                        // Instantiate the dividing wall
-                        Vector3 wallPosition = new Vector3(258.3562f, 26.397f, 279.6928f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
-                        Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, -45f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
+
+                        if (Launcher.developmentOnly_levelToLoad.Equals("Room for 1"))
+                        {
+                            // Instantiate the dividing wall for "Room for 1" level
+                            Vector3 wallPosition = new Vector3(258.3562f, 26.397f, 279.6928f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
+                            Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, -45f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
+                            GameObject dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
+                        }
+                        else if (Launcher.developmentOnly_levelToLoad.Equals("Simple Room")) { 
+                        // Instantiate the dividing wall for "Simple Room" level
+                        Vector3 wallPosition = new Vector3(0f, 20f, 0f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
+                        Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, 0f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
                         GameObject dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
+                        // Set the scale to match the "Simple Room" level size
+                        dividingWallGO.gameObject.transform.localScale = new Vector3(10f, 40f, 200f);
+                        }
+
                     }
                 }
                 else

@@ -9,37 +9,47 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
     
     public class Launcher : MonoBehaviourPunCallbacks
     {
-
-        #region Public Fields
-
-        // The tutorial said to put the following code in the Public Fields region, but this region didn't exist (I had to create it) and it doesn't make sense 
-        // to put it in this region because the variables aren't public. It should probably go in the Private Serializable Fields, but I'm going to follow the
-        // tutorial's instructions for now...
-        [Tooltip("The UI Panel to let the user enter name, connect and play")]
-        [SerializeField]
-        private GameObject controlPanel;
-        [Tooltip("The UI Label to inform the user that the connection is in progress")]
-        [SerializeField]
-        private GameObject progressLabel;
-
-        [SerializeField]
-        private InputField roomNameInputField;
-
-        [SerializeField]
-        private ScrollRect existingRoomList;
-        
-        #endregion
-
-
         #region Private Serializable Fields
 
+        // *This variable is temporary and just to be used during early development. 
+        // I was running into long build times when including the original (very large) unity scene file in the build.
+        // Using this variable to quickly change what scene the master client code will load and removing all scenes 
+        // except for Launcher and Simple Room from the build will hopefully keep build times down and make debugging
+        // multiplayer-related code (that requires running a built second instance of the game) a lot easier.
+        // Currently, this information is also accessed in the GameManager class to determine the correct transform
+        // for the team dividing wall prefab during instantiation in the Start method.
+        [Tooltip("The game level (unity scene) to load. See comments in code for more information.")]
+        [SerializeField] public static string developmentOnly_levelToLoad = "Simple Room";
 
+        [Tooltip("The UI Panel to let the user enter name, connect and play")]
+        [SerializeField] private GameObject controlPanel;
+        [Tooltip("The UI Label to inform the user that the connection is in progress")]
+        [SerializeField] private GameObject progressLabel;
+        [SerializeField] private InputField roomNameInputField;
+        [SerializeField] private ScrollRect existingRoomList;
+        
         /// <summary>
         /// The maximum number of players per room. When a room is full, it can't be joined by new players, and so new room will be created.
         /// </summary>
         [Tooltip("The maximum number of players per room. When a room is full, it can't be joined by new players, and so new room will be created")]
-        [SerializeField]
-        private byte maxPlayersPerRoom = 4;
+        [SerializeField] private byte maxPlayersPerRoom = 4;
+
+        #endregion Private Serializable Fields
+            
+        #region Private Fields
+
+        /// <summary>
+        /// This client's version number. Users are separated from each other by gameVersion (which allows you to make breaking changes).
+        /// </summary>
+        string gameVersion = "1";
+
+        List<RoomInfo> _roomList;
+
+        /// <summary>
+        /// An InputField to store a reference to the players. There is no null checking, players can enter room w/ blank name. This may change when we implement playfab. 
+        /// </summary>
+        //private InputField PlayerName;//make read only?
+
         /// <summary>
         /// Keep track of the current process. Since connection is asynchronous and is based on several callbacks from Photon,
         /// we need to keep track of this to properly adjust the behavior when we receive call back by Photon.
@@ -48,24 +58,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         bool isConnecting;
         bool isJoiningNamedRoom = false;
 
-        #endregion
-
-
-        #region Private Fields
-
-
-        /// <summary>
-        /// This client's version number. Users are separated from each other by gameVersion (which allows you to make breaking changes).
-        /// </summary>
-        string gameVersion = "1";
-
-        List<RoomInfo> _roomList;
-        /// <summary>
-        /// An InputField to store a reference to the players. There is no null checking, players can enter room w/ blank name. This may change when we implement playfab. 
-        /// </summary>
-        //private InputField PlayerName;//make read only?
-
-        #endregion
+        #endregion Private Fields
 
 
         #region MonoBehaviour CallBacks
@@ -308,10 +301,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 // #Critical
                 // Load the Room Level.
-                PhotonNetwork.LoadLevel("Room for 1");
+                PhotonNetwork.LoadLevel(developmentOnly_levelToLoad);
             }
         }
-
 
         #endregion
     }

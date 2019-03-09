@@ -4878,11 +4878,11 @@ MonoBehaviour:
   fireRate: 10
   impactForce: 30
   gunshotSound: {fileID: 8300000, guid: ba931c756adb4d144a68cb6e4ae83218, type: 3}
-  fpsCam: {fileID: 0}
   muzzleFlash: {fileID: 1215}
   impactEffect: {fileID: 5362399515342332101, guid: 9ffdb672b56f647438a9a5c784b32062,
     type: 3}
   playerWhoOwnsThisGun: {fileID: 0}
+  fpsCam: {fileID: 0}
   gunShootsItselfImplementation: 0
 --- !u!82 &1200
 AudioSource:
