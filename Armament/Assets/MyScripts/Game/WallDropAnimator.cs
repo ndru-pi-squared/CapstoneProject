@@ -41,11 +41,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     // This code doesn't move the wall as I expected but I kind of like how the wall slows down as it drops...
                     // Drop the position of where we want the wall to be
                     position = Vector3.Lerp(transform.position, dropPosition, Time.deltaTime / dropTime);
+                    // Set the *actual* position of the wall to be the position we want it to be
+                    transform.position = position;
                 }
             }
             
-            // Set the *actual* position of the wall to be the position we want it to be
-            transform.position = position;
         }
 
         #endregion MonoBehaviour Callbacks

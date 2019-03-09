@@ -14,7 +14,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [Tooltip("Time to drop wall (seconds)")]
         [SerializeField] private int time = 60; 
 
-        private const bool DEBUG = true; // indicates whether we are debugging the timer (Debug console output will show if true)
+        private const bool DEBUG = false; // indicates whether we are debugging the timer (Debug console output will show if true)
         private int lastDebugTimeLeftOutput = int.MaxValue; // used for limiting the output of TimeLeft during debugging
 
         private double wallDropTime; // game time that the wall should be dropped
