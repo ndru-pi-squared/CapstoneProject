@@ -79,6 +79,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         void Start()
         {
             //progressLabel.SetActive(false);
+            Cursor.lockState = CursorLockMode.None;//frees up the cursor
             controlPanel.SetActive(true);
             
         }
