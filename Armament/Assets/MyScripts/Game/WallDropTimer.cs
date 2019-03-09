@@ -48,12 +48,16 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // If this client is master client...
             if (PhotonNetwork.IsMasterClient)
             {
-                // Update the time left in timer
-                // timeLeft will be shared with all other clients
-                timeLeft = wallDropTime - PhotonNetwork.Time;
-                if (timeLeft <= 0)
+                // Disable countdown once timeIsUp = true
+                if (!timeIsUp)
                 {
-                    timeIsUp = true;
+                    // Update the time left in timer
+                    // timeLeft will be shared with all other clients
+                    timeLeft = wallDropTime - PhotonNetwork.Time;
+                    if (timeLeft <= 0)
+                    {
+                        timeIsUp = true;
+                    }
                 }
             }
 
