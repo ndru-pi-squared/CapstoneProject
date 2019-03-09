@@ -6,16 +6,19 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
     public class PlayerAnimatorManager : MonoBehaviourPun
     {
+
+        #region Private Serializable Fields
+
+        [SerializeField] private float directionDampTime = 0.25f;
+
+        #endregion Private Serializable Fields
+
         #region Private Fields
 
-
-        [SerializeField]
-        private float directionDampTime = 0.25f;
         private Animator animator;
 
         #endregion
-
-
+        
         #region MonoBehaviour Callbacks
 
         // Start is called before the first frame update
@@ -73,8 +76,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             animator.SetFloat("Speed", h * h + v * v);
             animator.SetFloat("Direction", h, directionDampTime, Time.deltaTime);
         }
-
-
+        
         #endregion
 
     }
