@@ -17,7 +17,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         private Animator animator;
 
-        #endregion
+        #endregion Private Fields
         
         #region MonoBehaviour Callbacks
 

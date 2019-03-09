@@ -13,7 +13,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [Tooltip("Related to the time it takes for wall to drop the distance equal to its height")]
         [SerializeField] private float dropTime = 10;
 
-        #region Private Serializable Fields
+        #endregion Private Serializable Fields
 
         #region Private Fields
 
@@ -21,7 +21,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         private Vector3 dropPosition; // stores the final position of the wall after it is dropped
 
-        #region Private Fields
+        #endregion Private Fields
 
         #region MonoBehaviour Callbacks
 
