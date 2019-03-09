@@ -5,35 +5,66 @@ using UnityEngine;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
+    /// <summary>
+    /// Gunzzz!
+    /// <para>This definitely needs a better summary</para>
+    /// </summary>
     [RequireComponent(typeof(AudioSource))]
     public class Gun : MonoBehaviour
     {
-        public float damage = 10f; // How much damage a gun's bullet can impart (on a target)
-        public float range = 100f; // How far a bullet can go
-        public float fireRate = 1f; // How fast (per second) a bullet can be fired
-        public float impactForce = 30f; // Force imparted on a bullet hit
-        
+        #region Public Fields
+
+        public float damage = 10f; // how much damage a gun's bullet can impart (on a target)
+        public float range = 100f; // how far a bullet can go
+        public float fireRate = 1f; // how fast (per second) a bullet can be fired
+        public float impactForce = 30f; // force imparted on a bullet hit
+
+        [Tooltip("Audio Clip (wav file) played when gun is fired")]
         public AudioClip gunshotSound;
-        public Camera fpsCam;
+        [Tooltip("Muzzle flash displayed at the end of the gun when it is fired")]
         public ParticleSystem muzzleFlash;
+        [Tooltip("Visual effect displayed when a bullet hits something")]
         public GameObject impactEffect;
 
-        // Setting this reference in unity allows this class to know what player owns this gun
-        // so we don't try to fire the wrong players' guns (or every players' guns) 
+        // Setting these references in unity allows this class to know 
+        //  - what player owns this gun -> so we don't try to fire the wrong players' guns (or every players' guns) 
+        //  - what the bullet trajectory is -> so it originates from the correct player's camera and travels in the direction the player is looking/aiming
         // There could be a better way of figuring this out... this works for now though
+        [Tooltip("The player who is holding the gun. **This implementation might need revision**")]
         public MonoBehaviourPun playerWhoOwnsThisGun;
+        [Tooltip("Camera of the player holding the gun. " +
+            "This camera is used for raytracing (determining trajectory of bullet) **This implementation might need revision**")]
+        public Camera fpsCam;
+        [Tooltip("Whether the program uses the implementation where the gun is responsible for shooting itself (as opposed to player shooting gun) when user input = \"Fire1\"")]
+        public bool gunShootsItselfImplementation = false;
+
+        #endregion Public Fields
+
+        #region Private Fields
 
         private AudioSource audioSource;
-        private float nextTimeToFire = 0f; // Used to make sure we don't fire faster than fireRate allows
+        private float nextTimeToFire = 0f; // used to make sure we don't fire faster than fireRate allows
 
+        #endregion Private Fields
 
-        [SerializeField]
-        private bool gunShootsItselfImplementation = false;
+        #region Public Properties
 
+        public bool IsReadyToShoot
+        {
+            get { return Time.time >= nextTimeToFire; }
+        }
 
-        private void Start()
+        #endregion Public Properties
+
+        #region MonoBehaviour Callbacks 
+
+        void Start()
         {
             audioSource = GetComponent<AudioSource>();
+            if (!audioSource)
+            {
+                Debug.LogError("Gun is Missing Audio Source Component", this);
+            }
         }
 
         // Update is called once per frame
@@ -64,11 +95,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
         }
 
+        #endregion MonoBehaviour Callbacks 
 
-        public bool IsReadyToShoot
-        {
-            get { return Time.time >= nextTimeToFire; }
-        }
+        #region Public Methods
 
         /// <summary>
         /// Called by PlayerManager every time the gun needs to be shot.
@@ -129,13 +158,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
         }
 
+        #endregion Public methods
+
+        #region Private methods
 
         private void PlayGunShotSound()
         {
-            //audioSource.clip = gunshotSound;
             // I read somewhere online that this allows the sounds to overlap
             audioSource.PlayOneShot(gunshotSound);
         }
+        
+        #endregion Private methods
 
     }
 }

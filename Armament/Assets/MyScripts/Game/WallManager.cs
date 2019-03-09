@@ -9,6 +9,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
     public class WallManager : MonoBehaviour
     {
 
+        #region MonoBehaviour CallBacks
+
         // Start is called before the first frame update
         void Start()
         {
@@ -17,5 +19,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             transform.SetParent(GameManager.Instance.environment.transform.Find("Scene Props").transform);
         }
 
+        #endregion MonoBehaviour CallBacks
     }
 }

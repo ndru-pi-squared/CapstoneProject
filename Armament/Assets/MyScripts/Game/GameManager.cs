@@ -15,61 +15,58 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
     /// <summary>this is a sample summary created with GhostDoc</summary>
     public class GameManager : MonoBehaviourPunCallbacks
     {
-
         #region Public Fields 
-
-
-        public static GameManager Instance;
+        
+        // Singleton - you know what that means. Also, this won't show up in the inspector in Unity
+        public static GameManager Instance; 
 
         [Tooltip("The prefab to use for representing the local player")]
         public GameObject PlayerPrefab; // used to instantiate the player pref on PhotonNetwork
-
-        [Tooltip("The prefab to use for representing the weapons")]
+        [Tooltip("List of weapon prefabs for this game")]
         public GameObject[] weapons; // used to instantiate the weapons on PhotonNetwork
-
-        [Tooltip("The prefab to use for representing the local player")]
+        [Tooltip("Prefab for the team dividing wall")]
         public GameObject dividingWallPrefab; // used to instantiate the player pref on PhotonNetwork
+        [Tooltip("The root GameObject in the hierarchy for all our game levels that we call \"Environment\"")]
+        public GameObject environment; // used to give us a way to find GameObjects that are children of Environment
 
-        public GameObject environment;
+        #endregion Public Fields
 
-        #endregion
+        #region Private Serialized Fields 
 
+        [Tooltip("List of locations where a player can be spawned")]
+        [SerializeField]  private Transform[] playerSpawnPoints; // list of locations where a player can be spawned
+        [Tooltip("List of locations where a weapon can be spawned")]
+        [SerializeField] private Transform[] weaponSpawnPoints; // list of locations where a weapon can be spawned
 
-        #region Private Fields 
+        #endregion Private Serialized Fields
 
-        [SerializeField]
-        private Transform[] playerSpawnPoints; // list of locations where a player can be spawned
+        #region Private Fields
 
-        [SerializeField]
-        private Transform[] weaponSpawnPoints; // list of locations where a weapon can be spawned
+        private const bool DEBUG = true;
 
-        #endregion
-
+        #endregion Private Fields
 
         #region Public Methods
-
 
         /// <Summary> 
         /// Should be called when a user chooses to leave the room 
         /// </Summary>
         public void LeaveRoom()
         {
-            Debug.Log("GameManger: LeaveRoom() called.");
+            if (DEBUG) Debug.Log("GameManger: LeaveRoom() called.");
             
             // Leave the photon game room
             PhotonNetwork.LeaveRoom();
 
             // Make sure the cursor is visible again and not locked
-            // This code did not work as expected... 
+            // This code might not work as expected... 
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
+        
+        #endregion Public Methods
 
-
-        #endregion
-
-
-        #region Private Methods
+        #region MonoBehaviour Callbacks
 
         private void Awake()
         {
@@ -128,11 +125,23 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         // Instantiate our two weapons at different spawn points for team B
                         PhotonNetwork.InstantiateSceneObject(this.weapons[0].name, weaponSpawnPoints[2].position, weaponSpawnPoints[2].rotation, 0);
                         PhotonNetwork.InstantiateSceneObject(this.weapons[1].name, weaponSpawnPoints[3].position, weaponSpawnPoints[3].rotation, 0);
-                        
-                        // Instantiate the dividing wall
-                        Vector3 wallPosition = new Vector3(258.3562f, 26.397f, 279.6928f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
-                        Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, -45f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
+
+                        if (Launcher.developmentOnly_levelToLoad.Equals("Room for 1"))
+                        {
+                            // Instantiate the dividing wall for "Room for 1" level
+                            Vector3 wallPosition = new Vector3(258.3562f, 26.397f, 279.6928f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
+                            Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, -45f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
+                            GameObject dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
+                        }
+                        else if (Launcher.developmentOnly_levelToLoad.Equals("Simple Room")) { 
+                        // Instantiate the dividing wall for "Simple Room" level
+                        Vector3 wallPosition = new Vector3(0f, 20f, 0f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
+                        Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, 0f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
                         GameObject dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
+                        // Set the scale to match the "Simple Room" level size
+                        dividingWallGO.gameObject.transform.localScale = new Vector3(10f, 40f, 200f);
+                        }
+
                     }
                 }
                 else
@@ -142,14 +151,23 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
         }
 
-        // Note: only called in OnPlayerEnteredRoom() and OnPlayerLeftRoom() by player on master client
+        #endregion MonoBehaviour Callbacks
+
+        #region Private Methods
+
+        /// <summary>
+        /// Used to load a Unity scene (probably representing the game room) on the PhotonNetwork
+        /// Note: in the tutorial, this method is only called in OnPlayerEnteredRoom() and OnPlayerLeftRoom() by player on master client
+        /// </summary>
         void LoadArena()
         {
             if (!PhotonNetwork.IsMasterClient)
             {
-                Debug.LogError("PhotonNetwork : Trying to Load a level but we are not the master Client");
+                if (DEBUG) Debug.LogError("GameManager: LoadArena() -> PhotonNetwork : Trying to Load a level but we are not the master Client");
             }
-            Debug.LogFormat("PhotonNetwork : Loading Level : {0}", PhotonNetwork.CurrentRoom.PlayerCount);
+
+            if (DEBUG) Debug.LogFormat("GameManager: LoadArena() -> PhotonNetwork : Loading Level : PhotonNetwork.CurrentRoom.PlayerCount = {0}", PhotonNetwork.CurrentRoom.PlayerCount);
+
             // Excerpt from tutorial:
             // There are two things to watch out for here, it's very important.
             // - PhotonNetwork.LoadLevel() should only be called if we are the MasterClient. So we check first that we are the MasterClient using 
@@ -157,17 +175,15 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             //
             // - We use PhotonNetwork.LoadLevel() to load the level we want, we don't use Unity directly, because we want to rely on Photon 
             //   to load this level on all connected clients in the room, since we've enabled PhotonNetwork.AutomaticallySyncScene for this Game.
-            //PhotonNetwork.LoadLevel("Room for " + PhotonNetwork.CurrentRoom.PlayerCount);
+            // Old code (from tutorial): 
+            // - PhotonNetwork.LoadLevel("Room for " + PhotonNetwork.CurrentRoom.PlayerCount);
             PhotonNetwork.LoadLevel("Room for 1");
         }
-
-
-        #endregion
-
+        
+        #endregion Private Methods
 
         #region Photon Callbacks
-
-
+        
         ///<summary>
         /// Called when the local player left the room. We need to load the launcher scene.
         /// </summary>
@@ -180,12 +196,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         // Note: I think this function is called on every computer when someone enters the room except the person who is entering the room
         public override void OnPlayerEnteredRoom(Player other)
         {
-            Debug.LogFormat("OnPlayerEnteredRoom() {0}", other.NickName); // not seen if you're the player connecting
+            if (DEBUG) Debug.LogFormat("OnPlayerEnteredRoom() {0}", other.NickName); // not seen if you're the player connecting
 
             // Note: I think this is only 
             if (PhotonNetwork.IsMasterClient)
             {
-                Debug.LogFormat("OnPlayerEnteredRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient); // called before OnPlayerLeftRoom
+                if (DEBUG) Debug.LogFormat("OnPlayerEnteredRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient); // called before OnPlayerLeftRoom
                 
                 //LoadArena();
             }
@@ -204,7 +220,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
         }
 
-
-        #endregion
+        #endregion Photon Callbacks
     }
 }
