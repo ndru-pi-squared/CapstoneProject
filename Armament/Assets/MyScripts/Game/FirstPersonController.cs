@@ -8,6 +8,18 @@ using Random = UnityEngine.Random;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
+    /// <summary>
+    /// Controls our player movements and some other fun stuff. 
+    /// Originally, this script was in the Unity Standard Assets package.
+    /// It was copied so minor edits could be made without disturbing the original.
+    /// It is mostly the same as the original. Avoid tampering with code if possible
+    /// because it was written with the intention that it could be used without modification.
+    /// Trust the original authors!
+    /// 
+    /// <para>What I changed:</para>
+    /// <para>1) Added SetCursorLock method - This might not have been a good idea! See SetCursorLock summary for more information.</para>
+    /// <para>2) Made the player default to running instead of walking (where the check for SHIFT key is pressed is done)</para>
+    /// </summary>
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(AudioSource))]
     public class FirstPersonController : MonoBehaviour
@@ -44,9 +56,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private bool m_Jumping;
         private AudioSource m_AudioSource;
 
-        // I had to create this public SetCursorLock method to allow PlayerManager to access the MouseLook.SetCursorLock method
-        // so it could "Remove cursor lock to enable the Leave Game UI button to be clicked"
-        // !! This might not have been the best way to handle this problem!
+        ///<summary>
+        /// I created this method to allow PlayerManager to access the MouseLook.SetCursorLock method
+        /// so it could "Remove cursor lock to enable the Leave Game UI button to be clicked" 
+        /// ** This might not have been the best way to handle this problem! **
+        /// </summary> 
         public void SetCursorLock(bool value)
         {
             m_MouseLook.SetCursorLock(value);

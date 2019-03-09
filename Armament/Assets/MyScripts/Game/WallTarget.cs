@@ -10,11 +10,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         MeshRenderer meshRenderer;
         private float originalHealth; // keeps track of original health value
 
+        #region MonoBehaviour CallBacks
+
         void Start()
         {
             originalHealth = health;
             meshRenderer = GetComponent<MeshRenderer>();
         }
+
+        #endregion MonoBehaviour CallBacks
+
+        #region Public Methods
 
         public void TakeDamage(float amount)
         {
@@ -29,9 +35,15 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
         }
 
+        #endregion Public Methods
+
+        #region Private Methods
+
         void Die()
         {
             Destroy(gameObject);
         }
+
+        #endregion Private Methods
     }
 }
