@@ -999,6 +999,7 @@ GameObject:
   - component: {fileID: 1258}
   - component: {fileID: 1254}
   - component: {fileID: 1253}
+  - component: {fileID: 878065363863876548}
   - component: {fileID: 1257}
   - component: {fileID: 1259}
   - component: {fileID: 1255}
@@ -1313,6 +1314,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   directionDampTime: 0.25
+--- !u!114 &878065363863876548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ad818653bab9c34ea8a7c26ffd1b9b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1257
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2490,6 +2503,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+--- !u!4 &2158520208810542335 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 510, guid: db4932928b1f2e648a7cbb22e950e0cf,
+    type: 3}
+  m_PrefabInstance: {fileID: 2158520208810542337}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &2158520208810541551 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1262, guid: db4932928b1f2e648a7cbb22e950e0cf,
@@ -2505,12 +2524,6 @@ MonoBehaviour:
 --- !u!198 &4685727273294463879 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 6697862618359793286, guid: db4932928b1f2e648a7cbb22e950e0cf,
-    type: 3}
-  m_PrefabInstance: {fileID: 2158520208810542337}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &2158520208810542335 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 510, guid: db4932928b1f2e648a7cbb22e950e0cf,
     type: 3}
   m_PrefabInstance: {fileID: 2158520208810542337}
   m_PrefabAsset: {fileID: 0}

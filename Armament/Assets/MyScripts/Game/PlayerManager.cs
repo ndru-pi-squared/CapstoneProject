@@ -9,7 +9,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
     /// <summary>
     /// Manages Player information
     /// </summary>
-    public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable, ITarget
+    public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable, ITarget, IPunInstantiateMagicCallback
     {
         
         #region Public Fields
@@ -21,9 +21,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #endregion
 
-        #region Private Fields
-
-        private const bool DEBUG = true;
+        #region Private Serializable Fields
 
         [Tooltip("Gun owned by player")]
         [SerializeField] private Gun activeGun;
@@ -34,15 +32,36 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [Tooltip("The Player's UI GameObject Prefab")]
         [SerializeField] private bool usingPlayerUIPrefab = false;
 
+        #endregion Private Serializable Fields
+
+        #region Private Fields
+
+        private const bool DEBUG = true; // indicates whether we are debugging this class
+
+        private PlayerProperties playerProperties; // represents our custom class for keeping track of player properties
+
+        #endregion
+
+        #region Properties
+
+        public ExitGames.Client.Photon.Hashtable PlayerProperties{
+            get { return playerProperties.Properties; }
+            private set { playerProperties.Properties = value; }
+        }
+
         #endregion
 
         #region MonoBehaviour CallBacks
-        
+
         /// <summary>
         /// MonoBehaviour method called on GameObject by Unity during early initialization phase.
         /// </summary>
         void Awake()
         {
+            // Whenever a player is created, create a new PlayerProperties
+            // PlayerProperties is a class we created to help us set custom properties for photon players 
+            playerProperties = gameObject.GetComponent<PlayerProperties>();
+
             // #Important
             // used in GameManager.cs: we keep track of the localPlayer instance to prevent instantiation when levels are synchronized
             if (photonView.IsMine)
@@ -62,6 +81,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void Start()
         {
+            /*
+            foreach (object key in PlayerProperties.Keys)
+            {
+                PlayerProperties.TryGetValue(key, out object value);
+                Debug.LogFormat("PlayerManager: Start() key = {0}, value = {1}", key, value);
+            }*/
 
             /** Notes from tutorial:
              *   All of this is standard Unity coding. However notice that we are sending a message to the instance we've just created. We 
@@ -404,5 +429,15 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         #endregion IPunObservable implementation
+
+        #region IPunInstantiateMagicCallback implementation
+
+        public void OnPhotonInstantiate(PhotonMessageInfo info)
+        {
+            // Share information about our Photon Player on the network
+            PhotonNetwork.LocalPlayer.SetCustomProperties(PlayerProperties);
+        }
+
+        #endregion IPunInstantiateMagicCallback implementation
     }
 }

@@ -8,7 +8,8 @@ using UnityEngine.SceneManagement;
 
 using Photon.Pun;
 using Photon.Realtime;
-
+using UnityEngine.UI;
+using System.Collections.Generic;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
@@ -28,6 +29,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public GameObject dividingWallPrefab; // used to instantiate the player pref on PhotonNetwork
         [Tooltip("The root GameObject in the hierarchy for all our game levels that we call \"Environment\"")]
         public GameObject environment; // used to give us a way to find GameObjects that are children of Environment
+        [Tooltip("The root GameObject in the hierarchy for all our game levels that we call \"Canvas\"")]
+        public GameObject canvas; // used to give us a way to find GameObjects that are children of Canvas
 
         #endregion Public Fields
 
@@ -43,6 +46,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #region Private Fields
 
         private const bool DEBUG = true;
+
+        private ArrayList teamAList;
+        private ArrayList teamBList;
 
         #endregion Private Fields
 
@@ -63,14 +69,110 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
-        
+
         #endregion Public Methods
+
+        #region Private Methods
+
+        /// <summary>
+        /// Used to load a Unity scene (probably representing the game room) on the PhotonNetwork
+        /// Note: in the tutorial, this method is only called in OnPlayerEnteredRoom() and OnPlayerLeftRoom() by player on master client
+        /// </summary>
+        void LoadArena()
+        {
+            if (!PhotonNetwork.IsMasterClient)
+            {
+                if (DEBUG) Debug.LogError("GameManager: LoadArena() -> PhotonNetwork : Trying to Load a level but we are not the master Client");
+            }
+
+            if (DEBUG) Debug.LogFormat("GameManager: LoadArena() -> PhotonNetwork : Loading Level : PhotonNetwork.CurrentRoom.PlayerCount = {0}", PhotonNetwork.CurrentRoom.PlayerCount);
+
+            // Excerpt from tutorial:
+            // There are two things to watch out for here, it's very important.
+            // - PhotonNetwork.LoadLevel() should only be called if we are the MasterClient. So we check first that we are the MasterClient using 
+            //   PhotonNetwork.IsMasterClient. It will be the responsibility of the caller to also check for this, we'll cover that in the next part of this section.
+            //
+            // - We use PhotonNetwork.LoadLevel() to load the level we want, we don't use Unity directly, because we want to rely on Photon 
+            //   to load this level on all connected clients in the room, since we've enabled PhotonNetwork.AutomaticallySyncScene for this Game.
+            // Old code (from tutorial): 
+            // - PhotonNetwork.LoadLevel("Room for " + PhotonNetwork.CurrentRoom.PlayerCount);
+            PhotonNetwork.LoadLevel("Room for 1");
+        }
+
+        void ProcessInputs()
+        {
+#if !MOBILE_INPUT
+            if (Input.GetKey(KeyCode.Tab))
+            {
+                // Disable Crosshair
+                Transform crosshair = canvas.transform.Find("Crosshair");
+                crosshair.gameObject.SetActive(false);
+
+                // Enable Player Info Panel
+                Transform playerInfoPanel = canvas.transform.Find("Player Info Panel");
+                playerInfoPanel.gameObject.SetActive(true);
+            }
+            else if (Input.GetKeyUp(KeyCode.Tab))
+            {
+                // Enable Crosshair
+                Transform crosshair = canvas.transform.Find("Crosshair");
+                crosshair.gameObject.SetActive(true);
+
+                // Disable Player Info Panel
+                Transform playerInfoPanel = canvas.transform.Find("Player Info Panel");
+                playerInfoPanel.gameObject.SetActive(false);
+            }
+#endif
+        }
+
+        /// <summary>
+        /// Updates GUI display of information about Players in this game room.
+        /// </summary>
+        void UpdatePlayerPropertiesDisplay()
+        {
+            // Get the text component where we want to display all players' properties
+            Transform playerInfoText = canvas.transform.Find("Player Info Panel/Player Info List Scroll View/Viewport/Content/Player Info Text");
+            Text playerInfoTextComponent = playerInfoText.GetComponent<Text>();
+
+            // Clear the text display
+            playerInfoTextComponent.text = "Press TAB to toggle this display\n\n"; 
+
+            // Iterate through the list of players in this room
+            Dictionary<int, Player> players = PhotonNetwork.CurrentRoom.Players;
+            foreach (int playerKey in players.Keys)
+            {
+                // Get the player using the playerKey
+                players.TryGetValue(playerKey, out Player player);
+                // Add the player's nickname to the display
+                playerInfoTextComponent.text += player.NickName + ":\n";
+
+                // Go through list of player properties (information about player)
+                foreach (object propertyKey in player.CustomProperties.Keys)
+                {
+                    // Get the propertyValue of the property using the propertyKey
+                    player.CustomProperties.TryGetValue(propertyKey, out object propertyValue);
+                    // Add the player's property's kev and value to the display
+                    playerInfoTextComponent.text += "\t" + propertyKey + " = " + propertyValue + "\n";
+                }
+
+                // Add an empty line to separate the info about different players
+                playerInfoTextComponent.text += "\n";
+            }
+        }
+
+        #endregion Private Methods
 
         #region MonoBehaviour Callbacks
 
         private void Awake()
         {
             Instance = this;
+        }
+
+        private void Update()
+        {
+            UpdatePlayerPropertiesDisplay();
+            ProcessInputs();
         }
 
         private void Start()
@@ -103,13 +205,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     myPlayerGO.GetComponent<Animator>().enabled = true;
                     myPlayerGO.GetComponent<CharacterController>().enabled = true;
                     myPlayerGO.GetComponent<AudioSource>().enabled = true;
-                    //myPlayerGO.GetComponent<UnityStandardAssets.Characters.FirstPerson.FirstPersonController>().enabled = false;
-                    myPlayerGO.GetComponent<Com.Kabaj.TestPhotonMultiplayerFPSGame.FirstPersonController>().enabled = true;
+                    myPlayerGO.GetComponent<FirstPersonController>().enabled = true;
                     myPlayerGO.GetComponent<PlayerAnimatorManager>().enabled = true;
                     myPlayerGO.GetComponent<PlayerManager>().enabled = true;
                     myPlayerGO.GetComponentInChildren<Camera>().enabled = true;
                     myPlayerGO.GetComponentInChildren<AudioListener>().enabled = true;
                     myPlayerGO.GetComponentInChildren<FlareLayer>().enabled = true;
+
                     // Disable scene camera
                     Camera.main.enabled = false;
 
@@ -134,14 +236,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                             GameObject dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
                         }
                         else if (Launcher.developmentOnly_levelToLoad.Equals("Simple Room")) { 
-                        // Instantiate the dividing wall for "Simple Room" level
-                        Vector3 wallPosition = new Vector3(0f, 20f, 0f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
-                        Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, 0f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
-                        GameObject dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
-                        // Set the scale to match the "Simple Room" level size
-                        dividingWallGO.gameObject.transform.localScale = new Vector3(10f, 40f, 200f);
+                            // Instantiate the dividing wall for "Simple Room" level
+                            Vector3 wallPosition = new Vector3(0f, 20f, 0f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
+                            Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, 0f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
+                            GameObject dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
+                            // Set the scale to match the "Simple Room" level size
+                            dividingWallGO.gameObject.transform.localScale = new Vector3(10f, 40f, 200f);
                         }
-
                     }
                 }
                 else
@@ -152,35 +253,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         #endregion MonoBehaviour Callbacks
-
-        #region Private Methods
-
-        /// <summary>
-        /// Used to load a Unity scene (probably representing the game room) on the PhotonNetwork
-        /// Note: in the tutorial, this method is only called in OnPlayerEnteredRoom() and OnPlayerLeftRoom() by player on master client
-        /// </summary>
-        void LoadArena()
-        {
-            if (!PhotonNetwork.IsMasterClient)
-            {
-                if (DEBUG) Debug.LogError("GameManager: LoadArena() -> PhotonNetwork : Trying to Load a level but we are not the master Client");
-            }
-
-            if (DEBUG) Debug.LogFormat("GameManager: LoadArena() -> PhotonNetwork : Loading Level : PhotonNetwork.CurrentRoom.PlayerCount = {0}", PhotonNetwork.CurrentRoom.PlayerCount);
-
-            // Excerpt from tutorial:
-            // There are two things to watch out for here, it's very important.
-            // - PhotonNetwork.LoadLevel() should only be called if we are the MasterClient. So we check first that we are the MasterClient using 
-            //   PhotonNetwork.IsMasterClient. It will be the responsibility of the caller to also check for this, we'll cover that in the next part of this section.
-            //
-            // - We use PhotonNetwork.LoadLevel() to load the level we want, we don't use Unity directly, because we want to rely on Photon 
-            //   to load this level on all connected clients in the room, since we've enabled PhotonNetwork.AutomaticallySyncScene for this Game.
-            // Old code (from tutorial): 
-            // - PhotonNetwork.LoadLevel("Room for " + PhotonNetwork.CurrentRoom.PlayerCount);
-            PhotonNetwork.LoadLevel("Room for 1");
-        }
-        
-        #endregion Private Methods
 
         #region Photon Callbacks
         
@@ -202,8 +274,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (PhotonNetwork.IsMasterClient)
             {
                 if (DEBUG) Debug.LogFormat("OnPlayerEnteredRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient); // called before OnPlayerLeftRoom
-                
+
                 //LoadArena();
+
+                //other.SetCustomProperties();
             }
         }
 

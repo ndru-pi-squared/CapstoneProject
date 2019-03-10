@@ -16,7 +16,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             // Put the dividing wall gameobject in the correct place in the transform hierarchy 
             // #Important: Without it, JumboTronDisplay cannot find the wall to get its wallDropTimer component!
-            transform.SetParent(GameManager.Instance.environment.transform.Find("Scene Props").transform);
+            GameManager gm = GameManager.Instance;
+            GameObject environmentGO = gm.environment;
+            Transform environmentTransform = environmentGO.transform;
+            Transform scenePropsTransform = environmentTransform.Find("Scene Props");
+            transform.SetParent(scenePropsTransform.transform);
+            //transform.SetParent(GameManager.Instance.environment.transform.Find("Scene Props").transform);
         }
 
         #endregion MonoBehaviour CallBacks
