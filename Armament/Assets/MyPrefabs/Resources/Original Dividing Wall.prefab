@@ -8,16 +8,16 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 548}
-  - component: {fileID: 997}
-  - component: {fileID: 805}
-  - component: {fileID: 1365}
-  - component: {fileID: 1476}
-  - component: {fileID: 1474}
-  - component: {fileID: 1475}
+  - component: {fileID: 552}
+  - component: {fileID: 998}
+  - component: {fileID: 806}
+  - component: {fileID: 1376}
   - component: {fileID: 1478}
+  - component: {fileID: 1476}
   - component: {fileID: 1477}
-  - component: {fileID: 1501}
+  - component: {fileID: 1480}
+  - component: {fileID: 1479}
+  - component: {fileID: 1482}
   m_Layer: 0
   m_Name: Original Dividing Wall
   m_TagString: Untagged
@@ -25,7 +25,7 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &548
+--- !u!4 &552
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -39,7 +39,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &997
+--- !u!33 &998
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -47,7 +47,7 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 224}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!23 &805
+--- !u!23 &806
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -84,7 +84,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!65 &1365
+--- !u!65 &1376
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -97,7 +97,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1476
+--- !u!114 &1478
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -110,7 +110,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   health: 50000
---- !u!114 &1474
+--- !u!114 &1476
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -123,7 +123,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   time: 60
---- !u!114 &1475
+--- !u!114 &1477
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -135,9 +135,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e932f867d0b7d764394154f5804acc38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wallDropTimer: {fileID: 1474}
+  wallDropTimer: {fileID: 1476}
   dropTime: 10
---- !u!114 &1478
+--- !u!114 &1480
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -149,7 +149,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42fee5bfa78c12e42bab5d464ec9d1ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1477
+--- !u!114 &1479
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -167,12 +167,12 @@ MonoBehaviour:
   Synchronization: 1
   OwnershipTransfer: 0
   ObservedComponents:
-  - {fileID: 1474}
-  - {fileID: 1501}
+  - {fileID: 1476}
+  - {fileID: 1482}
   viewIdField: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &1501
+--- !u!114 &1482
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

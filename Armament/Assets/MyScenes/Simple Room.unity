@@ -4157,11 +4157,19 @@ PrefabInstance:
       propertyPath: InstantiationId
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1479, guid: 133dbba72a6b21745b71d1c4289bf0fe, type: 3}
+      propertyPath: viewIdField
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1479, guid: 133dbba72a6b21745b71d1c4289bf0fe, type: 3}
+      propertyPath: InstantiationId
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 133dbba72a6b21745b71d1c4289bf0fe, type: 3}
 --- !u!4 &656600702808685175 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 548, guid: 133dbba72a6b21745b71d1c4289bf0fe,
+  m_CorrespondingSourceObject: {fileID: 552, guid: 133dbba72a6b21745b71d1c4289bf0fe,
     type: 3}
   m_PrefabInstance: {fileID: 656600702808685174}
   m_PrefabAsset: {fileID: 0}

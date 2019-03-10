@@ -375,7 +375,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 if (PlayerProperties.TEAM_NAME_A.Equals(teamName))
                 {
                     // Get the size of Team A
-                    GameRoomInfo.TryGetValue(RoomProperties.KEY_TEAM_A_PLAYERS_COUNT, out object teamACountObject);
+                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(RoomProperties.KEY_TEAM_A_PLAYERS_COUNT, out object teamACountObject);
                     // Increment size of Team A
                     GameRoomInfo.Remove(RoomProperties.KEY_TEAM_A_PLAYERS_COUNT);
                     GameRoomInfo.Add(RoomProperties.KEY_TEAM_A_PLAYERS_COUNT, Convert.ToInt32(teamACountObject) - 1);
@@ -384,7 +384,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 else if (PlayerProperties.TEAM_NAME_B.Equals(teamName))
                 {
                     // Get the size of Team B
-                    GameRoomInfo.TryGetValue(RoomProperties.KEY_TEAM_B_PLAYERS_COUNT, out object teamBCountObject);
+                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(RoomProperties.KEY_TEAM_B_PLAYERS_COUNT, out object teamBCountObject);
                     // Increment size of Team B
                     GameRoomInfo.Remove(RoomProperties.KEY_TEAM_B_PLAYERS_COUNT);
                     GameRoomInfo.Add(RoomProperties.KEY_TEAM_B_PLAYERS_COUNT, Convert.ToInt32(teamBCountObject) - 1);
