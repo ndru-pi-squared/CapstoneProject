@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 using System.Collections;
 using Photon.Pun;
 using System;
+using Photon.Realtime;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
@@ -40,6 +41,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG = true; // indicates whether we are debugging this class
 
         private PlayerProperties playerProperties; // represents our custom class for keeping track of player properties
+        private int kills = 0;
+        private int deaths = 0;
 
         #endregion
 
@@ -49,6 +52,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             get { return playerProperties.Properties; }
             private set { playerProperties.Properties = value; }
         }
+
+        public int PhotonPlayerID { get; private set; }
 
         #endregion
 
@@ -247,14 +252,54 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             PlayerInfo.Add(PlayerProperties.KEY_TEAM, team);
             PhotonNetwork.LocalPlayer.SetCustomProperties(PlayerInfo);
         }
-
+        
+        /// <summary>
+        /// Decrease health of player by damage amount.
+        /// </summary>
+        /// <param name="amount">The amount of damage caused</param>
         public void TakeDamage(float amount)
         {
             Health -= amount;
             if (Health <= 0)
             {
+                // Make player die
                 Die();
             }
+        }
+        /// <summary>
+        /// Decrease health of player by damage amount.
+        /// </summary>
+        /// <param name="amount">The amount of damage caused</param>
+        /// <param name="playerWhoCausedDamage">The player who caused the damage</param>
+        public void TakeDamage(float amount, PlayerManager playerWhoCausedDamage)
+        {
+            Health -= amount;
+            if (Health <= 0)
+            {
+                // Make player die
+                Die();
+
+                // Notify player who caused damage that this player was killed
+                playerWhoCausedDamage.AddKill();
+            }
+        }
+
+        /// <summary>
+        /// Adds a kill for this player. This method is called by TakeDamage(float,PlayerManager) when player dies
+        /// </summary>
+        public void AddKill()
+        {
+            Debug.LogFormat("PlayerManager: AddKill()");
+            kills++;
+            ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable();
+            properties.Add(PlayerProperties.KEY_KILLS, kills);
+            photonView.Owner.SetCustomProperties(properties);
+        }
+
+        // Remove this method when done testing the Die() method
+        public void TestDie()
+        {
+            Die();
         }
 
         #endregion Public Methods
@@ -338,9 +383,24 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void Die()
         {
-            GameManager.Instance.LeaveRoom();
+            //GameManager.Instance.LeaveRoom();
             //PhotonNetwork.Destroy(gameObject);
             //Destroy(gameObject);
+
+            // Add a death 
+            deaths++;
+            ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable();
+            properties.Add(PlayerProperties.KEY_DEATHS, deaths);
+            photonView.Owner.SetCustomProperties(properties);
+
+            // Respawn
+            Respawn();
+
+        }
+
+        void Respawn()
+        {
+            Health = 100;
         }
 
         /// <summary>

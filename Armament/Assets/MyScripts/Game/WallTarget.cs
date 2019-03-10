@@ -35,6 +35,16 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
         }
 
+        /// <summary>
+        /// Wall Target doesn't care who damages it so it just calles TakeDamage(float amount)
+        /// </summary>
+        /// <param name="amount"></param>
+        /// <param name="player"></param>
+        public void TakeDamage(float amount, PlayerManager player)
+        {
+            TakeDamage(amount);
+        }
+
         #endregion Public Methods
 
         #region Private Methods

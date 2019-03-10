@@ -117,12 +117,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Play the muzzle flash particle system
             muzzleFlash.Play();
-
-            RaycastHit hit;
+            
             // Create a raycast from fps camera position in the direction it is facing (limit raycast to 'range' distance away)
             // Get back the 'hit' value (what got hit)
             // If cast hit something...
-            if (Physics.Raycast(fpsCam.transform.position, fpsCam.transform.forward, out hit, range))
+            if (Physics.Raycast(fpsCam.transform.position, fpsCam.transform.forward, out RaycastHit hit, range))
             {
                 // Log what we hit
                 //Debug.LogFormat("Gun: Shoot() hit object: {0}", hit.transform.name);
@@ -135,7 +134,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 if (target != null)
                 {
                     // Make target take damage 
-                    target.TakeDamage(damage);
+                    target.TakeDamage(damage, playerWhoOwnsThisGun.GetComponent<PlayerManager>());
                 }
 
                 // Add force to rigid body of target 

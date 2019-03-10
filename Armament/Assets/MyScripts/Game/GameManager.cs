@@ -86,6 +86,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             Cursor.visible = true;
         }
 
+        // Remove this method when done testing PlayerManager.Die()
+        public void TestKillLocalPlayer()
+        {
+            PlayerManager.LocalPlayerInstance.GetComponent<PlayerManager>().TestDie();
+        }
         #endregion Public Methods
 
         #region Private Methods
@@ -352,8 +357,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 if (DEBUG) Debug.LogFormat("OnPlayerEnteredRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient); // called before OnPlayerLeftRoom
 
-                //LoadArena();
-                
+                //LoadArena();   
             }
         }
 

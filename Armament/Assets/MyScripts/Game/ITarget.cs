@@ -11,5 +11,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
     interface ITarget
     {
         void TakeDamage(float amount);
+        void TakeDamage(float amount, PlayerManager player);
     }
 }
