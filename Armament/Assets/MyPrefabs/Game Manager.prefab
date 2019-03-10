@@ -43,11 +43,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d77a52fe1dc331e43a3b28cb013eda24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerPrefab: {fileID: 190, guid: ba81c471e15785649a4419c63472b492, type: 3}
+  PlayerPrefab: {fileID: 192, guid: ba81c471e15785649a4419c63472b492, type: 3}
   weapons:
-  - {fileID: 216, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-  - {fileID: 215, guid: 7f76b63222a574a4ba64ba2451b768ee, type: 3}
-  dividingWallPrefab: {fileID: 220, guid: 133dbba72a6b21745b71d1c4289bf0fe, type: 3}
+  - {fileID: 218, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+  - {fileID: 217, guid: 7f76b63222a574a4ba64ba2451b768ee, type: 3}
+  dividingWallPrefab: {fileID: 224, guid: 133dbba72a6b21745b71d1c4289bf0fe, type: 3}
   environment: {fileID: 0}
-  playerSpawnPoints: []
+  canvas: {fileID: 0}
+  teamAPlayerSpawnPoints: []
+  teamBPlayerSpawnPoints: []
   weaponSpawnPoints: []

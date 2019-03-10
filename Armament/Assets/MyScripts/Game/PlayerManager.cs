@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 
 using System.Collections;
 using Photon.Pun;
+using System;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
@@ -44,7 +45,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region Properties
 
-        public ExitGames.Client.Photon.Hashtable PlayerProperties{
+        public ExitGames.Client.Photon.Hashtable PlayerInfo{
             get { return playerProperties.Properties; }
             private set { playerProperties.Properties = value; }
         }
@@ -58,7 +59,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void Awake()
         {
-            // Whenever a player is created, create a new PlayerProperties
             // PlayerProperties is a class we created to help us set custom properties for photon players 
             playerProperties = gameObject.GetComponent<PlayerProperties>();
 
@@ -81,13 +81,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void Start()
         {
-            /*
-            foreach (object key in PlayerProperties.Keys)
-            {
-                PlayerProperties.TryGetValue(key, out object value);
-                Debug.LogFormat("PlayerManager: Start() key = {0}, value = {1}", key, value);
-            }*/
-
             /** Notes from tutorial:
              *   All of this is standard Unity coding. However notice that we are sending a message to the instance we've just created. We 
              *   require a receiver, which means we will be alerted if the SetTarget did not find a component to respond to it. Another 
@@ -246,6 +239,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #endregion
 
         #region Public Methods
+
+        public void SetTeam(string team)
+        {
+            // Update what team this player is on in PlayerProperties
+            PlayerInfo.Remove(PlayerProperties.KEY_TEAM);
+            PlayerInfo.Add(PlayerProperties.KEY_TEAM, team);
+            PhotonNetwork.LocalPlayer.SetCustomProperties(PlayerInfo);
+        }
 
         public void TakeDamage(float amount)
         {
@@ -432,10 +433,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region IPunInstantiateMagicCallback implementation
 
+        /// <summary>
+        /// Photon Callback method. Called after player has been instantiated on network. Used to set up player properties.
+        /// </summary>
+        /// <param name="info"></param>
         public void OnPhotonInstantiate(PhotonMessageInfo info)
         {
-            // Share information about our Photon Player on the network
-            PhotonNetwork.LocalPlayer.SetCustomProperties(PlayerProperties);
+            // Share/Sync information about our Photon Player on the network
+            PhotonNetwork.LocalPlayer.SetCustomProperties(PlayerInfo);
         }
 
         #endregion IPunInstantiateMagicCallback implementation
