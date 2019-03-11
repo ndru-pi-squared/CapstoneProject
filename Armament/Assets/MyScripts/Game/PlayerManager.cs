@@ -337,7 +337,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Make sure we don't collide with this gun again (while we're holding it)
             DisableActiveGunCollider();
             // Drop the gun we had before replacement
-            DropGun(oldGun);
+            DropGun(oldGun); //we might want to add it to the player's inventory instead of dropping it. ie) comment this out and add something to ProcessInput() 
+                                                                                                                //like if they press 1 they can swap back to the primary weapon 
+            //ReplaceCurrentGunWithPickedupGun doesnt destroy the copy of the old gun on the player prefab anyway and i think it fits what we're going for 
         }
 
         /// <summary>
@@ -488,8 +490,23 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     photonView.RPC("Shoot", RpcTarget.All);
                 }
             }
+
+            /*if (Input.GetButton("Weapon1")) //Adding this option seems like the next step, but I just want to make sure I understand the code a bit more before pushing.
+                                              //Going to look more into a polymorphic solution to handle the input rather than long if statements. code will be so much easier to maintain
+                        {
+                            Debug.Log("PlayerManager: ProcessInputs() Input.GetButton(\"Weapon1\")");
+                            weapon1.setActive = true; //TODO: look deeper into how to to this tomorrow
+                            // Check if gun is ready to shoot before sending the RPC to avoid overloading network
+                            //if (activeGun.IsReadyToShoot)
+                            //{
+                            //Debug.LogFormat("PlayerManager: ProcessInputs() gun.IsReadyToShoot = {0}", gun.IsReadyToShoot);
+
+                            // Call the [PunRPC] Shoot method over photon network
+                            //photonView.RPC("Shoot", RpcTarget.All);
+                            //}
+                        }*/
         }
-        
+
         #endregion Private Methods
 
         #region RPC Methods
