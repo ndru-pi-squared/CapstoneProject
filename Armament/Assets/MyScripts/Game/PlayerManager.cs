@@ -122,7 +122,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             */
             // Unity 5.4 has a new scene management. register a method to call CalledOnLevelWasLoaded.
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
-
 #endif
 
         }
@@ -164,17 +163,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 return;
             }
 
-            if (DEBUG)
-            {
-                Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with object with name \"{0}\"", other.name);
-            }
+            if (DEBUG) Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with object with name \"{0}\"", other.name);
             
+            // If this player collided with a Weapon (a collider on a gameobject with a tag == "Weapon")
             if (other.CompareTag("Weapon"))
             {
-                if (DEBUG)
-                {
-                    Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with weapon with name \"{0}\"", other.GetComponentInParent<Gun>().name);
-                }
+                if (DEBUG) Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with weapon with name \"{0}\"", other.GetComponentInParent<Gun>().name);
                 
                 // Pick up gun
                 ReplaceCurrentGunWithPickedUpGun(other.GetComponentInParent<Gun>());
@@ -202,28 +196,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
              *   if we hit anything. If we don't, this is means we are not above the arena's ground and we need to be repositioned back to 
              *   the center, exactly like when we are entering the room for the first time.
              */
-            /** My Note:
-             *   - I was getting this error when second player left room: 
-             *      MissingReferenceException: The object of type 'PlayerManager' has been destroyed but you are still trying to access it.
-             *      Your script should either check if it is null or you should not destroy the object.
-             *   - Trying to fix that, I check transform is null first. 
-             *   - Result: Didn't work! I get the same error on "if(transform != null)" (which makes no sense to me) after this debug log line:
-             *      Network destroy Instantiated GO: My Robot Kyle(Clone)
-             *   - Trying to comment out the repositioning code completely to see what happens...
-             *   - Result: I get this error:
-             *      <Color=Red><a>Missing</a></Color> PlayMakerManager target for PlayerUI.SetTarget.
-             *      UnityEngine.Debug:LogError(Object, Object)
-             *      Com.Kabaj.PhotonTutorialProject.PlayerUI:SetTarget(PlayerManager) (at Assets/PlayerUI.cs:130)
-             *      UnityEngine.GameObject:SendMessage()
-             *      Com.Kabaj.PhotonTutorialProject.PlayerManager:CalledOnLevelWasLoaded(Int32) (at Assets/PlayerManager.cs:262)
-             */
             // check if we are outside the Arena and if it's the case, spawn around the center of the arena in a safe zone
             if (!Physics.Raycast(transform.position, -Vector3.up, 5f))
             {
                 transform.position = new Vector3(0f, 5f, 0f);
             }
-
-
+            
             /** Note from tutorial:
              *   when a new level is loaded, the UI is being 
              *   destroyed yet our player remains... so we need to instantiate it as well when we know a level was loaded
@@ -245,8 +223,20 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region Public Methods
 
+        /// <summary>
+        /// Set what team this player is on. 
+        /// This method will first be called by GameManager after player is instantiated on PhotonNetwork.
+        /// </summary>
+        /// <param name="team"></param>
         public void SetTeam(string team)
         {
+
+            // ***
+            //
+            // Probably want to change implementation to not use PlayerInfo anymore
+            //
+            // ***
+
             // Update what team this player is on in PlayerProperties
             PlayerInfo.Remove(PlayerProperties.KEY_TEAM);
             PlayerInfo.Add(PlayerProperties.KEY_TEAM, team);
@@ -259,7 +249,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="amount">The amount of damage caused</param>
         public void TakeDamage(float amount)
         {
+            // Don't forget: Health will be synchronized by Photon
+            // Each client will own one player (specifically, a PhotonView component on the player). 
+            // The client's player tells all other clients' instances of the player what their health is.
+            // ** Maybe this code should only be executed inside "if (photonView.IsMine) { }"
             Health -= amount;
+
             if (Health <= 0)
             {
                 // Make player die
@@ -274,7 +269,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="playerWhoCausedDamage">The player who caused the damage</param>
         public void TakeDamage(float amount, PlayerManager playerWhoCausedDamage)
         {
+            // Don't forget: Health will be synchronized by Photon
+            // Each client will own one player (specifically, a PhotonView component on the player). 
+            // The client's player tells all other clients' instances of the player what their health is.
+            // ** Maybe this code should only be executed inside "if (photonView.IsMine) { }"
             Health -= amount;
+
             if (Health <= 0)
             {
                 // Make this player die
@@ -388,13 +388,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         /// <summary>
-        /// Adds a death for this player. This death is registered on all clients. This method is called by Die()
+        /// Adds a death for this player. This death is registered on all clients. 
+        /// This method is called by Die().
         /// </summary>
         void AddDeath()
         {
             // ***
             //
-            // Look carefully at this code and how it is called during possible gameplay scenarios!
+            // Look carefully at this code and how it is called during all possible gameplay scenarios!
             // This code is executed on every client (not just master client). 
             // There may be a hidden synchronization problems (edge cases) yet to be uncovered
             // 
@@ -414,13 +415,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         /// <summary>
-        /// Adds a kill for this player. This kill is registered on all clients. This method is called by TakeDamage(float,PlayerManager) when player dies
+        /// Adds a kill for this player. This kill is registered on all clients. 
+        /// This method is called by TakeDamage(float,PlayerManager) when player dies.
         /// </summary>
         void AddKill()
         {
             // ***
             //
-            // Look carefully at this code and how it is called during possible gameplay scenarios!
+            // Look carefully at this code and how it is called during all possible gameplay scenarios!
             // This code is executed on every client (not just master client). 
             // There may be a hidden synchronization problems (edge cases) yet to be uncovered
             // 
@@ -446,6 +448,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         void Respawn()
         {
             Health = 100;
+            
+            // Pretend the player has respawned by raising him in the air a bit
+            transform.position = transform.position + new Vector3(0f, 5f, 0f);
         }
 
         /// <summary>
@@ -471,22 +476,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     return;
                 }
 
-                //Debug.Log("PlayerManager: ProcessInputs() Input.GetButtonDown(\"Fire1\")");
-                
-                // Call the [PunRPC] Shoot method over photon network
-                //photonView.RPC("Shoot", RpcTarget.AllViaServer);
-
             }
+
             // Check if the user is trying to fire gun continuously
             if (Input.GetButton("Fire1"))
             {
-                //Debug.Log("PlayerManager: ProcessInputs() Input.GetButton(\"Fire1\")");
-
                 // Check if gun is ready to shoot before sending the RPC to avoid overloading network
                 if (activeGun.IsReadyToShoot)
                 {
-                    //Debug.LogFormat("PlayerManager: ProcessInputs() gun.IsReadyToShoot = {0}", gun.IsReadyToShoot);
-                
                     // Call the [PunRPC] Shoot method over photon network
                     photonView.RPC("Shoot", RpcTarget.All);
                 }
@@ -515,18 +512,47 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #region IPunObservable implementation
 
         /// <summary>
-        /// Handles custom synchronization of information over the network
+        /// Handles custom synchronization of information over the network.
+        /// <para>
+        /// This method will be called in scripts that are assigned as Observed component of a PhotonView.
+        /// PhotonNetwork.SerializationRate affects how often this method is called.
+        /// PhotonNetwork.SendRate affects how often packages are sent by this client.
+        /// </para>
+        /// <para>
+        /// Implementing this method, you can customize which data a PhotonView regularly synchronizes. 
+        /// Your code defines what is being sent (content) and how your data is used by receiving clients.
+        /// </para>
+        /// <para>
+        /// Unlike other callbacks, OnPhotonSerializeView only gets called when it is assigned to a PhotonView as 
+        /// PhotonView.observed script.
+        /// </para>
+        /// <para>
+        /// To make use of this method, the PhotonStream is essential. 
+        /// It will be in "writing" mode" on the client that controls a PhotonView (PhotonStream.IsWriting == true) 
+        /// and in "reading mode" on the remote clients that just receive that the controlling client sends.
+        /// </para>
+        /// <para>
+        /// If you skip writing any value into the stream, PUN will skip the update. Used carefully, 
+        /// this can conserve bandwidth and messages (which have a limit per room/second).
+        /// </para>
+        /// <para>
+        /// Note that OnPhotonSerializeView is not called on remote clients when the sender does not send any update. This can't be used as "x-times per second Update()".
+        /// </para>
+        /// <para>
+        /// Implements IPunObservable.
+        /// </para>
         /// </summary>
-        /// <param name="stream"></param>
-        /// <param name="info"></param>
+        /// <param name="stream">Stream on which to read or write custom data.</param>
+        /// <param name="info">Information about the message (like who sent it).</param>
         public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
         {
-            // Sync 
+            // If this client owns this player (specifically, the PhotonView component on this player)...
             if (stream.IsWriting)
             {
                 // We own this player: send the others our data
                 stream.SendNext(Health);
             }
+            // If this client doesn't own this player (specifically, the PhotonView component on this player)...
             else
             {
                 // Network player, receive data
