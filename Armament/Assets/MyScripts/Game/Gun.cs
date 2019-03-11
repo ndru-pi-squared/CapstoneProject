@@ -110,7 +110,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (!IsReadyToShoot) { return; }
 
             // Calculate the next time we can fire based on current time and the firerate
-            nextTimeToFire = Time.time + 1f / fireRate;
+            nextTimeToFire = Time.time + 1f / fireRate;//isn't this already calculated in the method that calls this one?
 
             //Play gunshot sound
             PlayGunShotSound();
