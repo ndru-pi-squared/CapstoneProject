@@ -2260,6 +2260,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 551}
     m_Modifications:
+    - target: {fileID: 1474, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+      propertyPath: fpsCam
+      value: 
+      objectReference: {fileID: 802}
+    - target: {fileID: 1474, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+      propertyPath: playerWhoOwnsThisGun
+      value: 
+      objectReference: {fileID: 1466}
+    - target: {fileID: 1472, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+      propertyPath: playerWhoOwnsThisGun
+      value: 
+      objectReference: {fileID: 1466}
+    - target: {fileID: 1472, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+      propertyPath: fpsCam
+      value: 
+      objectReference: {fileID: 802}
     - target: {fileID: 1262, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
       propertyPath: fpsCam
       value: 
@@ -2501,26 +2517,10 @@ PrefabInstance:
       propertyPath: m_IsTrigger
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1472, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: playerWhoOwnsThisGun
-      value: 
-      objectReference: {fileID: 1466}
-    - target: {fileID: 1472, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: fpsCam
-      value: 
-      objectReference: {fileID: 802}
     - target: {fileID: 1367, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1474, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: fpsCam
-      value: 
-      objectReference: {fileID: 802}
-    - target: {fileID: 1474, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: playerWhoOwnsThisGun
-      value: 
-      objectReference: {fileID: 1466}
     - target: {fileID: 1378, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
       propertyPath: m_Enabled
       value: 0

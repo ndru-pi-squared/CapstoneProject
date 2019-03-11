@@ -41,8 +41,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG = true; // indicates whether we are debugging this class
 
         private PlayerProperties playerProperties; // represents our custom class for keeping track of player properties
-        private int kills = 0;
-        private int deaths = 0;
+        //private int kills = 0;
+        //private int deaths = 0;
 
         #endregion
 
@@ -254,7 +254,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
         
         /// <summary>
-        /// Decrease health of player by damage amount.
+        /// Decrease health of player by damage amount. 
         /// </summary>
         /// <param name="amount">The amount of damage caused</param>
         public void TakeDamage(float amount)
@@ -266,6 +266,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 Die();
             }
         }
+
         /// <summary>
         /// Decrease health of player by damage amount.
         /// </summary>
@@ -276,26 +277,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             Health -= amount;
             if (Health <= 0)
             {
-                // Make player die
+                // Make this player die
                 Die();
 
                 // Notify player who caused damage that this player was killed
+                // *Surprisingly, I was able to make the AddKill method private and still access it this way.
+                //  I assume this was because the call is coming from within this class even though we're 
+                //  calling it on a different instance of this class. Just thought it was worth mentioning :)
                 playerWhoCausedDamage.AddKill();
             }
         }
-
-        /// <summary>
-        /// Adds a kill for this player. This method is called by TakeDamage(float,PlayerManager) when player dies
-        /// </summary>
-        public void AddKill()
-        {
-            Debug.LogFormat("PlayerManager: AddKill()");
-            kills++;
-            ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable();
-            properties.Add(PlayerProperties.KEY_KILLS, kills);
-            photonView.Owner.SetCustomProperties(properties);
-        }
-
+        
         // Remove this method when done testing the Die() method
         public void TestDie()
         {
@@ -379,7 +371,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         /// <summary>
-        /// Handles what happens to a player when it dies
+        /// Handles what happens to this player when it dies.
+        /// Right now, we register that this player has died and "respawn" the player
         /// </summary>
         void Die()
         {
@@ -387,17 +380,69 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             //PhotonNetwork.Destroy(gameObject);
             //Destroy(gameObject);
 
-            // Add a death 
+            // Register a death for this player on all client
+            AddDeath();
+            
+            // Respawn
+            Respawn();
+        }
+
+        /// <summary>
+        /// Adds a death for this player. This death is registered on all clients. This method is called by Die()
+        /// </summary>
+        void AddDeath()
+        {
+            // ***
+            //
+            // Look carefully at this code and how it is called during possible gameplay scenarios!
+            // This code is executed on every client (not just master client). 
+            // There may be a hidden synchronization problems (edge cases) yet to be uncovered
+            // 
+            // ***
+
+            // Get current deaths for this player
+            photonView.Owner.CustomProperties.TryGetValue(PlayerProperties.KEY_DEATHS, out object value);
+            int deaths = (value == null) ? 0 : Convert.ToInt32(value);
+
+            // Add a death for this player
             deaths++;
             ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable();
             properties.Add(PlayerProperties.KEY_DEATHS, deaths);
             photonView.Owner.SetCustomProperties(properties);
 
-            // Respawn
-            Respawn();
-
+            if (DEBUG) Debug.LogFormat("PlayerManager: Die() deaths = {0}, photonView.Owner.NickName = {1}", deaths, photonView.Owner.NickName);
         }
 
+        /// <summary>
+        /// Adds a kill for this player. This kill is registered on all clients. This method is called by TakeDamage(float,PlayerManager) when player dies
+        /// </summary>
+        void AddKill()
+        {
+            // ***
+            //
+            // Look carefully at this code and how it is called during possible gameplay scenarios!
+            // This code is executed on every client (not just master client). 
+            // There may be a hidden synchronization problems (edge cases) yet to be uncovered
+            // 
+            // ***
+
+            // Get current deaths for this player
+            photonView.Owner.CustomProperties.TryGetValue(PlayerProperties.KEY_KILLS, out object value);
+            int kills = (value == null) ? 0 : Convert.ToInt32(value);
+
+            // Add a kill for this player
+            kills++;
+            ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable();
+            properties.Add(PlayerProperties.KEY_KILLS, kills);
+            photonView.Owner.SetCustomProperties(properties);
+
+            if (DEBUG) Debug.LogFormat("PlayerManager: AddKill() kills = {0}, photonView.Owner.NickName = {1}", kills, photonView.Owner.NickName);
+        }
+
+        /// <summary>
+        /// Right now, we just reset the health to 100% and act like nothing happened.
+        /// Later, we'll figure out something better to do...
+        /// </summary>
         void Respawn()
         {
             Health = 100;
