@@ -107,10 +107,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public void Shoot()
         {
             // Make sure we can't shoot until it's time
-            if (!IsReadyToShoot) { return; } //doesnt seem like this is ever set to a value, unless I'm missing something. Also, doesn't this get handled in Update?
+            if (!IsReadyToShoot) { return; }
 
             // Calculate the next time we can fire based on current time and the firerate
-            nextTimeToFire = Time.time + 1f / fireRate; //doesnt this get handled in Update as well?
+            nextTimeToFire = Time.time + 1f / fireRate;
 
             //Play gunshot sound
             PlayGunShotSound();
