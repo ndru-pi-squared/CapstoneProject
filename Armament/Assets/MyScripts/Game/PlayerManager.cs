@@ -337,8 +337,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Make sure we don't collide with this gun again (while we're holding it)
             DisableActiveGunCollider();
             // Drop the gun we had before replacement
-            //DropGun(oldGun); //we probably should just add the gun to their inventory, no? if they press 1 they can swap back to the primary weapon insteaed of dropping it. 
-            //ReplaceCurrentGunWithPickedupGun doesnt get rid of the copy of the old gun on the player prefab anyway and i think it fits what we're going for 
+            DropGun(oldGun); //we might want to add it to the player's inventory instead of dropping it. ie) comment this out and add something to ProcessInput() 
+                                                                                                                //like if they press 1 they can swap back to the primary weapon 
+            //ReplaceCurrentGunWithPickedupGun doesnt destroy the copy of the old gun on the player prefab anyway and i think it fits what we're going for 
         }
 
         /// <summary>
