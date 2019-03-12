@@ -13,8 +13,19 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
     /// </summary>
     public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable, ITarget, IPunInstantiateMagicCallback
     {
-        
+
         #region Public Fields
+
+        // Key references
+        public const string KEY_KILLS = "Kills";
+        public const string KEY_DEATHS = "Deaths";
+        public const string KEY_ISALIVE = "IsAlive";
+        public const string KEY_TEAM = "Team";
+
+        // Team name references
+        public const string TEAM_NAME_A = "A";
+        public const string TEAM_NAME_B = "B";
+        public const string TEAM_NAME_SPECT = "Spectator";
 
         [Tooltip("The current Health of our player")]
         public float Health = 100f;
@@ -237,10 +248,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             //
             // ***
 
+            /*
             // Update what team this player is on in PlayerProperties
             PlayerInfo.Remove(PlayerProperties.KEY_TEAM);
             PlayerInfo.Add(PlayerProperties.KEY_TEAM, team);
             PhotonNetwork.LocalPlayer.SetCustomProperties(PlayerInfo);
+            */
+            
+            photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { {KEY_TEAM, team} });
         }
         
         /// <summary>
@@ -249,16 +264,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="amount">The amount of damage caused</param>
         public void TakeDamage(float amount)
         {
-            // Don't forget: Health will be synchronized by Photon
-            // Each client will own one player (specifically, a PhotonView component on the player). 
-            // The client's player tells all other clients' instances of the player what their health is.
-            // ** Maybe this code should only be executed inside "if (photonView.IsMine) { }"
-            Health -= amount;
+            // Note to self:
+            //  Don't forget: Health will be synchronized by Photon via 'Object Synchronization'
+            //  Each client will own one player (specifically, a PhotonView component on the player). 
+            //  The client's player tells all other clients' instances of the player what their health is.
+            //  ** Maybe this code should only be executed inside "if (photonView.IsMine) { }"
 
-            if (Health <= 0)
-            {
-                // Make player die
-                Die();
+            // If the attacked player is the one this client owns...
+            if (photonView.IsMine) {
+                Health -= amount;
+
+                if (Health <= 0)
+                {
+                    // Make player die (synchronized on network)
+                    photonView.RPC("Die", RpcTarget.All); // calls the [PunRPC] Die method over photon network
+                }
             }
         }
 
@@ -269,22 +289,24 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="playerWhoCausedDamage">The player who caused the damage</param>
         public void TakeDamage(float amount, PlayerManager playerWhoCausedDamage)
         {
-            // Don't forget: Health will be synchronized by Photon
-            // Each client will own one player (specifically, a PhotonView component on the player). 
-            // The client's player tells all other clients' instances of the player what their health is.
-            // ** Maybe this code should only be executed inside "if (photonView.IsMine) { }"
-            Health -= amount;
+            // Note to self:
+            //  Don't forget: Health will be synchronized by Photon via 'Object Synchronization'
+            //  Each client will own one player (specifically, a PhotonView component on the player). 
+            //  The client's player tells all other clients' instances of the player what their health is.
+            //  ** Maybe this code should only be executed inside "if (photonView.IsMine) { }"
 
-            if (Health <= 0)
+            // If the attacked player is the one this client owns...
+            if (photonView.IsMine)
             {
-                // Make this player die
-                Die();
+                Health -= amount;
 
-                // Notify player who caused damage that this player was killed
-                // *Surprisingly, I was able to make the AddKill method private and still access it this way.
-                //  I assume this was because the call is coming from within this class even though we're 
-                //  calling it on a different instance of this class. Just thought it was worth mentioning :)
-                playerWhoCausedDamage.AddKill();
+                if (Health <= 0)
+                {
+                    // Make player die (synchronized on network)
+                    photonView.RPC("Die", RpcTarget.All); // calls the [PunRPC] Die method over photon network
+
+                    playerWhoCausedDamage.AddKill();
+                }
             }
         }
         
@@ -337,9 +359,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Make sure we don't collide with this gun again (while we're holding it)
             DisableActiveGunCollider();
             // Drop the gun we had before replacement
-            DropGun(oldGun); //we might want to add it to the player's inventory instead of dropping it. ie) comment this out and add something to ProcessInput() 
-                                                                                                                //like if they press 1 they can swap back to the primary weapon 
-            //ReplaceCurrentGunWithPickedupGun doesnt destroy the copy of the old gun on the player prefab anyway and i think it fits what we're going for 
+            DropGun(oldGun);
         }
 
         /// <summary>
@@ -376,6 +396,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// Handles what happens to this player when it dies.
         /// Right now, we register that this player has died and "respawn" the player
         /// </summary>
+        [PunRPC]
         void Die()
         {
             //GameManager.Instance.LeaveRoom();
@@ -408,12 +429,15 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             int deaths = (value == null) ? 0 : Convert.ToInt32(value);
 
             // Add a death for this player
+            /*
             deaths++;
             ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable();
             properties.Add(PlayerProperties.KEY_DEATHS, deaths);
             photonView.Owner.SetCustomProperties(properties);
+            */
+            photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { {KEY_DEATHS, ++deaths} });
 
-            if (DEBUG) Debug.LogFormat("PlayerManager: Die() deaths = {0}, photonView.Owner.NickName = {1}", deaths, photonView.Owner.NickName);
+            if (DEBUG) Debug.LogFormat("PlayerManager: AddDeath() deaths = {0}, photonView.Owner.NickName = {1}", deaths, photonView.Owner.NickName);
         }
 
         /// <summary>
@@ -435,10 +459,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             int kills = (value == null) ? 0 : Convert.ToInt32(value);
 
             // Add a kill for this player
+            /*
             kills++;
             ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable();
             properties.Add(PlayerProperties.KEY_KILLS, kills);
             photonView.Owner.SetCustomProperties(properties);
+            */
+            photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { {KEY_KILLS, ++kills} });
 
             if (DEBUG) Debug.LogFormat("PlayerManager: AddKill() kills = {0}, photonView.Owner.NickName = {1}", kills, photonView.Owner.NickName);
         }
@@ -449,10 +476,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void Respawn()
         {
-            Health = 100;
-            
-            // Pretend the player has respawned by raising him in the air a bit
-            transform.position = transform.position + new Vector3(0f, 5f, 0f);
+            if (DEBUG) Debug.LogFormat("PlayerManager: Respawn() photonView.Owner.NickName = {0}", photonView.Owner.NickName);
+
+            if (photonView.IsMine)
+            {
+                Health = 100;
+
+                // Temporary respawning action: Pretend the player has respawned by raising him in the air a bit
+                transform.GetComponent<FirstPersonController>().enabled = false; // disables the first person controller so 
+                transform.position = transform.position + new Vector3(0f, 20f, 0f);
+                Update();
+                transform.GetComponent<FirstPersonController>().enabled = true;
+            }
         }
 
         /// <summary>
@@ -490,23 +525,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     photonView.RPC("Shoot", RpcTarget.All);
                 }
             }
-
-            /*if (Input.GetButton("Weapon1")) //Adding this option seems like the next step, but I just want to make sure I understand the code a bit more before pushing.
-                                              //Going to look more into a polymorphic solution to handle the input rather than long if statements. code will be so much easier to maintain
-                        {
-                            Debug.Log("PlayerManager: ProcessInputs() Input.GetButton(\"Weapon1\")");
-                            weapon1.setActive = true; //TODO: look deeper into how to to this tomorrow
-                            // Check if gun is ready to shoot before sending the RPC to avoid overloading network
-                            //if (activeGun.IsReadyToShoot)
-                            //{
-                            //Debug.LogFormat("PlayerManager: ProcessInputs() gun.IsReadyToShoot = {0}", gun.IsReadyToShoot);
-
-                            // Call the [PunRPC] Shoot method over photon network
-                            //photonView.RPC("Shoot", RpcTarget.All);
-                            //}
-                        }*/
         }
-
+        
         #endregion Private Methods
 
         #region RPC Methods
@@ -587,6 +607,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="info"></param>
         public void OnPhotonInstantiate(PhotonMessageInfo info)
         {
+            // ***
+            // This code does not do what I originally thought it did... CHANGE IT!
+            // ***
             // Share/Sync information about our Photon Player on the network
             PhotonNetwork.LocalPlayer.SetCustomProperties(PlayerInfo);
         }

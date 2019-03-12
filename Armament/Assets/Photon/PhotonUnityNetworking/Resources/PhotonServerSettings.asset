@@ -35,5 +35,6 @@ MonoBehaviour:
   - Shoot
   - DropWall
   - SetTimer
+  - Die
   DisableAutoOpenWizard: 1
   ShowSettings: 1

@@ -298,8 +298,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // #Critical: We only load if we are the first player, else we rely on 'PhotonNetwork.AutomaticallySyncScene' to sync our instance scene.
             if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
             {
-                Debug.Log("We load the 'Room for 1'");
-                progressLabel.GetComponent<Text>().text = "Loading the 'Room for 1' map...";
+                Debug.Log("We load the '"+ developmentOnly_levelToLoad + "'");
+                progressLabel.GetComponent<Text>().text = "Loading the '" + developmentOnly_levelToLoad  + "' map...";
 
                 // #Critical
                 // Load the Room Level.
