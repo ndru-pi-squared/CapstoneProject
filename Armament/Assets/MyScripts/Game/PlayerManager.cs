@@ -52,8 +52,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG = true; // indicates whether we are debugging this class
 
         private PlayerProperties playerProperties; // represents our custom class for keeping track of player properties
-        //private int kills = 0;
-        //private int deaths = 0;
+        private ArrayList playerWeapons;
+        private GameObject gunToBePickedUpGO;
 
         #endregion
 
@@ -77,6 +77,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             // PlayerProperties is a class we created to help us set custom properties for photon players 
             playerProperties = gameObject.GetComponent<PlayerProperties>();
+
+            playerWeapons = new ArrayList();
 
             // #Important
             // used in GameManager.cs: we keep track of the localPlayer instance to prevent instantiation when levels are synchronized
@@ -169,20 +171,59 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void OnTriggerEnter(Collider other)
         {
-            if (!photonView.IsMine)
-            {
-                return;
-            }
 
-            if (DEBUG) Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with object with name \"{0}\"", other.name);
-            
-            // If this player collided with a Weapon (a collider on a gameobject with a tag == "Weapon")
-            if (other.CompareTag("Weapon"))
+            if (photonView.IsMine)
             {
-                if (DEBUG) Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with weapon with name \"{0}\"", other.GetComponentInParent<Gun>().name);
-                
-                // Pick up gun
-                ReplaceCurrentGunWithPickedUpGun(other.GetComponentInParent<Gun>());
+                if (DEBUG) Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with OBJECT with name \"{0}\"," +
+                    " photonView.Owner.NickName = {1}", other.name, photonView.Owner.NickName);
+
+                // If this player collided with a Weapon (a collider on a gameobject with a tag == "Weapon")
+                if (other.CompareTag("Weapon"))
+                {
+                    if (DEBUG) Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with WEAPON with name \"{0}\"," +
+                        " photonView.Owner.NickName = {1}", other.GetComponentInParent<Gun>().name, photonView.Owner.NickName);
+
+                    // Get the current owner of this gun (it should be "Scene" if no one owns the gun)
+                    gunToBePickedUpGO = other.gameObject;
+                    PhotonView gunPhotonView = gunToBePickedUpGO.GetComponentInParent<PhotonView>();
+                    int viewID = gunPhotonView.ViewID;
+                    if (DEBUG) Debug.LogFormat("PlayerManager: OnTriggerEnter() viewID = {0}", viewID);
+                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(viewID.ToString(), out object value);
+                    string currentOwner = Convert.ToString(value);
+
+                    if (DEBUG) Debug.LogFormat("PlayerManager: OnTriggerEnter() currentOwner = {0}" , currentOwner);
+                    
+                    // Try to set this player as the owner of this gun
+                    // Race condition: If another client's player tries to pick up the gun at the same time,
+                    // we may not be successful in claiming ownership of this gun. Setting properties will 
+                    // fail if we are too late.
+                    PhotonNetwork.CurrentRoom.SetCustomProperties(
+                        new ExitGames.Client.Photon.Hashtable { { viewID.ToString(), photonView.Owner.NickName } },
+                        new ExitGames.Client.Photon.Hashtable { { viewID.ToString(), value } });
+
+                    // Wait for OnRoomPropertiesUpdate() callback to be called to see if we can actually pick up the gun
+                }
+            }
+        }
+
+        public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
+        {
+            //if (DEBUG) Debug.LogFormat("PlayerManager: OnRoomPropertiesUpdate()");
+
+            // If we want to pick up a gun...
+            if (gunToBePickedUpGO != null)
+            {
+                PhotonView pv = gunToBePickedUpGO.GetComponentInParent<PhotonView>();
+                int viewID = pv.ViewID;
+                PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(viewID.ToString(), out object value);
+                string currentOwner = (value != null) ? (string)value : "";
+                // If we are the current owner of the gun we want to pick up...
+                if (currentOwner.Equals(photonView.Owner.NickName))
+                {
+                    if (DEBUG) Debug.LogFormat("PlayerManager: OnRoomPropertiesUpdate() About to pick up gun: viewID = {0}", viewID);
+                    // Pick up gun (synchronized on network)
+                    photonView.RPC("ReplaceCurrentGunWithPickedUpGun", RpcTarget.All, viewID);
+                }
             }
         }
 
@@ -257,9 +298,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             
             photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { {KEY_TEAM, team} });
         }
-        
+
         /// <summary>
-        /// Decrease health of player by damage amount. 
+        /// Decreases health of player by damage amount. Makes player die (on all clients), if necessary.
         /// </summary>
         /// <param name="amount">The amount of damage caused</param>
         public void TakeDamage(float amount)
@@ -268,12 +309,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             //  Don't forget: Health will be synchronized by Photon via 'Object Synchronization'
             //  Each client will own one player (specifically, a PhotonView component on the player). 
             //  The client's player tells all other clients' instances of the player what their health is.
-            //  ** Maybe this code should only be executed inside "if (photonView.IsMine) { }"
 
-            // If the attacked player is the one this client owns...
-            if (photonView.IsMine) {
+            // If the player being damaged is the one this client owns...
+            if (photonView.IsMine)
+            {
                 Health -= amount;
 
+                // If player should die...
                 if (Health <= 0)
                 {
                     // Make player die (synchronized on network)
@@ -283,7 +325,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         /// <summary>
-        /// Decrease health of player by damage amount.
+        /// Decreases health of player by damage amount. Makes player die (on all clients), if necessary.
+        /// Logs a kill (on all clients) for the player who caused the damage. 
         /// </summary>
         /// <param name="amount">The amount of damage caused</param>
         /// <param name="playerWhoCausedDamage">The player who caused the damage</param>
@@ -293,29 +336,24 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             //  Don't forget: Health will be synchronized by Photon via 'Object Synchronization'
             //  Each client will own one player (specifically, a PhotonView component on the player). 
             //  The client's player tells all other clients' instances of the player what their health is.
-            //  ** Maybe this code should only be executed inside "if (photonView.IsMine) { }"
 
-            // If the attacked player is the one this client owns...
+            // If the player being damaged is the one this client owns...
             if (photonView.IsMine)
             {
                 Health -= amount;
 
+                // If player should die...
                 if (Health <= 0)
                 {
-                    // Make player die (synchronized on network)
+                    // Make this player die on all clients
                     photonView.RPC("Die", RpcTarget.All); // calls the [PunRPC] Die method over photon network
 
+                    // Log the kill for the player who caused the damage 
                     playerWhoCausedDamage.AddKill();
                 }
             }
         }
         
-        // Remove this method when done testing the Die() method
-        public void TestDie()
-        {
-            Die();
-        }
-
         #endregion Public Methods
 
         #region Private Methods
@@ -326,61 +364,28 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             this.CalledOnLevelWasLoaded(scene.buildIndex);
         }
 #endif
-
-        /// <summary>
-        /// Picks up gun.
-        /// Requires player to have a gun already to know how to position the new gun.
-        /// *This is not the best implementation!!
-        /// </summary>
-        /// <param name="pickedUpGun">The picked up gun.</param>
-        void ReplaceCurrentGunWithPickedUpGun(Gun pickedUpGun)
-        {
-            // Put this gun in the GameObject hierarchy where the old gun was (i.e., make it a sibling to the old gun)
-            pickedUpGun.transform.parent = activeGun.transform.parent;
-            // Copy the old gun's position and rotation
-            pickedUpGun.transform.position = activeGun.transform.position;
-            pickedUpGun.transform.rotation = activeGun.transform.rotation;
-            // Disable old gun and enable new gun
-            // (Disabling the old gun is necessary if we change the code to all the player to pick up multiple guns)
-            activeGun.transform.gameObject.SetActive(false);
-            pickedUpGun.transform.gameObject.SetActive(true);
-            // Set FPS Cam and Player who owns this gun
-            pickedUpGun.fpsCam = activeGun.fpsCam;
-            pickedUpGun.playerWhoOwnsThisGun = activeGun.playerWhoOwnsThisGun;
-
-            // Make sure the gun is not moved by physics engine
-            // (Because gun is currently floating in our program it would otherwise just fall)
-            //pickedUpGun.GetComponentInChildren<Rigidbody>().isKinematic = true;
-
-            // Keep a reference to what gun was active before replacement so we can return it as our "old gun"
-            Gun oldGun = activeGun;
-            // Keep track of what gun we want to shoot with now
-            activeGun = pickedUpGun;
-            // Make sure we don't collide with this gun again (while we're holding it)
-            DisableActiveGunCollider();
-            // Drop the gun we had before replacement
-            DropGun(oldGun);
-        }
-
+        
         /// <summary>
         /// Drops the gun.
         /// </summary>
         /// <param name="gun">The gun. Must be gun that is currently being held by a player.</param>
         void DropGun(Gun gun)
         {
+            // Relinquish gun ownership to the Scene 
+            int viewID = gun.GetComponent<PhotonView>().ViewID;
+            PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { viewID.ToString(), "Scene" } });
+
             // Make this gun a sibling of the player in the GameObject hierarchy
             gun.transform.parent = LocalPlayerInstance.transform.parent;
+
             // Toss gun away from player so we don't immediately collide with it again
             // (For now, just move it forward a bit)
             gun.transform.position = gun.transform.position + LocalPlayerInstance.transform.forward * howFarToTossWeapon;
             gun.transform.rotation = LocalPlayerInstance.transform.rotation;
-            // Re-enable the gun and its gun's collider so it can be picked up again
+            
+            // Re-enable the gun and its gun's collider so it's visible and can be picked up again
             gun.transform.gameObject.SetActive(true);
             gun.GetComponentInChildren<BoxCollider>().enabled = true;
-
-            // Re-enable the gun's ability to be moved by physics engine
-            // (Because we disable it when we pick it up)
-            //gun.GetComponentInChildren<Rigidbody>().isKinematic = false;
         }
 
         /// <summary>
@@ -393,78 +398,32 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         /// <summary>
-        /// Handles what happens to this player when it dies.
-        /// Right now, we register that this player has died and "respawn" the player
-        /// </summary>
-        [PunRPC]
-        void Die()
-        {
-            //GameManager.Instance.LeaveRoom();
-            //PhotonNetwork.Destroy(gameObject);
-            //Destroy(gameObject);
-
-            // Register a death for this player on all client
-            AddDeath();
-            
-            // Respawn
-            Respawn();
-        }
-
-        /// <summary>
-        /// Adds a death for this player. This death is registered on all clients. 
-        /// This method is called by Die().
+        /// Adds a death for this player. This kill is synced for this player on all clients. 
+        /// This method is called by [PunRPC] Die().
         /// </summary>
         void AddDeath()
         {
-            // ***
-            //
-            // Look carefully at this code and how it is called during all possible gameplay scenarios!
-            // This code is executed on every client (not just master client). 
-            // There may be a hidden synchronization problems (edge cases) yet to be uncovered
-            // 
-            // ***
-
             // Get current deaths for this player
             photonView.Owner.CustomProperties.TryGetValue(PlayerProperties.KEY_DEATHS, out object value);
             int deaths = (value == null) ? 0 : Convert.ToInt32(value);
 
             // Add a death for this player
-            /*
-            deaths++;
-            ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable();
-            properties.Add(PlayerProperties.KEY_DEATHS, deaths);
-            photonView.Owner.SetCustomProperties(properties);
-            */
             photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { {KEY_DEATHS, ++deaths} });
 
             if (DEBUG) Debug.LogFormat("PlayerManager: AddDeath() deaths = {0}, photonView.Owner.NickName = {1}", deaths, photonView.Owner.NickName);
         }
 
         /// <summary>
-        /// Adds a kill for this player. This kill is registered on all clients. 
-        /// This method is called by TakeDamage(float,PlayerManager) when player dies.
+        /// Adds a kill for this player. This kill is synced for this player on all clients. 
+        /// This method is called by TakeDamage(float,PlayerManager) (an instance of another player) when that player dies.
         /// </summary>
         void AddKill()
         {
-            // ***
-            //
-            // Look carefully at this code and how it is called during all possible gameplay scenarios!
-            // This code is executed on every client (not just master client). 
-            // There may be a hidden synchronization problems (edge cases) yet to be uncovered
-            // 
-            // ***
-
             // Get current deaths for this player
             photonView.Owner.CustomProperties.TryGetValue(PlayerProperties.KEY_KILLS, out object value);
             int kills = (value == null) ? 0 : Convert.ToInt32(value);
 
             // Add a kill for this player
-            /*
-            kills++;
-            ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable();
-            properties.Add(PlayerProperties.KEY_KILLS, kills);
-            photonView.Owner.SetCustomProperties(properties);
-            */
             photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { {KEY_KILLS, ++kills} });
 
             if (DEBUG) Debug.LogFormat("PlayerManager: AddKill() kills = {0}, photonView.Owner.NickName = {1}", kills, photonView.Owner.NickName);
@@ -526,10 +485,52 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 }
             }
         }
-        
+
         #endregion Private Methods
 
         #region RPC Methods
+
+        /// <summary>
+        /// Picks up gun.
+        /// Requires player to have a gun already to know how to position the new gun.
+        /// *This is not the best implementation!!
+        /// </summary>
+        /// <param name="pickedUpGun">The picked up gun.</param>
+        [PunRPC]
+        void ReplaceCurrentGunWithPickedUpGun(int viewID)
+        {
+            // Find gun to pick up using Photon viewID
+            Gun pickedUpGun = PhotonView.Find(viewID).GetComponent<Gun>();
+
+            // Protect against double collisions (trying to pick up the same gun twice)
+            if (pickedUpGun.Equals(activeGun))
+            {
+                return;
+            }
+                
+            // Make sure we don't collide with the new gun while we're holding it
+            pickedUpGun.GetComponentInChildren<BoxCollider>().enabled = false;
+
+            // Put this gun in the GameObject hierarchy where the old gun was (i.e., make it a sibling to the old gun)
+            pickedUpGun.transform.parent = activeGun.transform.parent;
+
+            // Give the picked up gun the same position and rotation as the active gun
+            pickedUpGun.transform.position = activeGun.transform.position;
+            pickedUpGun.transform.rotation = activeGun.transform.rotation;
+            
+            // Disable the old gun and enable new gun
+            activeGun.transform.gameObject.SetActive(false);
+            pickedUpGun.transform.gameObject.SetActive(true);
+            
+            // Set FPS Cam and Player who owns this gun
+            pickedUpGun.fpsCam = activeGun.fpsCam;
+            pickedUpGun.playerWhoOwnsThisGun = activeGun.playerWhoOwnsThisGun;
+
+            // Make the picked up gun our active gun and Drop the old gun
+            Gun oldGun = activeGun;
+            activeGun = pickedUpGun;
+            DropGun(oldGun);
+        }
 
         /// <summary>
         /// Shoot was invoked over photon network via RPC
@@ -542,6 +543,24 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Tell the gun to shoot
             activeGun.Shoot();
+        }
+
+        /// <summary>
+        /// Handles what happens to this player when it dies.
+        /// Right now, we register that this player has died and "respawn" the player
+        /// </summary>
+        [PunRPC]
+        void Die()
+        {
+            //GameManager.Instance.LeaveRoom();
+            //PhotonNetwork.Destroy(gameObject);
+            //Destroy(gameObject);
+
+            // Register a death for this player on all client
+            AddDeath();
+
+            // Respawn
+            Respawn();
         }
 
         #endregion RPC Methods

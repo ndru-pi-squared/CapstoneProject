@@ -17,14 +17,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
     public class GameManager : MonoBehaviourPunCallbacks
     {
         #region Public Fields 
-        
+
+        public const string KEY_TEAM_A_PLAYERS_COUNT = "Team A Size";
+        public const string KEY_TEAM_B_PLAYERS_COUNT = "Team B Size";
+
         // Singleton - you know what that means. Also, this won't show up in the inspector in Unity
         public static GameManager Instance; 
 
         [Tooltip("The prefab to use for representing the local player")]
         public GameObject PlayerPrefab; // used to instantiate the player pref on PhotonNetwork
         [Tooltip("List of weapon prefabs for this game")]
-        public GameObject[] weapons; // used to instantiate the weapons on PhotonNetwork
+        public GameObject[] weaponsPrefabs; // used to instantiate the weapons on PhotonNetwork
         [Tooltip("Prefab for the team dividing wall")]
         public GameObject dividingWallPrefab; // used to instantiate the player pref on PhotonNetwork
         [Tooltip("The root GameObject in the hierarchy for all our game levels that we call \"Environment\"")]
@@ -55,6 +58,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         private ArrayList teamAList;
         private ArrayList teamBList;
+        private ArrayList spawnedWeaponsList;
 
         #endregion Private Fields
 
@@ -64,6 +68,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             get { return roomProperties.Properties; }
             private set { roomProperties.Properties = value; }
+        }
+
+        public ArrayList SpawnedWeaponsList
+        {
+            get { return spawnedWeaponsList; }
+            private set { spawnedWeaponsList = value; }
         }
 
         #endregion
@@ -86,11 +96,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             Cursor.visible = true;
         }
 
-        // Remove this method when done testing PlayerManager.Die()
-        public void TestKillLocalPlayer()
-        {
-            PlayerManager.LocalPlayerInstance.GetComponent<PlayerManager>().TestDie();
-        }
         #endregion Public Methods
 
         #region Private Methods
@@ -245,11 +250,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     }
 
                     // Get the size of Team A and size of Team B
-                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(RoomProperties.KEY_TEAM_A_PLAYERS_COUNT, out object teamACountObject);
-                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(RoomProperties.KEY_TEAM_B_PLAYERS_COUNT, out object teamBCountObject);
+                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(KEY_TEAM_A_PLAYERS_COUNT, out object teamACountObject);
+                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(KEY_TEAM_B_PLAYERS_COUNT, out object teamBCountObject);
                     int teamACount = (teamACountObject != null) ? Convert.ToInt32(teamACountObject) : 0;
                     int teamBCount = (teamBCountObject != null) ? Convert.ToInt32(teamBCountObject) : 0;
-                    Debug.LogFormat("GameManager: Start() A teamACount = {0}, teamBCount = {1},", teamACount, teamBCount);
+                    if (DEBUG) Debug.LogFormat("GameManager: Start() A teamACount = {0}, teamBCount = {1},", teamACount, teamBCount);
 
                     // If Team B has fewer players than Team A... Add this player to team B. Else... Add this player to team A
                     bool addPlayerToTeamA = (teamBCount < teamACount) ? false : true;
@@ -276,7 +281,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     myPlayerGO.GetComponentInChildren<AudioListener>().enabled = true;
                     myPlayerGO.GetComponentInChildren<FlareLayer>().enabled = true;
 
-
+                    // ***
+                    // All the code below with GameRoomInfo has to be changed... I found a better way
+                    // to write this code. It's working for now so I'm going to leave it until I have
+                    // time to focus on it.
+                    // ***
                     // Increment player count on team they joined (Every client will execute this)
                     if (addPlayerToTeamA)
                     {
@@ -292,7 +301,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     }
                     // Update room properties on network (Every client will execute this)
                     PhotonNetwork.CurrentRoom.SetCustomProperties(GameRoomInfo);
-                    Debug.LogFormat("GameManager: Start() B teamACount = {0}, teamBCount = {1},", teamACount, teamBCount);
+                    if (DEBUG) Debug.LogFormat("GameManager: Start() B teamACount = {0}, teamBCount = {1},", teamACount, teamBCount);
 
                     // Disable scene camera
                     Camera.main.enabled = false;
@@ -303,13 +312,28 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     // If this is the master client...
                     if (PhotonNetwork.IsMasterClient)
                     {
+                        // Create a new list to keep track of spawned weapons
+                        spawnedWeaponsList = new ArrayList();
 
-                        // Instantiate our two weapons at different spawn points for team A
-                        PhotonNetwork.InstantiateSceneObject(this.weapons[0].name, weaponSpawnPoints[0].position, weaponSpawnPoints[0].rotation, 0);
-                        PhotonNetwork.InstantiateSceneObject(this.weapons[1].name, weaponSpawnPoints[1].position, weaponSpawnPoints[1].rotation, 0);
-                        // Instantiate our two weapons at different spawn points for team B
-                        PhotonNetwork.InstantiateSceneObject(this.weapons[0].name, weaponSpawnPoints[2].position, weaponSpawnPoints[2].rotation, 0);
-                        PhotonNetwork.InstantiateSceneObject(this.weapons[1].name, weaponSpawnPoints[3].position, weaponSpawnPoints[3].rotation, 0);
+                        // Instantiate our two weapons at different spawn points for team A. Add each newly spawned weapon to the list
+                        spawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[0].name, weaponSpawnPoints[0].position, weaponSpawnPoints[0].rotation, 0));
+                        spawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[1].name, weaponSpawnPoints[1].position, weaponSpawnPoints[1].rotation, 0));
+                        // Instantiate our two weapons at different spawn points for team B. Add each newly spawned weapon to the list
+                        spawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[0].name, weaponSpawnPoints[2].position, weaponSpawnPoints[2].rotation, 0));
+                        spawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[1].name, weaponSpawnPoints[3].position, weaponSpawnPoints[3].rotation, 0));
+
+                        // Add the spawned weapon (key) and it's owner (value) to the properties for the current room
+                        PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable {
+                            { ((GameObject)spawnedWeaponsList[0]).GetPhotonView().ViewID.ToString(), "Scene" },
+                            { ((GameObject)spawnedWeaponsList[1]).GetPhotonView().ViewID.ToString(), "Scene" },
+                            { ((GameObject)spawnedWeaponsList[2]).GetPhotonView().ViewID.ToString(), "Scene" },
+                            { ((GameObject)spawnedWeaponsList[3]).GetPhotonView().ViewID.ToString(), "Scene" } });
+                        
+                        if (DEBUG) Debug.LogFormat("GameManager: Start() " +
+                           "((GameObject)spawnedWeaponsList[0]).GetPhotonView().ViewID = {0} " +
+                           "((GameObject)spawnedWeaponsList[1]).GetPhotonView().ViewID = {1}",
+                           ((GameObject)spawnedWeaponsList[0]).GetPhotonView().ViewID,
+                           ((GameObject)spawnedWeaponsList[1]).GetPhotonView().ViewID);
 
                         if (Launcher.developmentOnly_levelToLoad.Equals("Room for 1"))
                         {

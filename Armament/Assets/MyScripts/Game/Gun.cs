@@ -10,7 +10,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
     /// <para>This definitely needs a better summary</para>
     /// </summary>
     [RequireComponent(typeof(AudioSource))]
-    public class Gun : MonoBehaviour
+    public class Gun : MonoBehaviour, IPunInstantiateMagicCallback
     {
         #region Public Fields
 
@@ -110,7 +110,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (!IsReadyToShoot) { return; }
 
             // Calculate the next time we can fire based on current time and the firerate
-            nextTimeToFire = Time.time + 1f / fireRate;//isn't this already calculated in the method that calls this one?
+            nextTimeToFire = Time.time + 1f / fireRate;
 
             //Play gunshot sound
             PlayGunShotSound();
@@ -166,8 +166,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // I read somewhere online that this allows the sounds to overlap
             audioSource.PlayOneShot(gunshotSound);
         }
-        
+
         #endregion Private methods
 
+        #region IPunInstantiateMagicCallback implementation
+
+        /// <summary>
+        /// Photon Callback method. Called after Gun has been instantiated on network.
+        /// </summary>
+        /// <param name="info"></param>
+        public void OnPhotonInstantiate(PhotonMessageInfo info)
+        {
+            // e.g. store this gameobject as this player's charater in Player.TagObject
+            //info.Sender.TagObject = this.GameObject
+        }
+
+        #endregion IPunInstantiateMagicCallback implementation
     }
 }
