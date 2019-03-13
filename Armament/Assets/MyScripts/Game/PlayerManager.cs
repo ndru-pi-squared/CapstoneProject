@@ -475,6 +475,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
 
             // Check if the user is trying to fire gun continuously
+            //Dictionary<int, string> inputsDict = new Dictionary<InputClass, string>();
+            //or without a dict we could just have 1 input class with lots of commands. nah we should really divide them up based on input type (mobile, pc, UI for each, etc)
+            //inputsDict.get(name).execute(input); //where input is "Fire1" or "Weapon1" and map.get(name) returns a class that can execute that input.
+            //we set the state in another place in the code. this type of code is easier to maintain than the long if statements
             if (Input.GetButton("Fire1"))
             {
                 // Check if gun is ready to shoot before sending the RPC to avoid overloading network
