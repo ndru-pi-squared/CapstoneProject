@@ -16,13 +16,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
     /// <summary>this is a sample summary created with GhostDoc</summary>
     public class GameManager : MonoBehaviourPunCallbacks
     {
-        #region Public Fields 
-
+        #region Public static and const Fields 
+  
+        // Keys references for the Room CustomProperties hash table (so we don't use messy string literals)
         public const string KEY_TEAM_A_PLAYERS_COUNT = "Team A Size";
         public const string KEY_TEAM_B_PLAYERS_COUNT = "Team B Size";
 
         // Singleton - you know what that means. Also, this won't show up in the inspector in Unity
-        public static GameManager Instance; 
+        public static GameManager Instance;
+
+        #endregion Public static and const Fields 
+
+        #region Public Fields 
 
         [Tooltip("The prefab to use for representing the local player")]
         public GameObject PlayerPrefab; // used to instantiate the player pref on PhotonNetwork

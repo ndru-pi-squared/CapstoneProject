@@ -14,23 +14,27 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
     public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable, ITarget, IPunInstantiateMagicCallback
     {
 
-        #region Public Fields
+        #region Public static and const Fields 
 
-        // Key references
+        // Key references for the Player CustomProperties hash table (so we don't use messy string literals)
         public const string KEY_KILLS = "Kills";
         public const string KEY_DEATHS = "Deaths";
         public const string KEY_ISALIVE = "IsAlive";
         public const string KEY_TEAM = "Team";
 
-        // Team name references
+        // Team name references for the Player CustomProperties hash table (so we don't use messy string literals)
         public const string TEAM_NAME_A = "A";
         public const string TEAM_NAME_B = "B";
         public const string TEAM_NAME_SPECT = "Spectator";
 
+        public static GameObject LocalPlayerInstance;
+
+        #endregion Public static and const Fields 
+
+        #region Public Fields
+
         [Tooltip("The current Health of our player")]
         public float Health = 100f;
-        [Tooltip("The local player instance. Use this to know if the local player is represented in the Scene")]
-        public static GameObject LocalPlayerInstance;
 
         #endregion
 
@@ -125,19 +129,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         }
 
-        /** My Note:
-         *   Added this function because it's in the demo package script
-         */
-        public override void OnDisable()
-        {
-            // Always call the base to remove callbacks
-            base.OnDisable();
-
-#if UNITY_5_4_OR_NEWER
-            UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
-#endif
-        }
-
         /// <summary>
         /// MonoBehaviour method called on GameObject by Unity on every frame.
         /// </summary>
@@ -192,32 +183,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
         }
 
-        public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
-        {
-            // If we want to pick up a gun...
-            if (gunToBePickedUpGO != null)
-            {
-                // Get the View ID of the photon view on the Gun GameObject
-                string gunViewID = gunToBePickedUpGO.GetComponentInParent<PhotonView>().ViewID.ToString();
-
-                // Get the current owner of this gun
-                PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(gunViewID, out object value);
-                string currentOwner = (value != null) ? (string)value : ""; // value should never be null but just in case...
-
-                // If we are the current owner of the gun we want to pick up...
-                if (currentOwner.Equals(photonView.Owner.NickName))
-                {
-                    if (DEBUG) Debug.LogFormat("PlayerManager: OnRoomPropertiesUpdate() About to pick up gun: gunViewID = {0}", gunViewID);
-                    // Pick up gun (synchronized on network)
-                    photonView.RPC("ReplaceCurrentGunWithPickedUpGun", RpcTarget.All, Convert.ToInt32(gunViewID));
-                }
-
-                // Whether we were successful or not trying to pick up this gun, we are no longer trying to pick up this gun
-                // and don't want to try to pick it up again if the room properties are updated again for some other reason
-                gunToBePickedUpGO = null;
-            }
-        }
-
 #if !UNITY_5_4_OR_NEWER
         /// <summary>
         /// See CalledOnLevelWasLoaded. Outdated in Unity 5.4.
@@ -229,8 +194,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 #endif
 
         /** My note:
-         *   - This function is going to be called when the event UnityEngine.SceneManagement.SceneManager.sceneLoaded is triggered
-         *     because we set it up to be called in the Start() function
+         *   - This method is going to be called when the event UnityEngine.SceneManagement.SceneManager.sceneLoaded is triggered
+         *     because we set it up to be called in the Start() method
+         *   - This current contents of this method (Raycasting downwards and instantiating playerUIPrefab) are holdovers from the tutorial
+         *     and don't really apply to Armament game. They should be carefully removed at some point. Don't want to remove the entire method 
+         *     (at least not yet) because setting it up to be called was a little tricky and I don't want to have to figure out how to do that
+         *     a second time.
          */
         void CalledOnLevelWasLoaded(int level)
         {
@@ -263,6 +232,56 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         #endregion
+
+        #region MonobehaviourPun Callbacks
+
+        /** My Note:
+         *   Added this function because it's in the demo package script
+         */
+        public override void OnDisable()
+        {
+            // Always call the base to remove callbacks
+            base.OnDisable();
+
+#if UNITY_5_4_OR_NEWER
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
+#endif
+        }
+
+        /// <summary>
+        /// Called when a room's custom properties changed. The propertiesThatChanged contains all that was set via Room.SetCustomProperties.
+        /// <para> </para>
+        /// <para>Since v1.25 this method has one parameter: Hashtable propertiesThatChanged.</para>
+        /// <para>Changing properties must be done by Room.SetCustomProperties, which causes this callback locally, too.</para>
+        /// </summary>
+        /// <param name="propertiesThatChanged"></param>
+        public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
+        {
+            // If we want to pick up a gun...
+            if (gunToBePickedUpGO != null)
+            {
+                // Get the View ID of the photon view on the Gun GameObject
+                string gunViewID = gunToBePickedUpGO.GetComponentInParent<PhotonView>().ViewID.ToString();
+
+                // Get the current owner of this gun
+                PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(gunViewID, out object value);
+                string currentOwner = (value != null) ? (string)value : ""; // value should never be null but just in case...
+
+                // If we are the current owner of the gun we want to pick up...
+                if (currentOwner.Equals(photonView.Owner.NickName))
+                {
+                    if (DEBUG) Debug.LogFormat("PlayerManager: OnRoomPropertiesUpdate() About to pick up gun: gunViewID = {0}", gunViewID);
+                    // Pick up gun (synchronized on network)
+                    photonView.RPC("ReplaceCurrentGunWithPickedUpGun", RpcTarget.All, Convert.ToInt32(gunViewID));
+                }
+
+                // Whether we were successful or not trying to pick up this gun, we are no longer trying to pick up this gun
+                // and don't want to try to pick it up again if the room properties are updated again for some other reason
+                gunToBePickedUpGO = null;
+            }
+        }
+
+        #endregion MonobehaviourPun Callbacks
 
         #region Public Methods
 
