@@ -53,9 +53,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #region Private Fields
 
         private const bool DEBUG = true;
-
-        private RoomProperties roomProperties; // represents our custom class for keeping track of room properties
-
+        
         private ArrayList teamAList;
         private ArrayList teamBList;
         private ArrayList spawnedWeaponsList;
@@ -63,13 +61,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #endregion Private Fields
 
         #region Properties
-
-        public ExitGames.Client.Photon.Hashtable GameRoomInfo
-        {
-            get { return roomProperties.Properties; }
-            private set { roomProperties.Properties = value; }
-        }
-
+        
         public ArrayList SpawnedWeaponsList
         {
             get { return spawnedWeaponsList; }
@@ -234,27 +226,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                  */
                 if (PlayerManager.LocalPlayerInstance == null)
                 {
-                    /** My comment: 
-                     *   Below is the code from the tutorial but Application.loadLevelName is deprecated.
-                     *   Debug.LogFormat("We are Instantiating LocalPlayer from {0}", Application.loadedLevelName);
-                     *   I replaced it with a version that is not depricated.
-                     */
+                    // Tutorial Debug Statement
                     Debug.LogFormat("We are Instantiating LocalPlayer from {0}", SceneManager.GetActiveScene().name);
-
-                    // If this is the master client...
-                    if (PhotonNetwork.IsMasterClient)
-                    {
-                        // Share/Sync information about the game on the network
-                        // Only the first master client will setup the room properties
-                        PhotonNetwork.CurrentRoom.SetCustomProperties(GameRoomInfo);
-                    }
-
+                    
                     // Get the size of Team A and size of Team B
                     PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(KEY_TEAM_A_PLAYERS_COUNT, out object teamACountObject);
                     PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(KEY_TEAM_B_PLAYERS_COUNT, out object teamBCountObject);
                     int teamACount = (teamACountObject != null) ? Convert.ToInt32(teamACountObject) : 0;
                     int teamBCount = (teamBCountObject != null) ? Convert.ToInt32(teamBCountObject) : 0;
-                    if (DEBUG) Debug.LogFormat("GameManager: Start() A teamACount = {0}, teamBCount = {1},", teamACount, teamBCount);
 
                     // If Team B has fewer players than Team A... Add this player to team B. Else... Add this player to team A
                     bool addPlayerToTeamA = (teamBCount < teamACount) ? false : true;
@@ -264,13 +243,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         teamAPlayerSpawnPoints[new System.Random().Next(teamAPlayerSpawnPoints.Length)] :
                         teamBPlayerSpawnPoints[new System.Random().Next(teamBPlayerSpawnPoints.Length)];
 
-                    // we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
+                    // Tutorial comment: we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
                     GameObject myPlayerGO = PhotonNetwork.Instantiate(this.PlayerPrefab.name, playerSpawnPoint.position, playerSpawnPoint.rotation, 0);
 
                     // Tell player what team they are on
-                    myPlayerGO.GetComponent<PlayerManager>().SetTeam(addPlayerToTeamA ? PlayerProperties.TEAM_NAME_A : PlayerProperties.TEAM_NAME_B);
+                    myPlayerGO.GetComponent<PlayerManager>().SetTeam(addPlayerToTeamA ? PlayerManager.TEAM_NAME_A : PlayerManager.TEAM_NAME_B);
 
-                    // We need to enable all the controlling components for the local player so we're not controlling other players
+                    // We need to enable all the controlling components for the local player 
+                    // The prefab has these components disabled so we won't be controlling other players
                     myPlayerGO.GetComponent<Animator>().enabled = true;
                     myPlayerGO.GetComponent<CharacterController>().enabled = true;
                     myPlayerGO.GetComponent<AudioSource>().enabled = true;
@@ -281,34 +261,23 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     myPlayerGO.GetComponentInChildren<AudioListener>().enabled = true;
                     myPlayerGO.GetComponentInChildren<FlareLayer>().enabled = true;
 
-                    // ***
-                    // All the code below with GameRoomInfo has to be changed... I found a better way
-                    // to write this code. It's working for now so I'm going to leave it until I have
-                    // time to focus on it.
-                    // ***
                     // Increment player count on team they joined (Every client will execute this)
                     if (addPlayerToTeamA)
                     {
-                        teamACount++;
-                        GameRoomInfo.Remove(RoomProperties.KEY_TEAM_A_PLAYERS_COUNT);
-                        GameRoomInfo.Add(RoomProperties.KEY_TEAM_A_PLAYERS_COUNT, teamACount);
+                        PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_TEAM_A_PLAYERS_COUNT, ++teamACount } });
                     }
                     else
                     {
-                        teamBCount++;
-                        GameRoomInfo.Remove(RoomProperties.KEY_TEAM_B_PLAYERS_COUNT);
-                        GameRoomInfo.Add(RoomProperties.KEY_TEAM_B_PLAYERS_COUNT, teamBCount);
+                        PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_TEAM_B_PLAYERS_COUNT, ++teamBCount } });
                     }
-                    // Update room properties on network (Every client will execute this)
-                    PhotonNetwork.CurrentRoom.SetCustomProperties(GameRoomInfo);
-                    if (DEBUG) Debug.LogFormat("GameManager: Start() B teamACount = {0}, teamBCount = {1},", teamACount, teamBCount);
 
                     // Disable scene camera
                     Camera.main.enabled = false;
 
                     // We instantiate most non-player networked objects like guns and the wall as scene objects so they are not owned by the client
-                    // who instantiates them (they are owned by the room) and won't be removed when the client leaves the room. The only client who
-                    // can instantiate them is the master client. 
+                    // who instantiates them (they are owned by the room) and won't be removed if/when the master client leaves the room. The only 
+                    // client who can/should instantiate them is the master client. 
+                    // 
                     // If this is the master client...
                     if (PhotonNetwork.IsMasterClient)
                     {
@@ -335,6 +304,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                            ((GameObject)spawnedWeaponsList[0]).GetPhotonView().ViewID,
                            ((GameObject)spawnedWeaponsList[1]).GetPhotonView().ViewID);
 
+                        // Instantiate Team Dividing Wall for the scene. At least right now, this has to be done differently for each arena
+                        // 
+                        // If arena is "Room for 1" unity scene...
                         if (Launcher.developmentOnly_levelToLoad.Equals("Room for 1"))
                         {
                             // Instantiate the dividing wall for "Room for 1" level
@@ -342,11 +314,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                             Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, -45f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
                             GameObject dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
                         }
+                        // If arena is "Simple Room" unity scene...
                         else if (Launcher.developmentOnly_levelToLoad.Equals("Simple Room")) { 
                             // Instantiate the dividing wall for "Simple Room" level
                             Vector3 wallPosition = new Vector3(0f, 20f, 0f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
                             Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, 0f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
                             GameObject dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
+                            
                             // Set the scale to match the "Simple Room" level size
                             dividingWallGO.gameObject.transform.localScale = new Vector3(10f, 40f, 200f);
                         }
@@ -375,51 +349,49 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         // Note: I think this function is called on every computer when someone enters the room except the person who is entering the room
         public override void OnPlayerEnteredRoom(Player other)
         {
-            if (DEBUG) Debug.LogFormat("OnPlayerEnteredRoom() {0}", other.NickName); // not seen if you're the player connecting
+            // Tutorial comment: not seen if you're the player connecting
+            if (DEBUG) Debug.LogFormat("OnPlayerEnteredRoom() {0}", other.NickName); 
 
             if (PhotonNetwork.IsMasterClient)
             {
-                if (DEBUG) Debug.LogFormat("OnPlayerEnteredRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient); // called before OnPlayerLeftRoom
-
-                //LoadArena();   
+                // Tutorial comment: called before OnPlayerLeftRoom
+                if (DEBUG) Debug.LogFormat("OnPlayerEnteredRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient); 
             }
         }
 
-        // Note: I think this function is called on every computer when someone leaves the room except the person who is leaves the room
+        // Note: I think this function is called on every computer when someone leaves the room except the person who is leaving the room
         public override void OnPlayerLeftRoom(Player other)
         {
             Debug.LogFormat("OnPlayerLeftRoom() {0}", other.NickName); //seen when other disconnects
 
             if (PhotonNetwork.IsMasterClient)
             {
-                Debug.LogFormat("OnPlayerLeftRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient); // called before OnPlayerLeftRoom
+                // Tutorial comment: called before OnPlayerLeftRoom
+                Debug.LogFormat("OnPlayerLeftRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient); 
 
-                //LoadArena();
-                
-                // Get the name of the of team the player is on
-                other.CustomProperties.TryGetValue(PlayerProperties.KEY_TEAM, out object teamName);
+                // Get team the player is on (we expect teamName != null after this call)
+                other.CustomProperties.TryGetValue(PlayerManager.KEY_TEAM, out object teamName);
 
                 // If Player was on Team A...
-                if (PlayerProperties.TEAM_NAME_A.Equals(teamName))
+                if (PlayerManager.TEAM_NAME_A.Equals(teamName))
                 {
                     // Get the size of Team A
-                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(RoomProperties.KEY_TEAM_A_PLAYERS_COUNT, out object teamACountObject);
-                    // Increment size of Team A
-                    GameRoomInfo.Remove(RoomProperties.KEY_TEAM_A_PLAYERS_COUNT);
-                    GameRoomInfo.Add(RoomProperties.KEY_TEAM_A_PLAYERS_COUNT, Convert.ToInt32(teamACountObject) - 1);
+                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(KEY_TEAM_A_PLAYERS_COUNT, out object teamACountObject);
+                    // Decrement size of Team A
+                    PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable {
+                        { KEY_TEAM_A_PLAYERS_COUNT, Convert.ToInt32(teamACountObject) - 1 }
+                    });
                 }
                 // If Player was on Team B...
-                else if (PlayerProperties.TEAM_NAME_B.Equals(teamName))
+                else if (PlayerManager.TEAM_NAME_B.Equals(teamName))
                 {
                     // Get the size of Team B
-                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(RoomProperties.KEY_TEAM_B_PLAYERS_COUNT, out object teamBCountObject);
-                    // Increment size of Team B
-                    GameRoomInfo.Remove(RoomProperties.KEY_TEAM_B_PLAYERS_COUNT);
-                    GameRoomInfo.Add(RoomProperties.KEY_TEAM_B_PLAYERS_COUNT, Convert.ToInt32(teamBCountObject) - 1);
+                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(KEY_TEAM_B_PLAYERS_COUNT, out object teamBCountObject);
+                    // Decrement size of Team B
+                    PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable {
+                        { KEY_TEAM_B_PLAYERS_COUNT, Convert.ToInt32(teamBCountObject) - 1 }
+                    });
                 }
-
-                // Update room properties on network
-                PhotonNetwork.CurrentRoom.SetCustomProperties(GameRoomInfo);
             }
         }
 

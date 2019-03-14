@@ -50,20 +50,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #region Private Fields
 
         private const bool DEBUG = true; // indicates whether we are debugging this class
-
-        private PlayerProperties playerProperties; // represents our custom class for keeping track of player properties
+        
         private ArrayList playerWeapons;
         private GameObject gunToBePickedUpGO;
 
         #endregion
 
         #region Properties
-
-        public ExitGames.Client.Photon.Hashtable PlayerInfo{
-            get { return playerProperties.Properties; }
-            private set { playerProperties.Properties = value; }
-        }
-
+        
         public int PhotonPlayerID { get; private set; }
 
         #endregion
@@ -75,9 +69,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void Awake()
         {
-            // PlayerProperties is a class we created to help us set custom properties for photon players 
-            playerProperties = gameObject.GetComponent<PlayerProperties>();
-
             playerWeapons = new ArrayList();
 
             // #Important
@@ -282,20 +273,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="team"></param>
         public void SetTeam(string team)
         {
-
-            // ***
-            //
-            // Probably want to change implementation to not use PlayerInfo anymore
-            //
-            // ***
-
-            /*
-            // Update what team this player is on in PlayerProperties
-            PlayerInfo.Remove(PlayerProperties.KEY_TEAM);
-            PlayerInfo.Add(PlayerProperties.KEY_TEAM, team);
-            PhotonNetwork.LocalPlayer.SetCustomProperties(PlayerInfo);
-            */
-            
             photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { {KEY_TEAM, team} });
         }
 
@@ -404,7 +381,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         void AddDeath()
         {
             // Get current deaths for this player
-            photonView.Owner.CustomProperties.TryGetValue(PlayerProperties.KEY_DEATHS, out object value);
+            photonView.Owner.CustomProperties.TryGetValue(KEY_DEATHS, out object value);
             int deaths = (value == null) ? 0 : Convert.ToInt32(value);
 
             // Add a death for this player
@@ -420,7 +397,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         void AddKill()
         {
             // Get current deaths for this player
-            photonView.Owner.CustomProperties.TryGetValue(PlayerProperties.KEY_KILLS, out object value);
+            photonView.Owner.CustomProperties.TryGetValue(KEY_KILLS, out object value);
             int kills = (value == null) ? 0 : Convert.ToInt32(value);
 
             // Add a kill for this player
@@ -630,11 +607,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="info"></param>
         public void OnPhotonInstantiate(PhotonMessageInfo info)
         {
-            // ***
-            // This code does not do what I originally thought it did... CHANGE IT!
-            // ***
-            // Share/Sync information about our Photon Player on the network
-            PhotonNetwork.LocalPlayer.SetCustomProperties(PlayerInfo);
         }
 
         #endregion IPunInstantiateMagicCallback implementation
