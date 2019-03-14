@@ -44,8 +44,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region Private Serialized Fields 
 
-        //[Tooltip("List of locations where a player can be spawned")]
-        //[SerializeField] private Transform[] playerSpawnPoints; // list of locations where a player can be spawned
         [Tooltip("List of locations where a player on team A can be spawned")]
         [SerializeField] private Transform[] teamAPlayerSpawnPoints; // list of locations where a player can be spawned
         [Tooltip("List of locations where a player on team B can be spawned")]
@@ -275,6 +273,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                     // Disable scene camera
                     Camera.main.enabled = false;
+
+                    // Find the PlayerInfoUI in the canvas
+                    GameObject playerInfoUIGO = canvas.GetComponentInChildren<PlayerInfoUI>().gameObject;
+                    // Call SetTarget() on PlayerInfoUI component 
+                    playerInfoUIGO.SendMessage("SetTarget", myPlayerGO.GetComponent<PlayerManager>(), SendMessageOptions.RequireReceiver);
 
                     // We instantiate most non-player networked objects like guns and the wall as scene objects so they are not owned by the client
                     // who instantiates them (they are owned by the room) and won't be removed if/when the master client leaves the room. The only 

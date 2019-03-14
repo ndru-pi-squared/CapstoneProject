@@ -1058,7 +1058,7 @@ CharacterController:
   m_Enabled: 0
   serializedVersion: 2
   m_Height: 2
-  m_Radius: 0.2
+  m_Radius: 0.6
   m_SlopeLimit: 90
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
@@ -2263,6 +2263,10 @@ PrefabInstance:
       propertyPath: fpsCam
       value: 
       objectReference: {fileID: 802}
+    - target: {fileID: 1378, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1262, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
       propertyPath: fpsCam
       value: 
@@ -2505,10 +2509,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1466}
     - target: {fileID: 1367, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1378, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
