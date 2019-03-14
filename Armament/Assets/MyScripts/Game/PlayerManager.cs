@@ -5,6 +5,7 @@ using System.Collections;
 using Photon.Pun;
 using System;
 using Photon.Realtime;
+using System.Collections.Generic;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
@@ -383,6 +384,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Re-enable the gun and its gun's collider so it's visible and can be picked up again
             gun.transform.gameObject.SetActive(true);
             gun.GetComponentInChildren<BoxCollider>().enabled = true;
+
+            // Re-enable Photon's syncing of the gun position
+            gun.GetComponent<PhotonView>().ObservedComponents = new List<Component> { gun.GetComponent<PhotonTransformView>() };
         }
 
         /// <summary>
@@ -512,6 +516,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Make sure we don't collide with the new gun while we're holding it
             pickedUpGun.GetComponentInChildren<BoxCollider>().enabled = false;
 
+            // Disable Photon's syncing of the gun position before we put the gun in the GameObject heirarchy of the Player
+            pickedUpGun.GetComponent<PhotonView>().ObservedComponents = new List<Component> {};
+
             // Put this gun in the GameObject hierarchy where the old gun was (i.e., make it a sibling to the old gun)
             pickedUpGun.transform.parent = activeGun.transform.parent;
 
@@ -526,7 +533,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Set FPS Cam and Player who owns this gun
             pickedUpGun.fpsCam = activeGun.fpsCam;
             pickedUpGun.playerWhoOwnsThisGun = activeGun.playerWhoOwnsThisGun;
-
+            
             // Make the picked up gun our active gun and Drop the old gun
             Gun oldGun = activeGun;
             activeGun = pickedUpGun;
