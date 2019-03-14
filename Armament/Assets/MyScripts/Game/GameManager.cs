@@ -202,9 +202,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             // Singleton!
             Instance = this;
-            
-            // RoomProperties is a class we created to help us set custom properties for a game room 
-            roomProperties = gameObject.GetComponent<RoomProperties>();
         }
 
         private void Update()

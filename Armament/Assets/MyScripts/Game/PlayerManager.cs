@@ -52,16 +52,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG = true; // indicates whether we are debugging this class
         
         private ArrayList playerWeapons;
-        private GameObject gunToBePickedUpGO;
+        private GameObject gunToBePickedUpGO; // stores a reference to the a gun we want to pick up
 
         #endregion
-
-        #region Properties
         
-        public int PhotonPlayerID { get; private set; }
-
-        #endregion
-
         #region MonoBehaviour CallBacks
 
         /// <summary>
@@ -77,6 +71,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 PlayerManager.LocalPlayerInstance = this.gameObject;
             }
+            
             // #Critical
             // we flag as don't destroy on load so that instance survives level synchronization, thus giving a seamless experience when levels load.
             DontDestroyOnLoad(this.gameObject);
@@ -165,56 +160,61 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             if (photonView.IsMine)
             {
-                if (DEBUG) Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with OBJECT with name \"{0}\"," +
-                    " photonView.Owner.NickName = {1}", other.name, photonView.Owner.NickName);
-
-                // If this player collided with a Weapon (a collider on a gameobject with a tag == "Weapon")
+                // If this player collided with a Weapon (a collider on a gameobject with a tag == "Weapon")... 
                 if (other.CompareTag("Weapon"))
                 {
                     if (DEBUG) Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with WEAPON with name \"{0}\"," +
                         " photonView.Owner.NickName = {1}", other.GetComponentInParent<Gun>().name, photonView.Owner.NickName);
 
-                    // Get the current owner of this gun (it should be "Scene" if no one owns the gun)
+                    // Save a reference to the gun we want to pick up. We will need it later in OnRoomPropertiesUpdate() 
+                    // to actually pick up the gun if we were successful in claiming ownership of the gun in this method
                     gunToBePickedUpGO = other.gameObject;
-                    PhotonView gunPhotonView = gunToBePickedUpGO.GetComponentInParent<PhotonView>();
-                    int viewID = gunPhotonView.ViewID;
-                    if (DEBUG) Debug.LogFormat("PlayerManager: OnTriggerEnter() viewID = {0}", viewID);
-                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(viewID.ToString(), out object value);
+
+                    // Get the View ID of the photon view on the Gun GameObject
+                    string gunViewID = gunToBePickedUpGO.GetComponentInParent<PhotonView>().ViewID.ToString();
+
+                    // Get the current owner of this gun (it should be "Scene" if no one owns the gun)
+                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(gunViewID, out object value);
                     string currentOwner = Convert.ToString(value);
 
-                    if (DEBUG) Debug.LogFormat("PlayerManager: OnTriggerEnter() currentOwner = {0}" , currentOwner);
-                    
                     // Try to set this player as the owner of this gun
+                    // ...
                     // Race condition: If another client's player tries to pick up the gun at the same time,
                     // we may not be successful in claiming ownership of this gun. Setting properties will 
-                    // fail if we are too late.
+                    // fail if we are too late. (This is a good thing!)
+                    // ...
+                    // After SetCustomProperties is called we will wait for OnRoomPropertiesUpdate() photon callback 
+                    // to be called to see if we can actually pick up the gun
                     PhotonNetwork.CurrentRoom.SetCustomProperties(
-                        new ExitGames.Client.Photon.Hashtable { { viewID.ToString(), photonView.Owner.NickName } },
-                        new ExitGames.Client.Photon.Hashtable { { viewID.ToString(), value } });
-
-                    // Wait for OnRoomPropertiesUpdate() callback to be called to see if we can actually pick up the gun
+                        new ExitGames.Client.Photon.Hashtable { { gunViewID, photonView.Owner.NickName } },
+                        new ExitGames.Client.Photon.Hashtable { { gunViewID, value } });
                 }
             }
         }
 
         public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
         {
-            //if (DEBUG) Debug.LogFormat("PlayerManager: OnRoomPropertiesUpdate()");
-
             // If we want to pick up a gun...
             if (gunToBePickedUpGO != null)
             {
-                PhotonView pv = gunToBePickedUpGO.GetComponentInParent<PhotonView>();
-                int viewID = pv.ViewID;
-                PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(viewID.ToString(), out object value);
-                string currentOwner = (value != null) ? (string)value : "";
+                // Get the View ID of the photon view on the Gun GameObject
+                string gunViewID = gunToBePickedUpGO.GetComponentInParent<PhotonView>().ViewID.ToString();
+
+                // Get the current owner of this gun
+                PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(gunViewID, out object value);
+                string currentOwner = (value != null) ? (string)value : ""; // value should never be null but just in case...
+
                 // If we are the current owner of the gun we want to pick up...
                 if (currentOwner.Equals(photonView.Owner.NickName))
                 {
-                    if (DEBUG) Debug.LogFormat("PlayerManager: OnRoomPropertiesUpdate() About to pick up gun: viewID = {0}", viewID);
+                    if (DEBUG) Debug.LogFormat("PlayerManager: OnRoomPropertiesUpdate() About to pick up gun: gunViewID = {0}", gunViewID);
                     // Pick up gun (synchronized on network)
-                    photonView.RPC("ReplaceCurrentGunWithPickedUpGun", RpcTarget.All, viewID);
+                    photonView.RPC("ReplaceCurrentGunWithPickedUpGun", RpcTarget.All, Convert.ToInt32(gunViewID));
                 }
+
+                // Whether we were successful or not trying to pick up this gun, we are no longer trying to pick up this gun
+                // and don't want to try to pick it up again if the room properties are updated again for some other reason
+                gunToBePickedUpGO = null;
             }
         }
 
@@ -304,6 +304,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <summary>
         /// Decreases health of player by damage amount. Makes player die (on all clients), if necessary.
         /// Logs a kill (on all clients) for the player who caused the damage. 
+        /// This method is typically called from the Gun class when a player gets shot and needs to take damage.
         /// </summary>
         /// <param name="amount">The amount of damage caused</param>
         /// <param name="playerWhoCausedDamage">The player who caused the damage</param>
