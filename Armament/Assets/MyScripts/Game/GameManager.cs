@@ -318,6 +318,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                     // If Team B has fewer players than Team A... Add this player to team B. Else... Add this player to team A
                     bool addPlayerToTeamA = (teamBCount < teamACount) ? false : true;
+                    
+                    // Increment player count on team they joined (Every client will execute this)
+                    PhotonNetwork.CurrentRoom.SetCustomProperties(addPlayerToTeamA ?
+                        new ExitGames.Client.Photon.Hashtable { { KEY_TEAM_A_PLAYERS_COUNT, ++teamACount } } :
+                        new ExitGames.Client.Photon.Hashtable { { KEY_TEAM_B_PLAYERS_COUNT, ++teamBCount } });
 
                     // If adding player to team A... pick a random team A spawn point. Else... pick a random team B spawn point
                     Transform playerSpawnPoint = addPlayerToTeamA ?
@@ -345,16 +350,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     // Disable Photon's syncing of the position of the gun (prefab) we are spawned with. Syncing will be enabled again when we drop the gun
                     myPlayerGO.GetComponentInChildren<Gun>()
                         .GetComponent<PhotonView>().ObservedComponents = new List<Component> { };
-
-                    // Increment player count on team they joined (Every client will execute this)
-                    if (addPlayerToTeamA)
-                    {
-                        PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_TEAM_A_PLAYERS_COUNT, ++teamACount } });
-                    }
-                    else
-                    {
-                        PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_TEAM_B_PLAYERS_COUNT, ++teamBCount } });
-                    }
 
                     // Disable scene camera
                     Camera.main.enabled = false;
