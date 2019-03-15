@@ -165,7 +165,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     // Get the View ID of the photon view on the Gun GameObject
                     string gunViewID = gunToBePickedUpGO.GetComponentInParent<PhotonView>().ViewID.ToString();
 
-                    // Get the current owner of this gun (it should be "Scene" if no one owns the gun)
+                    // Get the current owner of this gun (it should be GameManager.VALUE_UNCLAIMED_ITEM if no one owns the gun)
                     PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(gunViewID, out object value);
                     string currentOwner = Convert.ToString(value);
 
@@ -371,7 +371,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             // Relinquish gun ownership to the Scene 
             int viewID = gun.GetComponent<PhotonView>().ViewID;
-            PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { viewID.ToString(), "Scene" } });
+            PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { viewID.ToString(), GameManager.VALUE_UNCLAIMED_ITEM } });
 
             // Make this gun a sibling of the player in the GameObject hierarchy
             gun.transform.parent = LocalPlayerInstance.transform.parent;
@@ -573,7 +573,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #endregion RPC Methods
 
-        #region IPunObservable implementation
+        #region IPunObservable Implementation
 
         /// <summary>
         /// Handles custom synchronization of information over the network.
@@ -624,7 +624,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
         }
 
-        #endregion IPunObservable implementation
+        #endregion IPunObservable Implementation
 
         #region IPunInstantiateMagicCallback implementation
 

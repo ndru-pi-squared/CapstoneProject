@@ -14,13 +14,16 @@ using System.Collections.Generic;
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
     /// <summary>this is a sample summary created with GhostDoc</summary>
-    public class GameManager : MonoBehaviourPunCallbacks
+    public class GameManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         #region Public static and const Fields 
   
-        // Keys references for the Room CustomProperties hash table (so we don't use messy string literals)
+        // Key references for the Room CustomProperties hash table (so we don't use messy string literals)
         public const string KEY_TEAM_A_PLAYERS_COUNT = "Team A Size";
         public const string KEY_TEAM_B_PLAYERS_COUNT = "Team B Size";
+
+        // Value references for the Room CustomProperties hash table (so we don't use messy string literals)
+        public const string VALUE_UNCLAIMED_ITEM = "Unclaimed";
 
         // Singleton - you know what that means. Also, this won't show up in the inspector in Unity
         public static GameManager Instance;
@@ -44,6 +47,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region Private Serialized Fields 
 
+        [Tooltip("Make unclaimed items vanish when wall timer is up?")]
+        [SerializeField] private bool makeItemsVanish = true;
         [Tooltip("List of locations where a player on team A can be spawned")]
         [SerializeField] private Transform[] teamAPlayerSpawnPoints; // list of locations where a player can be spawned
         [Tooltip("List of locations where a player on team B can be spawned")]
@@ -61,15 +66,32 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private ArrayList teamBList;
         private ArrayList spawnedWeaponsList;
 
+        private GameObject dividingWallGO;
+
+        /// <summary>
+        /// Keeps track of whether items were destroyed. Synchronized on all clients; 
+        /// This is important in case master client changes anytime before all items are destroyed.
+        /// </summary>
+        private bool madeItemsVanish = false; 
+
         #endregion Private Fields
 
         #region Properties
-        
+
+        // this property may not be necessary... check if we make good use of it publicly or should just 
+        // stick with the private makeItemsVanish
         public ArrayList SpawnedWeaponsList
         {
             get { return spawnedWeaponsList; }
             private set { spawnedWeaponsList = value; }
         }
+
+        // this property may not be necessary... check if we make good use of it publicly or should just 
+        // stick with the private makeItemsVanish
+        public bool MakeItemsVanish {
+            get { return makeItemsVanish; }
+            private set { makeItemsVanish = value; }
+        } 
 
         #endregion
 
@@ -196,7 +218,55 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 playerInfoTextComponent.text += "\n";
             }
         }
-        
+
+        void DestroyUnclaimedItems()
+        {
+            Debug.LogFormat("GameManger: DestroyUnclaimedItems()");
+            // Get through all PhotonViews
+            foreach (PhotonView photonView in PhotonNetwork.PhotonViews)
+            {
+                Debug.LogFormat("GameManger: DestroyUnclaimedItems() photonView = {0}", photonView.ToString());
+                //  If this photonView is on a Gun...
+                Gun gun = photonView.gameObject.GetComponent<Gun>();
+                if (gun != null)
+                {
+                    Debug.LogFormat("GameManger: DestroyUnclaimedItems() gun = {0}", gun.ToString());
+                    // Get the owner of the gun
+                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(photonView.ViewID.ToString(), out object owner);
+
+                    // If the gun is not owned by a player
+                    if (VALUE_UNCLAIMED_ITEM.Equals((string)owner))
+                    {
+                        Debug.LogFormat("GameManger: DestroyUnclaimedItems() owner = {0}", owner.ToString());
+
+                        // The code I've commented out causes a fatal error that I haven't been able to figure out.
+                        // Situation that causes the bug:
+                        // Two clients are spawned into the room before the wall comes down. Both clients are holding a gun that they
+                        // have been spawned with. One client picks up a new gun and drops the gun they were spawned with. The wall comes
+                        // down (wall timer is up). The client who didn't pick up and drop a gun crashes immediately. WTF?! 
+                        /*
+                        // Remove room custom property for the gun ownership
+                        PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { photonView.ViewID.ToString(), null } });
+                    
+                        // Network-Destroy the GameObject associated with photonView
+                        PhotonNetwork.Destroy(photonView);
+                        */
+
+                        // The above code caused a fatal error that I couldn't figure out so for now I'm just going 
+                        // to move the guns where players can't reach them. 
+                        // (I already tried just disabling the photonView.gameObject but that didn't sync over the network.)
+                        Vector3 gunPosition = photonView.gameObject.transform.position;
+                        gunPosition.y = 1000f;
+                        photonView.gameObject.transform.position = gunPosition;
+                    }
+                }
+            }
+
+            // Make it clear to all clients that items were made to vanish
+            // *** Make sure madeItemsVanish is reliably synchronized on network.
+            madeItemsVanish = true;
+        }
+
         #endregion Private Methods
 
         #region MonoBehaviour Callbacks
@@ -211,6 +281,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             UpdatePlayerPropertiesDisplay();
             ProcessInputs();
+
+            if (PhotonNetwork.IsMasterClient)
+            {
+                // If we set the game option to make items vanish when the wall timer is up AND
+                // If the wall timer is up AND 
+                // If all the items have not been made to vanish 
+                if (MakeItemsVanish && dividingWallGO.GetComponent<WallDropTimer>().TimeIsUp && !madeItemsVanish)
+                {
+                    DestroyUnclaimedItems();
+                }
+            }
         }
 
         private void Start()
@@ -232,7 +313,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     // Get the size of Team A and size of Team B
                     PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(KEY_TEAM_A_PLAYERS_COUNT, out object teamACountObject);
                     PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(KEY_TEAM_B_PLAYERS_COUNT, out object teamBCountObject);
-                    int teamACount = (teamACountObject != null) ? Convert.ToInt32(teamACountObject) : 0;
+                    int teamACount = (teamACountObject != null) ? Convert.ToInt32(teamACountObject) : 0; 
                     int teamBCount = (teamBCountObject != null) ? Convert.ToInt32(teamBCountObject) : 0;
 
                     // If Team B has fewer players than Team A... Add this player to team B. Else... Add this player to team A
@@ -302,10 +383,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                         // Add the spawned weapon (key) and it's owner (value) to the properties for the current room
                         PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable {
-                            { ((GameObject)spawnedWeaponsList[0]).GetPhotonView().ViewID.ToString(), "Scene" },
-                            { ((GameObject)spawnedWeaponsList[1]).GetPhotonView().ViewID.ToString(), "Scene" },
-                            { ((GameObject)spawnedWeaponsList[2]).GetPhotonView().ViewID.ToString(), "Scene" },
-                            { ((GameObject)spawnedWeaponsList[3]).GetPhotonView().ViewID.ToString(), "Scene" } });
+                            { ((GameObject)spawnedWeaponsList[0]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
+                            { ((GameObject)spawnedWeaponsList[1]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
+                            { ((GameObject)spawnedWeaponsList[2]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
+                            { ((GameObject)spawnedWeaponsList[3]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM } });
                         
                         if (DEBUG) Debug.LogFormat("GameManager: Start() " +
                            "((GameObject)spawnedWeaponsList[0]).GetPhotonView().ViewID = {0} " +
@@ -321,14 +402,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                             // Instantiate the dividing wall for "Room for 1" level
                             Vector3 wallPosition = new Vector3(258.3562f, 26.397f, 279.6928f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
                             Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, -45f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
-                            GameObject dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
+                            dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
                         }
                         // If arena is "Simple Room" unity scene...
                         else if (Launcher.developmentOnly_levelToLoad.Equals("Simple Room")) { 
                             // Instantiate the dividing wall for "Simple Room" level
                             Vector3 wallPosition = new Vector3(0f, 20f, 0f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
                             Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, 0f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
-                            GameObject dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
+                            dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
                             
                             // Set the scale to match the "Simple Room" level size
                             dividingWallGO.gameObject.transform.localScale = new Vector3(10f, 40f, 200f);
@@ -405,5 +486,58 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         #endregion Photon Callbacks
+
+        #region IPunObservable Implementation
+
+        /// <summary>
+        /// Handles custom synchronization of information over the network.
+        /// <para>
+        /// This method will be called in scripts that are assigned as Observed component of a PhotonView.
+        /// PhotonNetwork.SerializationRate affects how often this method is called.
+        /// PhotonNetwork.SendRate affects how often packages are sent by this client.
+        /// </para>
+        /// <para>
+        /// Implementing this method, you can customize which data a PhotonView regularly synchronizes. 
+        /// Your code defines what is being sent (content) and how your data is used by receiving clients.
+        /// </para>
+        /// <para>
+        /// Unlike other callbacks, OnPhotonSerializeView only gets called when it is assigned to a PhotonView as 
+        /// PhotonView.observed script.
+        /// </para>
+        /// <para>
+        /// To make use of this method, the PhotonStream is essential. 
+        /// It will be in "writing" mode" on the client that controls a PhotonView (PhotonStream.IsWriting == true) 
+        /// and in "reading mode" on the remote clients that just receive that the controlling client sends.
+        /// </para>
+        /// <para>
+        /// If you skip writing any value into the stream, PUN will skip the update. Used carefully, 
+        /// this can conserve bandwidth and messages (which have a limit per room/second).
+        /// </para>
+        /// <para>
+        /// Note that OnPhotonSerializeView is not called on remote clients when the sender does not send any update. This can't be used as "x-times per second Update()".
+        /// </para>
+        /// <para>
+        /// Implements IPunObservable.
+        /// </para>
+        /// </summary>
+        /// <param name="stream">Stream on which to read or write custom data.</param>
+        /// <param name="info">Information about the message (like who sent it).</param>
+        public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+        {
+            // If this client owns this player (specifically, the PhotonView component on this player)...
+            if (stream.IsWriting)
+            {
+                // We own this player: send the others our data
+                stream.SendNext(madeItemsVanish);
+            }
+            // If this client doesn't own this player (specifically, the PhotonView component on this player)...
+            else
+            {
+                // Network player, receive data
+                this.madeItemsVanish = (bool)stream.ReceiveNext();
+            }
+        }
+
+        #endregion IPunObservable Implementation
     }
 }
