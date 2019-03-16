@@ -117,12 +117,11 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 224}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 09280e74fe84a2047ac6f850652590f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  time: 20
 --- !u!114 &1477
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,7 +134,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e932f867d0b7d764394154f5804acc38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wallDropTimer: {fileID: 1476}
   dropTime: 10
 --- !u!114 &1480
 MonoBehaviour:

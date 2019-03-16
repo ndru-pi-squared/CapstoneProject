@@ -23,10 +23,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public const string KEY_ISALIVE = "IsAlive";
         public const string KEY_TEAM = "Team";
 
-        // Team name references for the Player CustomProperties hash table (so we don't use messy string literals)
-        public const string TEAM_NAME_A = "A";
-        public const string TEAM_NAME_B = "B";
-        public const string TEAM_NAME_SPECT = "Spectator";
+        // Value references for the Player CustomProperties hash table (so we don't use messy string literals)
+        public const string VALUE_TEAM_NAME_A = "A";
+        public const string VALUE_TEAM_NAME_B = "B";
+        public const string VALUE_TEAM_NAME_SPECT = "Spectator";
+
+        public const int MAX_HEALTH = 100;
 
         public static GameObject LocalPlayerInstance;
 
@@ -351,7 +353,26 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 }
             }
         }
-        
+
+        /// <summary>
+        /// Resets health
+        /// </summary>
+        public void ResetHealth()
+        {
+            Health = MAX_HEALTH;
+        }
+
+        public void MovePlayer(Transform t)
+        {
+            if (DEBUG) Debug.LogFormat("PlayerManager: MovePlayer() t.position = {0}", t.position);
+            // Temporary respawning action: Pretend the player has respawned by raising him in the air a bit
+            transform.GetComponent<FirstPersonController>().enabled = false; // disables the first person controller so 
+            transform.position = t.position;
+            transform.rotation = t.rotation;
+            Update();
+            transform.GetComponent<FirstPersonController>().enabled = true;
+        }
+
         #endregion Public Methods
 
         #region Private Methods
@@ -434,7 +455,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// Right now, we just reset the health to 100% and act like nothing happened.
         /// Later, we'll figure out something better to do...
         /// </summary>
-        void Respawn()
+        public void Respawn()
         {
             if (DEBUG) Debug.LogFormat("PlayerManager: Respawn() photonView.Owner.NickName = {0}", photonView.Owner.NickName);
 
@@ -634,6 +655,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="info"></param>
         public void OnPhotonInstantiate(PhotonMessageInfo info)
         {
+            // Store this gameobject as this player's charater in Player.TagObject
+            info.Sender.TagObject = gameObject;
         }
 
         #endregion IPunInstantiateMagicCallback implementation

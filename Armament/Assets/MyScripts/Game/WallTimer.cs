@@ -6,13 +6,13 @@ using System;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
-    public class WallDropTimer : MonoBehaviourPun, IPunObservable
+    public class WallTimer : MonoBehaviourPun, IPunObservable
     {
 
         #region Private Fields 
 
-        [Tooltip("Time to drop wall (seconds)")]
-        [SerializeField] private int time = 60; 
+        //[Tooltip("Time to drop wall (seconds)")]
+        //[SerializeField] private int time = 60; 
 
         private const bool DEBUG = false; // indicates whether we are debugging the timer (Debug console output will show if true)
         private int lastDebugTimeLeftOutput = int.MaxValue; // used for limiting the output of TimeLeft during debugging
@@ -36,9 +36,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         void Start()
         {
             // Figure out the wall drop time
-            wallDropTime = PhotonNetwork.Time + time;
+            wallDropTime = PhotonNetwork.Time + GameManager.Instance.Stage1Time;
             // Initialize timeLeftDisplayed to be more than time
-            timeLeft = TimeLeft = time + 1;
+            timeLeft = TimeLeft = GameManager.Instance.Stage1Time + 1;
         }
 
         // Update is called once per frame
@@ -91,22 +91,16 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Share timeLeft and timeIsUp with other clients (Only the master client will be executing this)
                 stream.SendNext(timeLeft);
                 stream.SendNext(timeIsUp);
-                // If we're debugging the timer...
-                if (DEBUG)
-                {
-                    Debug.LogFormat("WallDropTimer: OnPhotonSerializeView() SENDING timeLeft = {0}, timeIsUp = {1}", timeLeft, timeIsUp);
-                }
+
+                if (DEBUG) Debug.LogFormat("WallDropTimer: OnPhotonSerializeView() SENDING timeLeft = {0}, timeIsUp = {1}", timeLeft, timeIsUp);
             }
             else
             {
                 // Get timeLeft and timeIsUp from master client (All clients except for the master client will be executing this)
                 timeLeft = (double)stream.ReceiveNext();
                 timeIsUp = (bool)stream.ReceiveNext();
-                // If we're debugging the timer...
-                if (DEBUG)
-                {
-                    Debug.LogFormat("WallDropTimer: OnPhotonSerializeView() RECIEVING timeLeft = {0}, timeIsUp = {1}", timeLeft, timeIsUp);
-                }
+
+                if (DEBUG) Debug.LogFormat("WallDropTimer: OnPhotonSerializeView() RECIEVING timeLeft = {0}, timeIsUp = {1}", timeLeft, timeIsUp);
             }
         }
 

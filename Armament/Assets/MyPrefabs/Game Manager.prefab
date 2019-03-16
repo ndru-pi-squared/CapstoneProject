@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5624805370660292501}
   - component: {fileID: 7519147237559217297}
+  - component: {fileID: 312477208123618658}
   m_Layer: 0
   m_Name: Game Manager
   m_TagString: Untagged
@@ -50,6 +51,21 @@ MonoBehaviour:
   dividingWallPrefab: {fileID: 224, guid: 133dbba72a6b21745b71d1c4289bf0fe, type: 3}
   environment: {fileID: 0}
   canvas: {fileID: 0}
+  stage1Time: 30
+  stage2Time: 30
+  makeItemsVanish: 1
   teamAPlayerSpawnPoints: []
   teamBPlayerSpawnPoints: []
   weaponSpawnPoints: []
+--- !u!114 &312477208123618658
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6988769529087483750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20e68b60cdd1266478629857e740b543, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
