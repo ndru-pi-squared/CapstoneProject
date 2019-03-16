@@ -567,7 +567,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                             Vector3 wallPosition = new Vector3(0f, 20f, 0f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
                             Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, 0f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
                             dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
-
+                                                        
                             // Set the scale to match the "Simple Room" level size
                             dividingWallGO.gameObject.transform.localScale = new Vector3(10f, 40f, 200f);
                         }

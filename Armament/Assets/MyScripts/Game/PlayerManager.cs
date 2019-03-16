@@ -373,6 +373,26 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             transform.GetComponent<FirstPersonController>().enabled = true;
         }
 
+        /// <summary>
+        /// Right now, we just reset the health to 100% and act like nothing happened.
+        /// Later, we'll figure out something better to do...
+        /// </summary>
+        public void Respawn()
+        {
+            if (DEBUG) Debug.LogFormat("PlayerManager: Respawn() photonView.Owner.NickName = {0}", photonView.Owner.NickName);
+
+            if (photonView.IsMine)
+            {
+                Health = 100;
+
+                // Temporary respawning action: Pretend the player has respawned by raising him in the air a bit
+                transform.GetComponent<FirstPersonController>().enabled = false; // disables the first person controller so 
+                transform.position = transform.position + new Vector3(0f, 20f, 0f);
+                Update();
+                transform.GetComponent<FirstPersonController>().enabled = true;
+            }
+        }
+
         #endregion Public Methods
 
         #region Private Methods
@@ -390,6 +410,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="gun">The gun. Must be gun that is currently being held by a player.</param>
         void DropGun(Gun gun)
         {
+            // Do nothing if there is no gun to drop
+            if (gun == null)
+            {
+                return;
+            }
+
             // Relinquish gun ownership to the Scene 
             int viewID = gun.GetComponent<PhotonView>().ViewID;
             PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { viewID.ToString(), GameManager.VALUE_UNCLAIMED_ITEM } });
@@ -449,26 +475,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { {KEY_KILLS, ++kills} });
 
             if (DEBUG) Debug.LogFormat("PlayerManager: AddKill() kills = {0}, photonView.Owner.NickName = {1}", kills, photonView.Owner.NickName);
-        }
-
-        /// <summary>
-        /// Right now, we just reset the health to 100% and act like nothing happened.
-        /// Later, we'll figure out something better to do...
-        /// </summary>
-        public void Respawn()
-        {
-            if (DEBUG) Debug.LogFormat("PlayerManager: Respawn() photonView.Owner.NickName = {0}", photonView.Owner.NickName);
-
-            if (photonView.IsMine)
-            {
-                Health = 100;
-
-                // Temporary respawning action: Pretend the player has respawned by raising him in the air a bit
-                transform.GetComponent<FirstPersonController>().enabled = false; // disables the first person controller so 
-                transform.position = transform.position + new Vector3(0f, 20f, 0f);
-                Update();
-                transform.GetComponent<FirstPersonController>().enabled = true;
-            }
         }
 
         /// <summary>
@@ -541,20 +547,25 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             pickedUpGun.GetComponent<PhotonView>().ObservedComponents = new List<Component> {};
 
             // Put this gun in the GameObject hierarchy where the old gun was (i.e., make it a sibling to the old gun)
-            pickedUpGun.transform.parent = activeGun.transform.parent;
-
-            // Give the picked up gun the same position and rotation as the active gun
-            pickedUpGun.transform.position = activeGun.transform.position;
-            pickedUpGun.transform.rotation = activeGun.transform.rotation;
+            //pickedUpGun.transform.parent = activeGun.transform.parent;
+            pickedUpGun.transform.parent = transform.Find("FirstPersonCharacter/Active Weapon");
             
+            // Give the picked up gun the same position and rotation as the active gun
+            //pickedUpGun.transform.position = activeGun.transform.position;
+            //pickedUpGun.transform.rotation = activeGun.transform.rotation;
+            pickedUpGun.transform.localPosition = new Vector3(-0.06f, 0.216f, -0.496f);
+            pickedUpGun.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+
             // Disable the old gun and enable new gun
             activeGun.transform.gameObject.SetActive(false);
             pickedUpGun.transform.gameObject.SetActive(true);
-            
+
             // Set FPS Cam and Player who owns this gun
-            pickedUpGun.fpsCam = activeGun.fpsCam;
-            pickedUpGun.playerWhoOwnsThisGun = activeGun.playerWhoOwnsThisGun;
-            
+            //pickedUpGun.fpsCam = activeGun.fpsCam;
+            //pickedUpGun.playerWhoOwnsThisGun = activeGun.playerWhoOwnsThisGun;
+            pickedUpGun.fpsCam = photonView.gameObject.transform.Find("FirstPersonCharacter").GetComponent<Camera>();
+            pickedUpGun.playerWhoOwnsThisGun = photonView.gameObject.GetComponent<MonoBehaviourPun>();
+
             // Make the picked up gun our active gun and Drop the old gun
             Gun oldGun = activeGun;
             activeGun = pickedUpGun;

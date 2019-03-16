@@ -32,6 +32,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Remember the original wall position for when we want to reset the wall
             originalY = transform.position.y;
 
+            Debug.LogFormat("WallDropAnimator: Start() transform.position.y = {0}", transform.position.y);
+
             // Figure out what the final position of the wall should be after it is dropped
             dropPosition = transform.position - new Vector3(0f, transform.localScale.y, 0f); // current wall position - height of wall
         }
