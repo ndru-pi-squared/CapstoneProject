@@ -326,6 +326,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                             Vector3 gunPosition = photonView.gameObject.transform.position;
                             gunPosition.y -= 1000f;
                             photonView.gameObject.transform.position = gunPosition;
+
+
+                            // Set the gun's owner to VALUE_VANISHED_ITEM
+                            PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { photonView.ViewID.ToString(), VALUE_UNCLAIMED_ITEM } });
                         }
                     }
                 }
@@ -372,6 +376,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 return;
             }
+
+            // Reset flags
+            madeItemsVanish = false;
+            madeItemsReturn = false;
 
             // Start the stage 1 timer on the network. This marks the beginning of the first stage of the game
             PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable {
