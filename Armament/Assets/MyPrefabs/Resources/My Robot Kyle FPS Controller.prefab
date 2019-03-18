@@ -1295,7 +1295,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Health: 100
-  activeGun: {fileID: 2158520208810541251}
+  activeGun: {fileID: 0}
   playerUiPrefab: {fileID: 8596841759220518085, guid: 92ef125f36ae2e743b0604aebd8382dd,
     type: 3}
   howFarToTossWeapon: 10
@@ -2107,6 +2107,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 551}
+  - {fileID: 8049043726115264573}
   m_Father: {fileID: 530}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2235,300 +2236,37 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 2158520208810542887}
+  m_Children: []
   m_Father: {fileID: 491}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &2158520208810542337
-PrefabInstance:
+--- !u!1 &7601132449152992837
+GameObject:
   m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 551}
-    m_Modifications:
-    - target: {fileID: 1474, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: fpsCam
-      value: 
-      objectReference: {fileID: 802}
-    - target: {fileID: 1474, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: playerWhoOwnsThisGun
-      value: 
-      objectReference: {fileID: 1466}
-    - target: {fileID: 1472, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: playerWhoOwnsThisGun
-      value: 
-      objectReference: {fileID: 1466}
-    - target: {fileID: 1472, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: fpsCam
-      value: 
-      objectReference: {fileID: 802}
-    - target: {fileID: 1378, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1262, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: fpsCam
-      value: 
-      objectReference: {fileID: 802}
-    - target: {fileID: 1262, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: playerWhoOwnsThisGun
-      value: 
-      objectReference: {fileID: 1466}
-    - target: {fileID: 1262, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: muzzleFlash
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 2088513267806697461, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2088513267806697461, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2081378268281519032, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2081378268281519032, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1070122340811178195, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1070122340811178195, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 820640020097394040, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 820640020097394040, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 741004959262861693, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 741004959262861693, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 296286683770780998, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 296286683770780998, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1194, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4481150378568862083, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4481150378568862083, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6796356382600496704, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6796356382600496704, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6434384973796452547, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6434384973796452547, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8272794413972013966, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8272794413972013966, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_IsTrigger
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7922534437956504055, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7922534437956504055, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6781967261238215981, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_Name
-      value: Gun 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 726, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 726, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 726, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0.06
-      objectReference: {fileID: 0}
-    - target: {fileID: 726, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0.496
-      objectReference: {fileID: 0}
-    - target: {fileID: 1284, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: fpsCam
-      value: 
-      objectReference: {fileID: 802}
-    - target: {fileID: 1284, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: playerWhoOwnsThisGun
-      value: 
-      objectReference: {fileID: 1466}
-    - target: {fileID: 6781967261238214963, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: fpsCam
-      value: 
-      objectReference: {fileID: 802}
-    - target: {fileID: 6781967261238214963, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: playerWhoOwnsThisGun
-      value: 
-      objectReference: {fileID: 1466}
-    - target: {fileID: 6781967261238215735, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0.06
-      objectReference: {fileID: 0}
-    - target: {fileID: 6781967261238215735, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.216
-      objectReference: {fileID: 0}
-    - target: {fileID: 6781967261238215735, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0.496
-      objectReference: {fileID: 0}
-    - target: {fileID: 6781967261238215735, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6781967261238215735, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6781967261238215735, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6781967261238215735, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6781967261238215735, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6781967261238215735, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6781967261238215735, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6781967261238215735, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9010379389774575174, guid: db4932928b1f2e648a7cbb22e950e0cf,
-        type: 3}
-      propertyPath: m_UseGravity
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 217, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 511, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: m_RootOrder
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1265, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: fpsCam
-      value: 
-      objectReference: {fileID: 802}
-    - target: {fileID: 1265, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: playerWhoOwnsThisGun
-      value: 
-      objectReference: {fileID: 1466}
-    - target: {fileID: 1367, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
---- !u!4 &2158520208810542887 stripped
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8049043726115264573}
+  m_Layer: 0
+  m_Name: Inactive Weapons
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8049043726115264573
 Transform:
-  m_CorrespondingSourceObject: {fileID: 550, guid: db4932928b1f2e648a7cbb22e950e0cf,
-    type: 3}
-  m_PrefabInstance: {fileID: 2158520208810542337}
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2158520208810541251 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1474, guid: db4932928b1f2e648a7cbb22e950e0cf,
-    type: 3}
-  m_PrefabInstance: {fileID: 2158520208810542337}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5aabdc27390556741b5e5189bb2d32c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_GameObject: {fileID: 7601132449152992837}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 491}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

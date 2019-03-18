@@ -22,6 +22,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public const string KEY_DEATHS = "Deaths";
         public const string KEY_ISALIVE = "IsAlive";
         public const string KEY_TEAM = "Team";
+        public const string KEY_ACTIVE_GUN = "Active Gun";
 
         // Value references for the Player CustomProperties hash table (so we don't use messy string literals)
         public const string VALUE_TEAM_NAME_A = "A";
@@ -151,10 +152,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void OnTriggerEnter(Collider other)
         {
-
+            // If this client controls this player...
             if (photonView.IsMine)
             {
-                // If this player collided with a Weapon (a collider on a gameobject with a tag == "Weapon")... 
+                // If this player collided with a Weapon... 
                 if (other.CompareTag("Weapon"))
                 {
                     if (DEBUG) Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with WEAPON with name \"{0}\"," +
@@ -171,7 +172,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(gunViewID, out object value);
                     string currentOwner = Convert.ToString(value);
 
-                    // Try to set this player as the owner of this gun
+                    // Try to claim ownership of the gun in the CurrentRoom.CustomProperties table
                     // ...
                     // Race condition: If another client's player tries to pick up the gun at the same time,
                     // we may not be successful in claiming ownership of this gun. Setting properties will 
@@ -236,7 +237,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #endregion
 
-        #region MonobehaviourPun Callbacks
+        #region MonobehaviourPun (Photon) Callbacks
 
         /** My Note:
          *   Added this function because it's in the demo package script
@@ -260,6 +261,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="propertiesThatChanged"></param>
         public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
         {
+            // ***
+            // This code did not make use of propertiesThatChanged... 
+            // It could probably be cleaned up!
+            // ***
+
             // If we want to pick up a gun...
             if (gunToBePickedUpGO != null)
             {
@@ -274,8 +280,24 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 if (currentOwner.Equals(photonView.Owner.NickName))
                 {
                     if (DEBUG) Debug.LogFormat("PlayerManager: OnRoomPropertiesUpdate() About to pick up gun: gunViewID = {0}", gunViewID);
+
                     // Pick up gun (synchronized on network)
-                    photonView.RPC("ReplaceCurrentGunWithPickedUpGun", RpcTarget.All, Convert.ToInt32(gunViewID));
+                    //photonView.RPC("PickUpGun", RpcTarget.All, Convert.ToInt32(gunViewID));
+
+                    // If we go to this point, we have collided with an unclaimed gun and we have successfully claimed ownership of the gun
+                    // in CurrentRoom.CustomProperties. We now want the player (on all clients) to pick up the gun and make it the active gun.
+                    // 
+                    // To accomplish this, the client that owns this player will set the KEY_ACTIVE_GUN property with the gunViewID. 
+                    // As a result, OnPlayerPropertiesUpdate() will be called on all clients. From there, we can finally make the player 
+                    // (on all clients) pick up the gun and set (Gun)activeGun 
+                    // 
+                    // If this client owns this player...
+                    if (photonView.IsMine)
+                    {
+                        // Set local player's active gun property (synced on the network)
+                        PhotonNetwork.LocalPlayer.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_ACTIVE_GUN, gunViewID } });
+                    }
+
                 }
 
                 // Whether we were successful or not trying to pick up this gun, we are no longer trying to pick up this gun
@@ -284,7 +306,63 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
         }
 
-        #endregion MonobehaviourPun Callbacks
+        /// <summary>
+        /// Called if Player.CustomProperties has changed.
+        /// </summary>
+        /// <param name="target">The player whose properties have changed</param>
+        /// <param name="changedProps">The properties that have just changed. If a property has been removed the key will be in changedProps but the value will be null</param>
+        public override void OnPlayerPropertiesUpdate(Player target, ExitGames.Client.Photon.Hashtable changedProps)
+        {
+            if (DEBUG) Debug.LogFormat("PlayerManager: OnPlayerPropertiesUpdate() target.NickName = {0}", target.NickName);
+
+            // I believe this method will execute on all players on all clients when a player's CustomProperties are changed. 
+            // Currently, we only want the players whose properties have just changed to act so we will check if the player
+            // executing this method is the intended target and return if not. 
+
+            // If this player is not the player who's properties were changed... (I'm 90% sure this code does what I think it does...)
+            /*if ((GameObject)target.TagObject != gameObject)
+            {
+                return;
+            }*/
+
+            PlayerManager targetPlayerManager = ((GameObject)target.TagObject).GetComponent<PlayerManager>();
+
+            // Go through the list of keys for player properties that were changed...
+            foreach (object key in changedProps.Keys)
+            {
+                // Get the value for the key
+                changedProps.TryGetValue(key, out object value);
+
+                if (DEBUG) Debug.LogFormat("PlayerManager: OnPlayerPropertiesUpdate() key = {0}, value = {1}", (string)key, (string)value);
+
+                // If the player property that changed was KEY_ACTIVE_GUN...
+                if (KEY_ACTIVE_GUN.Equals((string)key))
+                {   
+                    // If the KEY_ACTIVE_GUN value was just removed... 
+                    if (value == null)
+                    {
+                        // Drop active gun
+                        targetPlayerManager.DropActiveGun();
+                    }
+                    else
+                    {
+                        int gunViewID = Convert.ToInt32((string)value);
+
+
+                        // At this point, all clients know this player owns this gun.
+                        // This gun is ready to be visibly "picked up" by this player on all clients
+                        // ...
+                        // Pick up the gun (it will remain inactive until we explicitly activate it)
+                        targetPlayerManager.PickUpGun(gunViewID);
+
+                        // Set this player's (Gun)activeGun reference (so we can use it to do things like shoot the gun)
+                        targetPlayerManager.SetActiveGun(gunViewID);
+                    }
+                }
+            }
+        }
+
+        #endregion MonobehaviourPun (Photon) Callbacks
 
         #region Public Methods
 
@@ -383,7 +461,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             if (photonView.IsMine)
             {
-                Health = 100;
+                ResetHealth();
 
                 // Temporary respawning action: Pretend the player has respawned by raising him in the air a bit
                 transform.GetComponent<FirstPersonController>().enabled = false; // disables the first person controller so 
@@ -403,7 +481,79 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             this.CalledOnLevelWasLoaded(scene.buildIndex);
         }
 #endif
-        
+
+        void SetActiveGun(int gunViewID)
+        {
+            // If there is a currently an active gun...
+            if (activeGun != null)
+            {
+                // Inactivate activeGun
+                activeGun.gameObject.SetActive(false);
+                activeGun.transform.parent = transform.Find("FirstPersonCharacter/Inactive Weapons");
+            }
+
+            // Find Gun to be activated using Photon viewID
+            Gun gunToBeActivated = PhotonView.Find(gunViewID).GetComponent<Gun>();
+
+            // Activate gunToBeActivated
+            gunToBeActivated.gameObject.SetActive(true);
+            gunToBeActivated.transform.parent = transform.Find("FirstPersonCharacter/Active Weapon");
+
+            // Set activeGun so we can make use of it other places (like shooting it)
+            activeGun = gunToBeActivated;
+        }
+
+        /// <summary>
+        /// Picks up Gun. Makes Gun's GameObject a child of Player's "Inactive Weapons" GameObject 
+        /// </summary>
+        /// <param name="gunViewID">Photon View ID of the gun to pick up</param>
+        void PickUpGun(int gunViewID)
+        {
+            // Find Gun to pick up using Photon viewID
+            Gun pickedUpGun = PhotonView.Find(gunViewID).GetComponent<Gun>();
+
+            // Protect against double collisions (trying to pick up the same gun twice)
+            // *** This check might not be necessary after recent code changes... TODO: look into it
+            if (pickedUpGun.Equals(activeGun))
+            {
+                return;
+            }
+
+            // Make sure we don't collide with the new gun while we're holding it
+            pickedUpGun.GetComponentInChildren<BoxCollider>().enabled = false;
+
+            // Disable Photon's syncing of the gun position before we put the gun in the GameObject heirarchy of the Player
+            //pickedUpGun.GetComponent<PhotonView>().ObservedComponents = new List<Component> { };
+            pickedUpGun.GetComponent<PhotonView>().Synchronization = ViewSynchronization.Off;
+
+            // Put this gun in the GameObject hierarchy where the old gun was (i.e., make it a sibling to the old gun)
+              //pickedUpGun.transform.parent = activeGun.transform.parent;
+            pickedUpGun.transform.parent = transform.Find("FirstPersonCharacter/Inactive Weapons");
+
+            // Make sure the picked up gun is not visible
+            pickedUpGun.gameObject.SetActive(false);
+
+            // Set the local position and rotation of the gun
+              //pickedUpGun.transform.position = activeGun.transform.position;
+              //pickedUpGun.transform.rotation = activeGun.transform.rotation;
+            pickedUpGun.transform.localPosition = new Vector3(-0.06f, 0.216f, -0.496f);
+            pickedUpGun.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+
+            // Disable the old gun and enable new gun
+              //activeGun.transform.gameObject.SetActive(false);
+              //pickedUpGun.transform.gameObject.SetActive(true);
+
+            // Set Gun's FPS Cam and Player who owns this gun
+              //pickedUpGun.fpsCam = activeGun.fpsCam;
+              //pickedUpGun.playerWhoOwnsThisGun = activeGun.playerWhoOwnsThisGun;
+            pickedUpGun.fpsCam = photonView.gameObject.transform.Find("FirstPersonCharacter").GetComponent<Camera>();
+            pickedUpGun.playerWhoOwnsThisGun = photonView.gameObject.GetComponent<MonoBehaviourPun>();
+
+            // Make the picked up gun our active gun and Drop the old gun
+              //Gun oldGun = activeGun;
+              //activeGun = pickedUpGun;
+        }
+
         /// <summary>
         /// Drops the gun.
         /// </summary>
@@ -433,7 +583,33 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             gun.GetComponentInChildren<BoxCollider>().enabled = true;
 
             // Re-enable Photon's syncing of the gun position
-            gun.GetComponent<PhotonView>().ObservedComponents = new List<Component> { gun.GetComponent<PhotonTransformView>() };
+            //gun.GetComponent<PhotonView>().ObservedComponents = new List<Component> { gun.GetComponent<PhotonTransformView>() };
+            gun.GetComponent<PhotonView>().Synchronization = ViewSynchronization.ReliableDeltaCompressed;
+
+            // If we just dropped our active gun...
+            if (gun == activeGun)
+            {
+                activeGun = null;
+
+                // ** This would be a good place to automatically select a new active gun from a list of weapons this player owns
+
+                Transform trannyWannyDooDa = transform.Find("FirstPersonCharacter/Inactive Weapons");
+
+                if (DEBUG)
+                {
+                    for (int i = 0; i < trannyWannyDooDa.childCount; i++)
+                    {
+                        Transform childTransform = trannyWannyDooDa.GetChild(i);
+                        Debug.LogFormat("PlayerManager: DropGun() child #{1}: childTransform.gameObject = {0}", childTransform.gameObject, i);
+                    }
+                }
+
+                if (trannyWannyDooDa.childCount > 0)
+                {
+                    int gunViewID = trannyWannyDooDa.GetChild(0).GetComponent<PhotonView>().ViewID;
+                    SetActiveGun(gunViewID);
+                }
+            }
         }
 
         /// <summary>
@@ -442,6 +618,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void DisableActiveGunCollider()
         {
+            if (activeGun == null)
+            {
+                return;
+            }
+
             activeGun.GetComponentInChildren<BoxCollider>().enabled = false;
         }
 
@@ -510,11 +691,29 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (Input.GetButton("Fire1"))
             {
                 // Check if gun is ready to shoot before sending the RPC to avoid overloading network
-                if (activeGun.IsReadyToShoot)
+                if (activeGun != null && activeGun.IsReadyToShoot)
                 {
                     // Call the [PunRPC] Shoot method over photon network
                     photonView.RPC("Shoot", RpcTarget.All);
                 }
+            }
+
+            // Check if user is trying to active weapon
+            // If has pressed and released the G key...
+            if (Input.GetKeyUp(KeyCode.G))
+            {
+                if (activeGun == null) {
+                    if (DEBUG) Debug.Log("PlayerManager: ProcessInputs() Trying to drop active gun but this.activeGun == null");
+                    return;
+                }
+
+                if (photonView.IsMine)
+                {
+                    // Set local player's active gun property (synced on the network)
+                    PhotonNetwork.LocalPlayer.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_ACTIVE_GUN, null } });
+                }
+                // Drop this player's active gun (synchronized on network)
+                //photonView.RPC("DropActiveGun", RpcTarget.All);
             }
         }
 
@@ -523,55 +722,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #region RPC Methods
 
         /// <summary>
-        /// Picks up gun.
-        /// Requires player to have a gun already to know how to position the new gun.
-        /// *This is not the best implementation!!
+        /// Drops this player's active gun
         /// </summary>
-        /// <param name="pickedUpGun">The picked up gun.</param>
         [PunRPC]
-        void ReplaceCurrentGunWithPickedUpGun(int viewID)
+        void DropActiveGun()
         {
-            // Find gun to pick up using Photon viewID
-            Gun pickedUpGun = PhotonView.Find(viewID).GetComponent<Gun>();
-
-            // Protect against double collisions (trying to pick up the same gun twice)
-            if (pickedUpGun.Equals(activeGun))
+            if (activeGun == null)
             {
+                Debug.Log("PlayerManager: DropActiveGun() Trying to drop active gun but this.activeGun == null");
                 return;
             }
-                
-            // Make sure we don't collide with the new gun while we're holding it
-            pickedUpGun.GetComponentInChildren<BoxCollider>().enabled = false;
 
-            // Disable Photon's syncing of the gun position before we put the gun in the GameObject heirarchy of the Player
-            pickedUpGun.GetComponent<PhotonView>().ObservedComponents = new List<Component> {};
-
-            // Put this gun in the GameObject hierarchy where the old gun was (i.e., make it a sibling to the old gun)
-            //pickedUpGun.transform.parent = activeGun.transform.parent;
-            pickedUpGun.transform.parent = transform.Find("FirstPersonCharacter/Active Weapon");
-            
-            // Give the picked up gun the same position and rotation as the active gun
-            //pickedUpGun.transform.position = activeGun.transform.position;
-            //pickedUpGun.transform.rotation = activeGun.transform.rotation;
-            pickedUpGun.transform.localPosition = new Vector3(-0.06f, 0.216f, -0.496f);
-            pickedUpGun.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
-
-            // Disable the old gun and enable new gun
-            activeGun.transform.gameObject.SetActive(false);
-            pickedUpGun.transform.gameObject.SetActive(true);
-
-            // Set FPS Cam and Player who owns this gun
-            //pickedUpGun.fpsCam = activeGun.fpsCam;
-            //pickedUpGun.playerWhoOwnsThisGun = activeGun.playerWhoOwnsThisGun;
-            pickedUpGun.fpsCam = photonView.gameObject.transform.Find("FirstPersonCharacter").GetComponent<Camera>();
-            pickedUpGun.playerWhoOwnsThisGun = photonView.gameObject.GetComponent<MonoBehaviourPun>();
-
-            // Make the picked up gun our active gun and Drop the old gun
-            Gun oldGun = activeGun;
-            activeGun = pickedUpGun;
-            DropGun(oldGun);
+            // Make player on this client drop the gun
+            DropGun(activeGun);
         }
-
+        
         /// <summary>
         /// Shoot was invoked over photon network via RPC
         /// </summary>
@@ -580,6 +745,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         void Shoot(PhotonMessageInfo info)
         {
             //Debug.LogFormat("PlayerManager: [PunRPC] Shoot() {0}, {1}, {2}.", info.Sender, info.photonView, info.SentServerTime);
+            if (activeGun == null)
+            {
+                if (DEBUG) Debug.LogFormat("PlayerManager: [PunRPC] Shoot() Trying to shoot gun but activeGun = null");
+                return; 
+            }
 
             // Tell the gun to shoot
             activeGun.Shoot();

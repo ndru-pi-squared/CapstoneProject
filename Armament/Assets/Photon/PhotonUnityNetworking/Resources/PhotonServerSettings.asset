@@ -38,5 +38,8 @@ MonoBehaviour:
   - Die
   - ReplaceCurrentGunWithPickedUpGun
   - ResetPlayerPosition
+  - DropGun
+  - PickUpGun
+  - DropActiveGun
   DisableAutoOpenWizard: 1
   ShowSettings: 1

@@ -534,8 +534,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     myPlayerGO.GetComponentInChildren<FlareLayer>().enabled = true;
 
                     // Disable Photon's syncing of the position of the gun (prefab) we are spawned with. Syncing will be enabled again when we drop the gun
-                    myPlayerGO.GetComponentInChildren<Gun>()
-                        .GetComponent<PhotonView>().ObservedComponents = new List<Component> { };
+                    if (myPlayerGO.GetComponentInChildren<Gun>() != null)
+                    {
+                        myPlayerGO.GetComponentInChildren<Gun>().GetComponent<PhotonView>().ObservedComponents = new List<Component> { };
+                    }
 
                     // Disable scene camera
                     Camera.main.enabled = false;
