@@ -1,4 +1,6 @@
 ﻿using Photon.Pun;
+using Photon.Realtime;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -179,6 +181,54 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             // e.g. store this gameobject as this player's charater in Player.TagObject
             //info.Sender.TagObject = this.GameObject
+
+            // ***
+            // For players entering a room late...
+            // ***
+            
+            Debug.LogFormat("Gun: OnPhotonInstantiate() info.photonView.ViewID = {0}", info.photonView.ViewID);
+
+            
+            // If this gun has a registered owner (player) in the room's CustomProperties...
+            if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(gameObject.GetComponent<PhotonView>().ViewID.ToString(), out object gunOwnerNickName))
+            {
+                Debug.LogFormat("Gun: OnPhotonInstantiate() (string)gunOwnerNickNameVal = {0}", (string)gunOwnerNickName);
+                                
+                // Go through the list of all the players...
+                foreach (Player player in PhotonNetwork.PlayerList)
+                {
+                    // If we found the player who is the gunOwner...
+                    if (player.NickName.Equals(gunOwnerNickName))
+                    {
+                        // Save a reference to the gun owner and the gun View ID
+                        Player gunOwner = player;
+                        int gunViewID = gameObject.GetComponent<PhotonView>().ViewID;
+
+                        Debug.LogFormat("Gun: OnPhotonInstantiate() Making player {0} PICKUP gun {1} with ViewID = {2}", gunOwnerNickName, this.ToString(), gunViewID);
+
+                        // Make gunOwner pick up this gun 
+                        ((GameObject)gunOwner.TagObject).GetComponent<PlayerManager>().PickUpGun(gunViewID);
+
+                        // If this player has registered an active gun in the player's CustomProperties...
+                        if (gunOwner.CustomProperties.TryGetValue(PlayerManager.KEY_ACTIVE_GUN, out object gunViewIDObject))
+                        {
+                            // If this gun is the active gun (for the player who owns this gun)...
+                            if (gunViewID == Convert.ToInt32(gunViewIDObject))
+                            {
+                                Debug.LogFormat("Gun: OnPhotonInstantiate() Making player {0} SETACTIVE gun {1} with ViewID = {2}", gunOwnerNickName, this.ToString(), gunViewID);
+
+                                // Make gunOwner set this gun as the active gun
+                                ((GameObject)gunOwner.TagObject).GetComponent<PlayerManager>().SetActiveGun(gunViewID);
+                            }
+                        }
+
+                        // We've found the player who owns this gun and dealt with everything so don't keep looking through the list of players..
+                        break;
+                    }
+                }
+            }
+
+
         }
 
         #endregion IPunInstantiateMagicCallback implementation

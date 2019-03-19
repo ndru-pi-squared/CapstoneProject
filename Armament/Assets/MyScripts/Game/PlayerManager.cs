@@ -61,6 +61,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         
         private ArrayList playerWeapons;
         private GameObject gunToBePickedUpGO; // stores a reference to the a gun we want to pick up
+        private Vector3 activeGunPosition;
+        private Gun activeShowGun;
 
         #endregion
         
@@ -142,9 +144,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (photonView.IsMine)
             {
                 ProcessInputs();
-
             }
-
         }
 
         /// <summary>
@@ -482,8 +482,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 #endif
 
-        void SetActiveGun(int gunViewID)
+        public void SetActiveGun(int gunViewID)
         {
+
+            Debug.LogFormat("PlayerManager: SetActiveGun() gunViewID = {0}", gunViewID);
             // If there is a currently an active gun...
             if (activeGun != null)
             {
@@ -496,18 +498,53 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             Gun gunToBeActivated = PhotonView.Find(gunViewID).GetComponent<Gun>();
 
             // Activate gunToBeActivated
-            gunToBeActivated.gameObject.SetActive(true);
+            //gunToBeActivated.gameObject.SetActive(true);
             gunToBeActivated.transform.parent = transform.Find("FirstPersonCharacter/Active Weapon");
 
             // Set activeGun so we can make use of it other places (like shooting it)
             activeGun = gunToBeActivated;
+
+
+
+            // Setup active "show" gun for local display (because syncing position of network spawned guns was so fucked up)
+
+            // If there is a currently an active "show" gun...
+            if (activeShowGun != null)
+            {
+                if (DEBUG) Debug.LogFormat("PlayManager: SetActiveGun() Destroying activeShowGun = {0}", activeShowGun);
+                // Destroy activeGunFake
+                Destroy(activeShowGun.gameObject);
+                activeShowGun = null;
+
+            }
+
+            // ** Will need to change how we instantiate based on type of gun
+            GameObject gunPrefab = gunToBeActivated.name.Contains("Gun 1") ? GameManager.Instance.weaponsPrefabs[0] : GameManager.Instance.weaponsPrefabs[1];
+            GameObject showGunToBeActivatedGO = Instantiate(gunPrefab, transform.Find("FirstPersonCharacter/Show Weapon"));
+            
+            Gun showGunToBeActivated = showGunToBeActivatedGO.GetComponent<Gun>();
+            showGunToBeActivated.GetComponentInChildren<Collider>().enabled = false;
+
+            // Set Gun's FPS Cam and Player who owns this gun
+            showGunToBeActivated.fpsCam = photonView.gameObject.transform.Find("FirstPersonCharacter").GetComponent<Camera>();
+            showGunToBeActivated.playerWhoOwnsThisGun = photonView.gameObject.GetComponent<MonoBehaviourPun>();
+
+            // Activate gunToBeActivated
+            showGunToBeActivated.gameObject.SetActive(true);
+
+            // Set activeGun so we can make use of it other places (like shooting it)
+            activeShowGun = showGunToBeActivated;
+
+            Debug.LogFormat("PlayerManager: SetActiveGun() activeShowGun = {0}", activeShowGun);
+
+
         }
 
         /// <summary>
         /// Picks up Gun. Makes Gun's GameObject a child of Player's "Inactive Weapons" GameObject 
         /// </summary>
         /// <param name="gunViewID">Photon View ID of the gun to pick up</param>
-        void PickUpGun(int gunViewID)
+        public void PickUpGun(int gunViewID)
         {
             // Find Gun to pick up using Photon viewID
             Gun pickedUpGun = PhotonView.Find(gunViewID).GetComponent<Gun>();
@@ -522,36 +559,32 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Make sure we don't collide with the new gun while we're holding it
             pickedUpGun.GetComponentInChildren<BoxCollider>().enabled = false;
 
+            // If this client owns the player picking up the gun...
+            if (photonView.IsMine)
+            {
+                // Transfer ownership of this gun's photonview (and GameObject) to this player
+                pickedUpGun.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.LocalPlayer);
+            }
+            
             // Disable Photon's syncing of the gun position before we put the gun in the GameObject heirarchy of the Player
-            //pickedUpGun.GetComponent<PhotonView>().ObservedComponents = new List<Component> { };
-            pickedUpGun.GetComponent<PhotonView>().Synchronization = ViewSynchronization.Off;
+            //pickedUpGun.GetComponent<PhotonView>().Synchronization = ViewSynchronization.Off;
+            //pickedUpGun.GetComponent<PhotonView>().enabled = false;
 
             // Put this gun in the GameObject hierarchy where the old gun was (i.e., make it a sibling to the old gun)
-              //pickedUpGun.transform.parent = activeGun.transform.parent;
             pickedUpGun.transform.parent = transform.Find("FirstPersonCharacter/Inactive Weapons");
+
+
+            // Set the local position and rotation of the gun
+            pickedUpGun.transform.localPosition = new Vector3(-0.06f, 0.216f, -0.496f);
+            pickedUpGun.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
+
 
             // Make sure the picked up gun is not visible
             pickedUpGun.gameObject.SetActive(false);
 
-            // Set the local position and rotation of the gun
-              //pickedUpGun.transform.position = activeGun.transform.position;
-              //pickedUpGun.transform.rotation = activeGun.transform.rotation;
-            pickedUpGun.transform.localPosition = new Vector3(-0.06f, 0.216f, -0.496f);
-            pickedUpGun.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
-
-            // Disable the old gun and enable new gun
-              //activeGun.transform.gameObject.SetActive(false);
-              //pickedUpGun.transform.gameObject.SetActive(true);
-
             // Set Gun's FPS Cam and Player who owns this gun
-              //pickedUpGun.fpsCam = activeGun.fpsCam;
-              //pickedUpGun.playerWhoOwnsThisGun = activeGun.playerWhoOwnsThisGun;
             pickedUpGun.fpsCam = photonView.gameObject.transform.Find("FirstPersonCharacter").GetComponent<Camera>();
             pickedUpGun.playerWhoOwnsThisGun = photonView.gameObject.GetComponent<MonoBehaviourPun>();
-
-            // Make the picked up gun our active gun and Drop the old gun
-              //Gun oldGun = activeGun;
-              //activeGun = pickedUpGun;
         }
 
         /// <summary>
@@ -566,32 +599,52 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 return;
             }
 
-            // Relinquish gun ownership to the Scene 
+            // Relinquish gun ownership
             int viewID = gun.GetComponent<PhotonView>().ViewID;
             PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { viewID.ToString(), GameManager.VALUE_UNCLAIMED_ITEM } });
 
             // Make this gun a sibling of the player in the GameObject hierarchy
             gun.transform.parent = LocalPlayerInstance.transform.parent;
 
-            // Toss gun away from player so we don't immediately collide with it again
-            // (For now, just move it forward a bit)
-            gun.transform.position = gun.transform.position + LocalPlayerInstance.transform.forward * howFarToTossWeapon;
-            gun.transform.rotation = LocalPlayerInstance.transform.rotation;
-            
-            // Re-enable the gun and its gun's collider so it's visible and can be picked up again
+            // Make gun visible
             gun.transform.gameObject.SetActive(true);
-            gun.GetComponentInChildren<BoxCollider>().enabled = true;
 
             // Re-enable Photon's syncing of the gun position
-            //gun.GetComponent<PhotonView>().ObservedComponents = new List<Component> { gun.GetComponent<PhotonTransformView>() };
+            gun.GetComponent<PhotonView>().enabled = true;
             gun.GetComponent<PhotonView>().Synchronization = ViewSynchronization.ReliableDeltaCompressed;
+
+            // Toss gun away from player so we don't immediately collide with it again
+            // (For now, just move it forward a bit)
+             //gun.transform.position = gun.transform.position + LocalPlayerInstance.transform.forward * howFarToTossWeapon;
+             //gun.transform.rotation = LocalPlayerInstance.transform.rotation;
+            gun.transform.position = gun.transform.position + photonView.gameObject.transform.forward * howFarToTossWeapon;
+            gun.transform.rotation = photonView.gameObject.transform.rotation;
+
+            // Re-enable its gun's collider so it's visible and can be picked up again
+            gun.GetComponentInChildren<BoxCollider>().enabled = true;
+
+            // If this client owns the player dropping the gun...
+            if (photonView.IsMine)
+            {                
+                // Transfer Gun's PhotonView ownership to the "Scene"
+                gun.GetComponent<PhotonView>().TransferOwnership(0);
+            }
+
+      
 
             // If we just dropped our active gun...
             if (gun == activeGun)
             {
                 activeGun = null;
 
-                // ** This would be a good place to automatically select a new active gun from a list of weapons this player owns
+                // If there is a currently an active "show" gun...
+                if (activeShowGun != null)
+                {
+                    if (DEBUG) Debug.LogFormat("PlayManager: DropGun() Destroying activeShowGun = {0}", activeShowGun);
+                    // Destroy activeGunFake
+                    Destroy(activeShowGun.gameObject);
+                    activeShowGun = null;
+                }
 
                 Transform trannyWannyDooDa = transform.Find("FirstPersonCharacter/Inactive Weapons");
 
@@ -604,6 +657,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     }
                 }
 
+                // Automatically select next gun in Player's inventory to be new active gun 
                 if (trannyWannyDooDa.childCount > 0)
                 {
                     int gunViewID = trannyWannyDooDa.GetChild(0).GetComponent<PhotonView>().ViewID;
@@ -751,8 +805,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 return; 
             }
 
+            /*
             // Tell the gun to shoot
             activeGun.Shoot();
+            */
+            
+            // Tell the "show" gun to shoot
+            activeShowGun.Shoot();
         }
 
         /// <summary>
@@ -838,6 +897,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             // Store this gameobject as this player's charater in Player.TagObject
             info.Sender.TagObject = gameObject;
+            /*
+            Debug.LogFormat("PlayerManager: OnPhotonInstantiate() info.Sender.NickName = {0}", info.Sender.NickName);
+            // If this player has an active gun...
+            if (info.Sender.CustomProperties.TryGetValue(KEY_ACTIVE_GUN, out object value))
+            {
+                // Set Active Gun
+                int gunViewID = Convert.ToInt32(value);
+                Debug.LogFormat("PlayerManager: OnPhotonInstantiate() gunViewID = {0}", gunViewID);
+                PickUpGun(gunViewID);
+                SetActiveGun(gunViewID);
+            }*/
         }
 
         #endregion IPunInstantiateMagicCallback implementation
