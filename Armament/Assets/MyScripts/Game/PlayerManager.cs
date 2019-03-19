@@ -12,6 +12,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
     /// <summary>
     /// Manages Player information
     /// </summary>
+    [RequireComponent(typeof(AudioSource))]
     public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable, ITarget, IPunInstantiateMagicCallback
     {
 
@@ -44,24 +45,29 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region Private Serializable Fields
 
-        [Tooltip("Gun owned by player")]
-        [SerializeField] private Gun activeGun;
+        [Tooltip("Audio Clip to play when a player dies.")]
+        [SerializeField] private AudioClip deathSound;
+        [Tooltip("Audio Clip to play when a player takes.")]
+        [SerializeField] private AudioClip painSound;
         [Tooltip("The Player's UI GameObject Prefab")]
-        [SerializeField] private GameObject playerUiPrefab;
+        [SerializeField] private GameObject playerUiPrefab; // from tutorial.. probably should remove
         [Tooltip("How far to toss weapon in front of player when dropping weapon")]
         [SerializeField] int howFarToTossWeapon = 10;
         [Tooltip("The Player's UI GameObject Prefab")]
-        [SerializeField] private bool usingPlayerUIPrefab = false;
+        [SerializeField] private bool usingPlayerUIPrefab = false; // needed to disable tutorial code... probably should removed with playerUiPrefab
 
         #endregion Private Serializable Fields
 
         #region Private Fields
 
         private const bool DEBUG = true; // indicates whether we are debugging this class
-        
+
+        private AudioSource audioSource;
+
         private ArrayList playerWeapons;
         private GameObject gunToBePickedUpGO; // stores a reference to the a gun we want to pick up
         private Vector3 activeGunPosition;
+        private Gun activeGun;
         private Gun activeShowGun;
 
         #endregion
@@ -95,6 +101,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void Start()
         {
+
+            audioSource = GetComponent<AudioSource>();
+            if (!audioSource)
+            {
+                Debug.LogError("Player is Missing Audio Source Component", this);
+            }
+
             /** Notes from tutorial:
              *   All of this is standard Unity coding. However notice that we are sending a message to the instance we've just created. We 
              *   require a receiver, which means we will be alerted if the SetTarget did not find a component to respond to it. Another 
@@ -332,9 +345,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 // Get the value for the key
                 changedProps.TryGetValue(key, out object value);
-
-                if (DEBUG) Debug.LogFormat("PlayerManager: OnPlayerPropertiesUpdate() key = {0}, value = {1}", (string)key, (string)value);
-
+                
                 // If the player property that changed was KEY_ACTIVE_GUN...
                 if (KEY_ACTIVE_GUN.Equals((string)key))
                 {   
@@ -410,6 +421,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="playerWhoCausedDamage">The player who caused the damage</param>
         public void TakeDamage(float amount, PlayerManager playerWhoCausedDamage)
         {
+
             // Note to self:
             //  Don't forget: Health will be synchronized by Photon via 'Object Synchronization'
             //  Each client will own one player (specifically, a PhotonView component on the player). 
@@ -419,7 +431,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (photonView.IsMine)
             {
                 Health -= amount;
-
+                
                 // If player should die...
                 if (Health <= 0)
                 {
@@ -428,6 +440,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                     // Log the kill for the player who caused the damage 
                     playerWhoCausedDamage.AddKill();
+                }
+                else
+                {
+                    // Play pain sound
+                    audioSource.PlayOneShot(painSound); // I read somewhere online that this allows the sounds to overlap
                 }
             }
         }
@@ -825,6 +842,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             //PhotonNetwork.Destroy(gameObject);
             //Destroy(gameObject);
 
+            // Play death sound
+            audioSource.PlayOneShot(deathSound); // I read somewhere online that this allows the sounds to overlap
+
             // Register a death for this player on all client
             AddDeath();
 
@@ -897,17 +917,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             // Store this gameobject as this player's charater in Player.TagObject
             info.Sender.TagObject = gameObject;
-            /*
-            Debug.LogFormat("PlayerManager: OnPhotonInstantiate() info.Sender.NickName = {0}", info.Sender.NickName);
-            // If this player has an active gun...
-            if (info.Sender.CustomProperties.TryGetValue(KEY_ACTIVE_GUN, out object value))
-            {
-                // Set Active Gun
-                int gunViewID = Convert.ToInt32(value);
-                Debug.LogFormat("PlayerManager: OnPhotonInstantiate() gunViewID = {0}", gunViewID);
-                PickUpGun(gunViewID);
-                SetActiveGun(gunViewID);
-            }*/
+
+            // *** 
+            // May need to set up player's weapons here like it was done in Gun.OnPhotonInstantiate if there's 
+            // ever a case where Guns' photon views are registered on the network before this method is called
+            // ***
         }
 
         #endregion IPunInstantiateMagicCallback implementation

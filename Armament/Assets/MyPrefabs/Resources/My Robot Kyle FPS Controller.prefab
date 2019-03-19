@@ -1295,7 +1295,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Health: 100
-  activeGun: {fileID: 0}
+  deathSound: {fileID: 8300000, guid: c12757a7619bd864c80aef7d059208f7, type: 3}
+  painSound: {fileID: 8300000, guid: 0e6b76160e87ae44a9afb100dba8aeaf, type: 3}
   playerUiPrefab: {fileID: 8596841759220518085, guid: 92ef125f36ae2e743b0604aebd8382dd,
     type: 3}
   howFarToTossWeapon: 10
