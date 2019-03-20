@@ -33,14 +33,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
     [RequireComponent(typeof(GameManager))]
     public class CountdownTimer : MonoBehaviourPunCallbacks
     {
-        public const string CountdownStartTime1 = GameManager.KEY_STAGE_1_COUNTDOWN_START_TIME;
-        public const string CountdownStartTime2 = GameManager.KEY_STAGE_2_COUNTDOWN_START_TIME;
+
+        #region Public Fields
 
         /// <summary>
         /// OnCountdownTimer2HasExpired delegate.
         /// </summary>
         public delegate void CountdownTimer1HasExpired();
-
         /// <summary>
         /// OnCountdownTimer2HasExpired delegate.
         /// </summary>
@@ -56,23 +55,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         public static event CountdownTimer2HasExpired OnCountdownTimer2HasExpired;
 
-        private bool isTimer1Running; // default value = false
-        private bool isTimer2Running; // default value = false
-
-        private float startTime1;
-        private float startTime2;
-
-        /*[Header("Reference to a Text component for visualizing the countdown")]
-        public Text Text;
-
-        [Header("Countdown time in seconds")]
-        public float Countdown1 = 5.0f;
-        */
+        #endregion Public Fields
 
         #region Private Fields
 
-        //private double timer1TimeLeft; // time left in timer (used to determine when the wall should come down)
-        //private double timer2TimeLeft; // time left in timer (used to determine when the wall should come down)
+        private bool isTimer1Running; // default value = false
+        private bool isTimer2Running; // default value = false
+        private float startTime1;
+        private float startTime2;
 
         #endregion Private Fields
 
@@ -83,19 +73,44 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public int Timer2TimeLeft { get; private set; } // Time left in seconds (used to display to players on jumbotron)
         public bool Timer2TimeIsUp { get; private set; } = false; // Used to keep track of whether the timeLeft <= 0 (i.e., time is up)
-
+        
         #endregion Properties
 
-        public void Start()
+        #region Private Methods
+
+        void CheckForTimerInfo(ExitGames.Client.Photon.Hashtable props)
         {
-            /*if (Text == null)
+            if (props.TryGetValue(GameManager.KEY_STAGE_1_COUNTDOWN_START_TIME, out object startTime1FromProps))
             {
-                Debug.LogError("Reference to 'Text' is not set. Please set a valid reference.", this);
-                return;
-            }*/
+                if (startTime1FromProps != null)
+                {
+                    isTimer1Running = true;
+                    Timer1TimeIsUp = false;
+                    startTime1 = (float)startTime1FromProps;
+                }
+            }
+
+            if (props.TryGetValue(GameManager.KEY_STAGE_2_COUNTDOWN_START_TIME, out object startTime2FromProps))
+            {
+                if (startTime2FromProps != null)
+                {
+                    isTimer2Running = true;
+                    Timer2TimeIsUp = false;
+                    startTime2 = (float)startTime2FromProps;
+                }
+            }
         }
 
-        public void Update()
+        #endregion Private Methods
+
+        #region MonoBehaviour Callbacks
+
+        void Start()
+        {
+            CheckForTimerInfo(PhotonNetwork.CurrentRoom.CustomProperties);
+        }
+
+        void Update()
         {
             if (isTimer1Running)
             {
@@ -103,16 +118,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 float countdown1 = GameManager.Instance.Stage1Time - timer1;
 
                 Timer1TimeLeft = Convert.ToInt32(Mathf.Ceil(countdown1));
-
-                // Text.text = string.Format("Game starts in {0} seconds", countdown1.ToString("n2"));
-
+                
                 if (countdown1 <= 0.0f)
                 {
                     isTimer1Running = false;
-
                     Timer1TimeIsUp = true;
-
-                    //Text.text = string.Empty;
 
                     OnCountdownTimer1HasExpired?.Invoke();
                 }
@@ -125,42 +135,25 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 Timer2TimeLeft = Convert.ToInt32(Mathf.Ceil(countdown2));
 
-                // Text.text = string.Format("Game starts in {0} seconds", countdown2.ToString("n2"));
-
                 if (countdown2 <= 0.0f)
                 {
                     isTimer2Running = false;
-
                     Timer2TimeIsUp = true;
-                    
-                    //Text.text = string.Empty;
 
                     OnCountdownTimer2HasExpired?.Invoke();
                 }
             }
         }
 
+        #endregion MonoBehaviour Callbacks
+
+        #region MonoBehaviourPun Callbacks
+
         public override void OnRoomPropertiesUpdate(Hashtable propertiesThatChanged)
         {
-            if (propertiesThatChanged.TryGetValue(CountdownStartTime1, out object startTime1FromProps))
-            {
-                if (startTime1FromProps != null)
-                {
-                    isTimer1Running = true;
-                    Timer1TimeIsUp = false;
-                    startTime1 = (float)startTime1FromProps;
-                }
-            }
-
-            if (propertiesThatChanged.TryGetValue(CountdownStartTime2, out object startTime2FromProps))
-            {
-                if (startTime2FromProps != null)
-                {
-                    isTimer2Running = true;
-                    Timer2TimeIsUp = false;
-                    startTime2 = (float)startTime2FromProps;
-                }
-            }
+            CheckForTimerInfo(propertiesThatChanged);
         }
+
+        #endregion MonoBehaviourPun Callbacks
     }
 }
