@@ -107,6 +107,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 Debug.LogError("Player is Missing Audio Source Component", this);
             }
+            audioSource.enabled = true;
 
             /** Notes from tutorial:
              *   All of this is standard Unity coding. However notice that we are sending a message to the instance we've just created. We 
@@ -841,6 +842,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             //GameManager.Instance.LeaveRoom();
             //PhotonNetwork.Destroy(gameObject);
             //Destroy(gameObject);
+            AudioSource audioSource = GetComponent<AudioSource>();
+            audioSource.enabled = true;
+            Debug.LogFormat("PlayerManager: Die() audioSource = {0}, deathSound = {1}", audioSource, deathSound);
 
             // Play death sound
             audioSource.PlayOneShot(deathSound); // I read somewhere online that this allows the sounds to overlap
