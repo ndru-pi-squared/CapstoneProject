@@ -62,13 +62,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             /** My note paraphrasing tutorial: 
              *   - It's so we don't have orphaned UIs when a player leaves the game
              */
-            // Destroy itself if the target is null, It's a fail safe when Photon is destroying Instances of a Player over the network
             
+            /*
+             * // Destroy itself if the target is null, It's a fail safe when Photon is destroying Instances of a Player over the network
             if (target == null)
             {
                 Destroy(this.gameObject);
                 return;
-            }
+            }*/
 
             // Reflect the Player Health
             if (playerHealthSlider != null)

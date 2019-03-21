@@ -60,7 +60,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region Private Fields
 
-        private const bool DEBUG = true; // indicates whether we are debugging this class
+        private const bool DEBUG = false; // indicates whether we are debugging this class
 
         private AudioSource audioSource;
 
@@ -386,6 +386,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public void SetTeam(string team)
         {
             photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { {KEY_TEAM, team} });
+        }
+
+        public string GetTeam()
+        {
+            photonView.Owner.CustomProperties.TryGetValue(KEY_TEAM, out object team);
+            return (string)team;
         }
 
         /// <summary>

@@ -44,6 +44,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region Private Fields
 
+        private const bool DEBUG = false;
+        private const bool DEBUG_OnPhotonInstantiate = false;
+
         private AudioSource audioSource;
         private float nextTimeToFire = 0f; // used to make sure we don't fire faster than fireRate allows
 
@@ -186,13 +189,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // For players entering a room late...
             // ***
             
-            Debug.LogFormat("Gun: OnPhotonInstantiate() info.photonView.ViewID = {0}", info.photonView.ViewID);
+            if (DEBUG && DEBUG_OnPhotonInstantiate) Debug.LogFormat("Gun: OnPhotonInstantiate() info.photonView.ViewID = {0}", info.photonView.ViewID);
 
             
             // If this gun has a registered owner (player) in the room's CustomProperties...
             if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(gameObject.GetComponent<PhotonView>().ViewID.ToString(), out object gunOwnerNickName))
             {
-                Debug.LogFormat("Gun: OnPhotonInstantiate() (string)gunOwnerNickNameVal = {0}", (string)gunOwnerNickName);
+                if (DEBUG && DEBUG_OnPhotonInstantiate) Debug.LogFormat("Gun: OnPhotonInstantiate() (string)gunOwnerNickNameVal = {0}", (string)gunOwnerNickName);
                                 
                 // Go through the list of all the players...
                 foreach (Player player in PhotonNetwork.PlayerList)
@@ -204,7 +207,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         Player gunOwner = player;
                         int gunViewID = gameObject.GetComponent<PhotonView>().ViewID;
 
-                        Debug.LogFormat("Gun: OnPhotonInstantiate() Making player {0} PICKUP gun {1} with ViewID = {2}", gunOwnerNickName, this.ToString(), gunViewID);
+                        if (DEBUG && DEBUG_OnPhotonInstantiate) Debug.LogFormat("Gun: OnPhotonInstantiate() Making player {0} PICKUP gun {1} with ViewID = {2}", gunOwnerNickName, this.ToString(), gunViewID);
 
                         // Make gunOwner pick up this gun 
                         ((GameObject)gunOwner.TagObject).GetComponent<PlayerManager>().PickUpGun(gunViewID);
