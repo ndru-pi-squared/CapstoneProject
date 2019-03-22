@@ -3,6 +3,7 @@ using PlayFab;
 using PlayFab.ClientModels;
 using PlayFab.Json;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayFabController : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class PlayFabController : MonoBehaviour
     public GameObject loginPanel;
     public GameObject addLoginPanel;
     public GameObject recoverButton;
+    public SceneManager;
 
     private void OnEnable() {
         if (PlayFabController.PFC == null) {
@@ -70,6 +72,9 @@ public class PlayFabController : MonoBehaviour
         loginPanel.SetActive(false);
         recoverButton.SetActive(false);
         getStats();
+
+        // Load the launcher scene
+        SceneManager.LoadScene(1);
     }
 
     private void OnLoginMobileSuccess(LoginResult result)
@@ -77,6 +82,9 @@ public class PlayFabController : MonoBehaviour
         Debug.Log("Mobile Login Success!");
         getStats();
         loginPanel.SetActive(false);
+
+        // Load the launcher scene
+        SceneManager.LoadScene(1);
     }
 
     private void onRegisterSuccess(RegisterPlayFabUserResult result) {
@@ -84,10 +92,12 @@ public class PlayFabController : MonoBehaviour
         PlayerPrefs.SetString("EMAIL", userEmail);
         PlayerPrefs.SetString("PASSWORD", userPassword);
 
-
         PlayFabClientAPI.UpdateUserTitleDisplayName(new UpdateUserTitleDisplayNameRequest { DisplayName = username }, OnDisplayName, OnLoginMobileFailure);
         getStats();
         loginPanel.SetActive(false);
+
+        // Load the launcher scene
+        SceneManager.LoadScene(1);
     }
 
     void OnDisplayName(UpdateUserTitleDisplayNameResult result) {
