@@ -19,14 +19,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG = false; // indicates whether we are debugging this class (Debug console output will show if true)
 
         private Vector3 dropPosition; // stores the final position of the wall after it is dropped
-        private Vector3 originalWallPosition; // keeps track of the original wall position for Reset()
+        private Vector3 originalWallPosition; // keeps track of the original wall position for ResetWallPosition()
         private float originalY;
 
         #endregion Private Fields
 
         #region MonoBehaviour Callbacks
 
-        // Start is called before the first frame update
         void Start()
         {
             // Remember the original wall position for when we want to reset the wall
@@ -38,8 +37,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             dropPosition = transform.position - new Vector3(0f, transform.localScale.y, 0f); // current wall position - height of wall
         }
 
-        // Update is called once per frame
-        void Update()
+        void FixedUpdate()
         {
             // We only want the master client to move the wall (when it is time to do so)
             // If this client is master client...
@@ -51,10 +49,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     // This code doesn't move the wall as I expected but I kind of like how the wall slows down as it drops...
                     // (In other words, the drop is exponential instead of linear)
                     // Drop the position of where we want the wall to be
-                    transform.position = Vector3.Lerp(transform.position, dropPosition, Time.deltaTime / dropTime);
+                    transform.position = Vector3.Lerp(transform.position, dropPosition, Time.fixedDeltaTime / dropTime);
                 }
             }
-            
         }
 
         public void ResetWallPosition()
@@ -65,6 +62,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             transform.position = pos;
             if (DEBUG) Debug.LogFormat("WallDropAnimator: ResetWallPosition() transform.position = {0}, pos = {1}", transform.position, pos);
         }
+
         #endregion MonoBehaviour Callbacks
         
     }
