@@ -47,6 +47,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public GameObject environment; // used to give us a way to find GameObjects that are children of Environment
         [Tooltip("The root GameObject in the hierarchy for all our game levels that we call \"Canvas\"")]
         public GameObject canvas; // used to give us a way to find GameObjects that are children of Canvas
+        [Tooltip("List of Scene Cameras")]
+        public Camera[] sceneCameras; // used to disable scene cameras when local player is created
 
         #endregion Public Fields
 

@@ -129,8 +129,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 GetComponentInChildren<AudioListener>().enabled = true;
                 GetComponentInChildren<FlareLayer>().enabled = true;
 
-                // Disable scene camera; we'll use player's first-person camera now
-                Camera.main.enabled = false;
+                // Disable scene cameras; we'll use player's first-person camera now
+                foreach (Camera cam in GameManager.Instance.sceneCameras)
+                    cam.enabled = false;
 
                 // Find the PlayerInfoUI (which displays things like player health and player name) in the canvas
                 GameObject playerInfoUIGO = GameManager.Instance.canvas.GetComponentInChildren<PlayerInfoUI>().gameObject;
@@ -972,17 +973,16 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="info"></param>
         public void OnPhotonInstantiate(PhotonMessageInfo info)
         {
-            Debug.LogFormat("PlayerManager: OnPhotonInstantiate() info.Sender = {0}, gameObject = {1}", info.Sender, gameObject);
+            if (DEBUG && DEBUG_OnPhotonInstantiate) Debug.LogFormat("PlayerManager: OnPhotonInstantiate() info.Sender = {0}, gameObject = {1}", info.Sender, gameObject);
             
             instantiationData = GetComponent<PhotonView>().InstantiationData;
             int actorNumber = (int)instantiationData[0];
-            
             Player thisPlayer = PhotonNetwork.CurrentRoom.GetPlayer(actorNumber);
 
-            Debug.LogFormat("PlayerManager: OnPhotonInstantiate() actorNumber = {0}, thisPlayer = {1}", actorNumber, thisPlayer);
+            if (DEBUG && DEBUG_OnPhotonInstantiate)  Debug.LogFormat("PlayerManager: OnPhotonInstantiate() actorNumber = {0}, thisPlayer = {1}", actorNumber, thisPlayer);
+
             if (thisPlayer != null)
             {
-
                 // Store this gameobject as this player's charater in Player.TagObject
                 thisPlayer.TagObject = gameObject;
 
