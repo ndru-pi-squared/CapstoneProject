@@ -93,8 +93,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         private ArrayList teamAList;
         private ArrayList teamBList;
-        private ArrayList spawnedWeaponsList;
-
         private GameObject dividingWallGO;
 
         /// <summary>
@@ -122,11 +120,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             get { return stage2Time; }
             private set { stage2Time = value; }
         }
-        
+
+        public ArrayList SpawnedWeaponsList { get; private set; }
+
         #endregion
 
         #region Public Methods
-        
+
         /// <summary>
         /// Event Handler. Called in the event that the game's stage 1 timer is expired
         /// </summary>
@@ -556,27 +556,27 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
 
             // Create a new list to keep track of spawned weapons
-            spawnedWeaponsList = new ArrayList();
+            SpawnedWeaponsList = new ArrayList();
 
             // Instantiate our two weapons at different spawn points for team A. Add each newly spawned weapon to the list
-            spawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[0].name, weaponSpawnPoints[0].position, weaponSpawnPoints[0].rotation, 0));
-            spawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[1].name, weaponSpawnPoints[1].position, weaponSpawnPoints[1].rotation, 0));
+            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[0].name, weaponSpawnPoints[0].position, weaponSpawnPoints[0].rotation, 0));
+            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[1].name, weaponSpawnPoints[1].position, weaponSpawnPoints[1].rotation, 0));
             // Instantiate our two weapons at different spawn points for team B. Add each newly spawned weapon to the list
-            spawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[0].name, weaponSpawnPoints[2].position, weaponSpawnPoints[2].rotation, 0));
-            spawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[1].name, weaponSpawnPoints[3].position, weaponSpawnPoints[3].rotation, 0));
+            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[0].name, weaponSpawnPoints[2].position, weaponSpawnPoints[2].rotation, 0));
+            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[1].name, weaponSpawnPoints[3].position, weaponSpawnPoints[3].rotation, 0));
 
             // Add the spawned weapon (key) and it's owner (value) to the properties for the current room
             PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable {
-                        { ((GameObject)spawnedWeaponsList[0]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
-                        { ((GameObject)spawnedWeaponsList[1]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
-                        { ((GameObject)spawnedWeaponsList[2]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
-                        { ((GameObject)spawnedWeaponsList[3]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM } });
+                        { ((GameObject)SpawnedWeaponsList[0]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
+                        { ((GameObject)SpawnedWeaponsList[1]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
+                        { ((GameObject)SpawnedWeaponsList[2]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
+                        { ((GameObject)SpawnedWeaponsList[3]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM } });
 
             if (DEBUG && DEBUG_SpawnNewItems) Debug.LogFormat("GameManager: SpawnNewItems() " +
                 "((GameObject)spawnedWeaponsList[0]).GetPhotonView().ViewID = {0} " +
                 "((GameObject)spawnedWeaponsList[1]).GetPhotonView().ViewID = {1}",
-                ((GameObject)spawnedWeaponsList[0]).GetPhotonView().ViewID,
-                ((GameObject)spawnedWeaponsList[1]).GetPhotonView().ViewID);
+                ((GameObject)SpawnedWeaponsList[0]).GetPhotonView().ViewID,
+                ((GameObject)SpawnedWeaponsList[1]).GetPhotonView().ViewID);
         }
 
         /// <summary>
@@ -638,7 +638,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 teamBPlayerSpawnPoints[new System.Random().Next(teamBPlayerSpawnPoints.Length)];
 
             // Tutorial comment: we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
-            GameObject playerGO = PhotonNetwork.Instantiate(this.PlayerPrefab.name, playerSpawnPoint.position, playerSpawnPoint.rotation, 0, new[] { (object)actorNumber, teamToJoin});
+            GameObject playerGO = PhotonNetwork.InstantiateSceneObject(this.PlayerPrefab.name, playerSpawnPoint.position, playerSpawnPoint.rotation, 0, new[] { (object)actorNumber, teamToJoin});
             
             return playerGO;
         }
