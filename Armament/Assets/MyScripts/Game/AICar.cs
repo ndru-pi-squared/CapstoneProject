@@ -23,6 +23,11 @@ public class AICar : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
             Debug.Log("AI car entered a collider");
-            this.gameObject.transform.Rotate(new Vector3(0, 90, 0));
+            //Transform t = other.GetComponentInParent<Transform>();//get the transform to access the game object
+            //GameObject p = t.gameObject;//TODO: change name to more descriptive
+            //Debug.Log("What is the thing AI car hit: " + p.name);
+            //if p.name is player | FPScamp | whatever it is for a player TODO: build out and check what the player name attribute is actually set to in debugger
+            //p.getComponent<PlayerManager>().TakeDamage(10f, p.GetComponent<PlayerManager>());  //something like that
+            this.gameObject.transform.Rotate(new Vector3(0, 90, 0));//only turn right
     }
 }

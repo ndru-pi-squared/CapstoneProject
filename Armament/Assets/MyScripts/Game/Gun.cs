@@ -91,7 +91,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // If the Fire1 (on pc, left mouse click) button was pressed AND
             // If the current time is after the next time we can fire...
-            if (Input.GetButton("Fire1") && Time.time >= nextTimeToFire)
+            if (Input.GetButton("Fire1") && Time.time >= nextTimeToFire)//input is being read both here and in ProcessInputs() on the PlayerManager. Is it supposed to be this way?
             {
                 // Calculate the next time we can fire based on current time and 
                 nextTimeToFire = Time.time + 1f / fireRate;

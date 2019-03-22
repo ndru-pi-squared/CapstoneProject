@@ -796,11 +796,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             if (Input.GetKeyUp(KeyCode.C))
             {
-                // var TimeToKeepAlive = 5;
+                var TimeToKeepAlive = 5;
                 Debug.Log("keycode C");
                 GameObject skycar = (GameObject)Instantiate(Resources.Load("RoombaCar"), new Vector3(this.gameObject.transform.position.x, this.gameObject.transform.position.y, this.gameObject.transform.position.z), Quaternion.identity);
                 skycar.transform.rotation = this.gameObject.transform.rotation;
-                // Destroy(skycar, TimeToKeepAlive);
+                Destroy(skycar, TimeToKeepAlive);
             }
         }
 
