@@ -15,7 +15,7 @@ public class PlayFabController : MonoBehaviour
     public GameObject loginPanel;
     public GameObject addLoginPanel;
     public GameObject recoverButton;
-    public SceneManager;
+    public SceneManager SM;
 
     private void OnEnable() {
         if (PlayFabController.PFC == null) {
