@@ -60,8 +60,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region Private Fields
 
-        private const bool DEBUG = false; // indicates whether we are debugging this class
-
+        // Debug flags
+        private const bool DEBUG = true; // indicates whether we are debugging this class
+        private const bool DEBUG_Awake = true;
+        private const bool DEBUG_Start = true;
+        private const bool DEBUG_OnTriggerEnter = false;
+        private const bool DEBUG_OnRoomPropertiesUpdate = false;
+        private const bool DEBUG_OnPlayerPropertiesUpdate = false;
+        private const bool DEBUG_MovePlayer = false;
+        private const bool DEBUG_Respawn = false;
+        private const bool DEBUG_SetActiveGun = false;
+        private const bool DEBUG_DropGun = false;
+        
         private AudioSource audioSource;
 
         private ArrayList playerWeapons;
@@ -69,7 +79,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private Vector3 activeGunPosition;
         private Gun activeGun;
         private Gun activeShowGun;
-
+        private object[] instantiationData;
+ 
         #endregion
         
         #region MonoBehaviour CallBacks
@@ -79,19 +90,59 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void Awake()
         {
+            if (DEBUG && DEBUG_Awake) Debug.LogFormat("PlayerManager: Awake()");
             playerWeapons = new ArrayList();
 
-            // #Important
-            // used in GameManager.cs: we keep track of the localPlayer instance to prevent instantiation when levels are synchronized
-            if (photonView.IsMine)
-            {
-                PlayerManager.LocalPlayerInstance = this.gameObject;
+            // Get the instantiation data set by the master client who instantiated this player game object on the network
+            // The master client will have provided the photon player actor number who this player GO was intended for
+            // If we are that actor, lets claim ownership of the photonview on the player GO.
+            instantiationData = GetComponent<PhotonView>().InstantiationData;
+            int actorNumber = (int)instantiationData[0];
+
+            if (DEBUG && DEBUG_Awake) Debug.LogFormat("PlayerManager: Awake() actorNumber = {0}, PhotonNetwork.LocalPlayer.ActorNumber = {1}", actorNumber, PhotonNetwork.LocalPlayer.ActorNumber);
+
+            if (PhotonNetwork.LocalPlayer.ActorNumber == actorNumber) {
+                if (!photonView.IsMine)
+                {
+                    if (DEBUG && DEBUG_Awake) Debug.LogFormat("PlayerManager: Awake() Transferring ownership to PhotonNetwork.LocalPlayer = {0}", PhotonNetwork.LocalPlayer);
+                    GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.LocalPlayer);
+                }
+                
+                // #Important
+                // used in GameManager.cs: we keep track of the localPlayer instance to prevent instantiation when levels are synchronized
+                if (DEBUG && DEBUG_Awake) Debug.LogFormat("PlayerManager: Awake() Setting PlayerManager.LocalPlayerInstance = {0}", gameObject);
+                LocalPlayerInstance = gameObject;
+
+                // Tell player what team they are on
+                GetComponent<PlayerManager>().SetTeam((string)instantiationData[1]);
+
+                // We need to enable all the controlling components for the local player 
+                // The prefab has these components disabled so we won't be controlling other players with our input
+                GetComponent<Animator>().enabled = true;
+                GetComponent<CharacterController>().enabled = true;
+                GetComponent<AudioSource>().enabled = true;
+                GetComponent<FirstPersonController>().enabled = true;
+                GetComponent<PlayerAnimatorManager>().enabled = true;
+                GetComponent<PlayerManager>().enabled = true;
+                GetComponentInChildren<Camera>().enabled = true;
+                GetComponentInChildren<AudioListener>().enabled = true;
+                GetComponentInChildren<FlareLayer>().enabled = true;
+
+                // Disable scene camera; we'll use player's first-person camera now
+                Camera.main.enabled = false;
+
+                // Find the PlayerInfoUI (which displays things like player health and player name) in the canvas
+                GameObject playerInfoUIGO = GameManager.Instance.canvas.GetComponentInChildren<PlayerInfoUI>().gameObject;
+                // Call SetTarget() on PlayerInfoUI component so the PlayerInfoUI will follow be linked to this player 
+                playerInfoUIGO.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
             }
             
             // #Critical
             // we flag as don't destroy on load so that instance survives level synchronization, thus giving a seamless experience when levels load.
             DontDestroyOnLoad(this.gameObject);
 
+            // *** Shouldn't need this code anymore because player doesn't spawn with a gun
+            // *** \/
             // Make sure our player doesn't collide with the gun it is holding
             DisableActiveGunCollider();
         }
@@ -101,6 +152,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void Start()
         {
+            if (DEBUG && DEBUG_Start) Debug.LogFormat("PlayerManager: Start() ");
 
             audioSource = GetComponent<AudioSource>();
             if (!audioSource)
@@ -172,7 +224,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // If this player collided with a Weapon... 
                 if (other.CompareTag("Weapon"))
                 {
-                    if (DEBUG) Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with WEAPON with name \"{0}\"," +
+                    if (DEBUG && DEBUG_OnTriggerEnter) Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with WEAPON with name \"{0}\"," +
                         " photonView.Owner.NickName = {1}", other.GetComponentInParent<Gun>().name, photonView.Owner.NickName);
 
                     // Save a reference to the gun we want to pick up. We will need it later in OnRoomPropertiesUpdate() 
@@ -199,6 +251,19 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         new ExitGames.Client.Photon.Hashtable { { gunViewID, value } });
                 }
             }
+        }
+
+        /** My Note:
+         *   Added this function because it's in the demo package script
+         */
+        public override void OnDisable()
+        {
+            // Always call the base to remove callbacks
+            base.OnDisable();
+
+#if UNITY_5_4_OR_NEWER
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
+#endif
         }
 
 #if !UNITY_5_4_OR_NEWER
@@ -253,19 +318,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region MonobehaviourPun (Photon) Callbacks
 
-        /** My Note:
-         *   Added this function because it's in the demo package script
-         */
-        public override void OnDisable()
-        {
-            // Always call the base to remove callbacks
-            base.OnDisable();
-
-#if UNITY_5_4_OR_NEWER
-            UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
-#endif
-        }
-
         /// <summary>
         /// Called when a room's custom properties changed. The propertiesThatChanged contains all that was set via Room.SetCustomProperties.
         /// <para> </para>
@@ -293,11 +345,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // If we are the current owner of the gun we want to pick up...
                 if (currentOwner.Equals(photonView.Owner.NickName))
                 {
-                    if (DEBUG) Debug.LogFormat("PlayerManager: OnRoomPropertiesUpdate() About to pick up gun: gunViewID = {0}", gunViewID);
-
-                    // Pick up gun (synchronized on network)
-                    //photonView.RPC("PickUpGun", RpcTarget.All, Convert.ToInt32(gunViewID));
-
+                    if (DEBUG && DEBUG_OnRoomPropertiesUpdate) Debug.LogFormat("PlayerManager: OnRoomPropertiesUpdate() About to pick up gun: gunViewID = {0}", gunViewID);
+                    
                     // If we go to this point, we have collided with an unclaimed gun and we have successfully claimed ownership of the gun
                     // in CurrentRoom.CustomProperties. We now want the player (on all clients) to pick up the gun and make it the active gun.
                     // 
@@ -327,7 +376,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="changedProps">The properties that have just changed. If a property has been removed the key will be in changedProps but the value will be null</param>
         public override void OnPlayerPropertiesUpdate(Player target, ExitGames.Client.Photon.Hashtable changedProps)
         {
-            if (DEBUG) Debug.LogFormat("PlayerManager: OnPlayerPropertiesUpdate() target.NickName = {0}", target.NickName);
+            if (DEBUG && DEBUG_OnPlayerPropertiesUpdate) Debug.LogFormat("PlayerManager: OnPlayerPropertiesUpdate() target.NickName = {0}", target.NickName);
 
             // I believe this method will execute on all players on all clients when a player's CustomProperties are changed. 
             // Currently, we only want the players whose properties have just changed to act so we will check if the player
@@ -466,7 +515,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public void MovePlayer(Transform t)
         {
-            if (DEBUG) Debug.LogFormat("PlayerManager: MovePlayer() t.position = {0}", t.position);
+            if (DEBUG && DEBUG_MovePlayer) Debug.LogFormat("PlayerManager: MovePlayer() t.position = {0}", t.position);
             // Temporary respawning action: Pretend the player has respawned by raising him in the air a bit
             transform.GetComponent<FirstPersonController>().enabled = false; // disables the first person controller so 
             transform.position = t.position;
@@ -481,7 +530,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         public void Respawn()
         {
-            if (DEBUG) Debug.LogFormat("PlayerManager: Respawn() photonView.Owner.NickName = {0}", photonView.Owner.NickName);
+            if (DEBUG && DEBUG_Respawn) Debug.LogFormat("PlayerManager: Respawn() photonView.Owner.NickName = {0}", photonView.Owner.NickName);
 
             if (photonView.IsMine)
             {
@@ -508,8 +557,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public void SetActiveGun(int gunViewID)
         {
-
-            Debug.LogFormat("PlayerManager: SetActiveGun() gunViewID = {0}", gunViewID);
+            if (DEBUG && DEBUG_SetActiveGun) Debug.LogFormat("PlayerManager: SetActiveGun() gunViewID = {0}", gunViewID);
+            
             // If there is a currently an active gun...
             if (activeGun != null)
             {
@@ -527,22 +576,19 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Set activeGun so we can make use of it other places (like shooting it)
             activeGun = gunToBeActivated;
-
-
-
-            // Setup active "show" gun for local display (because syncing position of network spawned guns was so fucked up)
-
+            
             // If there is a currently an active "show" gun...
             if (activeShowGun != null)
             {
-                if (DEBUG) Debug.LogFormat("PlayManager: SetActiveGun() Destroying activeShowGun = {0}", activeShowGun);
+                if (DEBUG && DEBUG_SetActiveGun) Debug.LogFormat("PlayManager: SetActiveGun() Destroying activeShowGun = {0}", activeShowGun);
                 // Destroy activeGunFake
                 Destroy(activeShowGun.gameObject);
                 activeShowGun = null;
 
             }
 
-            // ** Will need to change how we instantiate based on type of gun
+            // Instantiate show Gun based on type of gun
+            // *** Will need to change how we instantiate based on type of gun
             GameObject gunPrefab = gunToBeActivated.name.Contains("Gun 1") ? GameManager.Instance.weaponsPrefabs[0] : GameManager.Instance.weaponsPrefabs[1];
             GameObject showGunToBeActivatedGO = Instantiate(gunPrefab, transform.Find("FirstPersonCharacter/Show Weapon"));
             
@@ -559,9 +605,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Set activeGun so we can make use of it other places (like shooting it)
             activeShowGun = showGunToBeActivated;
 
-            Debug.LogFormat("PlayerManager: SetActiveGun() activeShowGun = {0}", activeShowGun);
-
-
+            if (DEBUG && DEBUG_SetActiveGun) Debug.LogFormat("PlayerManager: SetActiveGun() activeShowGun = {0}", activeShowGun);
         }
 
         /// <summary>
@@ -589,20 +633,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Transfer ownership of this gun's photonview (and GameObject) to this player
                 pickedUpGun.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.LocalPlayer);
             }
-            
-            // Disable Photon's syncing of the gun position before we put the gun in the GameObject heirarchy of the Player
-            //pickedUpGun.GetComponent<PhotonView>().Synchronization = ViewSynchronization.Off;
-            //pickedUpGun.GetComponent<PhotonView>().enabled = false;
 
             // Put this gun in the GameObject hierarchy where the old gun was (i.e., make it a sibling to the old gun)
             pickedUpGun.transform.parent = transform.Find("FirstPersonCharacter/Inactive Weapons");
 
-
             // Set the local position and rotation of the gun
             pickedUpGun.transform.localPosition = new Vector3(-0.06f, 0.216f, -0.496f);
             pickedUpGun.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
-
-
+            
             // Make sure the picked up gun is not visible
             pickedUpGun.gameObject.SetActive(false);
 
@@ -639,8 +677,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Toss gun away from player so we don't immediately collide with it again
             // (For now, just move it forward a bit)
-             //gun.transform.position = gun.transform.position + LocalPlayerInstance.transform.forward * howFarToTossWeapon;
-             //gun.transform.rotation = LocalPlayerInstance.transform.rotation;
             gun.transform.position = gun.transform.position + photonView.gameObject.transform.forward * howFarToTossWeapon;
             gun.transform.rotation = photonView.gameObject.transform.rotation;
 
@@ -654,8 +690,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 gun.GetComponent<PhotonView>().TransferOwnership(0);
             }
 
-      
-
             // If we just dropped our active gun...
             if (gun == activeGun)
             {
@@ -664,7 +698,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // If there is a currently an active "show" gun...
                 if (activeShowGun != null)
                 {
-                    if (DEBUG) Debug.LogFormat("PlayManager: DropGun() Destroying activeShowGun = {0}", activeShowGun);
+                    if (DEBUG && DEBUG_DropGun) Debug.LogFormat("PlayManager: DropGun() Destroying activeShowGun = {0}", activeShowGun);
                     // Destroy activeGunFake
                     Destroy(activeShowGun.gameObject);
                     activeShowGun = null;
@@ -672,7 +706,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 Transform trannyWannyDooDa = transform.Find("FirstPersonCharacter/Inactive Weapons");
 
-                if (DEBUG)
+                if (DEBUG && DEBUG_DropGun)
                 {
                     for (int i = 0; i < trannyWannyDooDa.childCount; i++)
                     {
@@ -925,9 +959,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="info"></param>
         public void OnPhotonInstantiate(PhotonMessageInfo info)
         {
+            Debug.LogFormat("PlayerManager: OnPhotonInstantiate() info.Sender = {0}, gameObject = {1}", info.Sender, gameObject);
             // Store this gameobject as this player's charater in Player.TagObject
-            info.Sender.TagObject = gameObject;
+            //info.Sender.TagObject = gameObject;
 
+
+            instantiationData = GetComponent<PhotonView>().InstantiationData;
+            int actorNumber = (int)instantiationData[0];
+            PhotonNetwork.CurrentRoom.GetPlayer(actorNumber).TagObject = gameObject;
             // *** 
             // May need to set up player's weapons here like it was done in Gun.OnPhotonInstantiate if there's 
             // ever a case where Guns' photon views are registered on the network before this method is called

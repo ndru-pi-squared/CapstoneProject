@@ -68,16 +68,26 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #endregion Private Serialized Fields
 
         #region Private Fields
-
+        
+        // Debug flags
         private const bool DEBUG = true;
         private const bool DEBUG_ReturnVanishedItems = false;
         private const bool DEBUG_DestroyUnclaimedItems = false;
         private const bool DEBUG_InstantiateLocalPlayer = true;
-        
+        private const bool DEBUG_OnStage1TimerIsExpired = false;
+        private const bool DEBUG_OnStage2TimerIsExpired = false;
+        private const bool DEBUG_BalanceTeams = true;
+        private const bool DEBUG_StartRound = true;
+        private const bool DEBUG_EndRound = true;
+        private const bool DEBUG_LeaveRoom = true;
+        private const bool DEBUG_LoadArena = true;
+        private const bool DEBUG_RemoveGunOwnerships = true;
+        private const bool DEBUG_SpawnNewItems = true;
+        private const bool DEBUG_Play = true;
+        private const bool DEBUG_ResetPlayerPosition = true;
 
         // Event codes
-        private readonly byte ChooseTeamForPlayer = 0;
-        private readonly byte JoinTeam = 1; 
+        private readonly byte InstantiatePlayer = 0;
 
         private double gameStartTime;
 
@@ -101,8 +111,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         // USE WITH CARE! 
         // It can start with any positive value.
         // It will "wrap around" from 4294967.295 to 0!
-        //public double CurrentRoundStartTime { get; private set; } = PhotonNetwork.Time;
-
         public int Stage1Time
         {
             get { return stage1Time; }
@@ -114,32 +122,50 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             get { return stage2Time; }
             private set { stage2Time = value; }
         }
-
-        // this property may not be necessary... check if we make good use of it publicly or should just 
-        // stick with the private makeItemsVanish
-        public ArrayList SpawnedWeaponsList
-        {
-            get { return spawnedWeaponsList; }
-            private set { spawnedWeaponsList = value; }
-        }
-
-        // this property may not be necessary... check if we make good use of it publicly or should just 
-        // stick with the private makeItemsVanish
-        public bool MakeItemsVanish {
-            get { return makeItemsVanish; }
-            private set { makeItemsVanish = value; }
-        }
-
+        
         #endregion
 
         #region Public Methods
+        
+        /// <summary>
+        /// Event Handler. Called in the event that the game's stage 1 timer is expired
+        /// </summary>
+        public void OnStage1TimerIsExpired()
+        {
+            if (DEBUG && DEBUG_OnStage1TimerIsExpired) Debug.LogFormat("GameManager: OnStage1TimerIsExpired() PhotonNetwork.IsMasterClient = {0}", PhotonNetwork.IsMasterClient);
+
+            if (PhotonNetwork.IsMasterClient)
+            {
+                // Start the stage 2 timer on the network. This marks beginning of the second stage of the game
+                PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_STAGE_2_COUNTDOWN_START_TIME, (float)PhotonNetwork.Time } });
+
+                // If we set the game option to make items vanish when the wall timer is up AND
+                // If all the items have not been made to vanish 
+                if (makeItemsVanish && !madeItemsVanish)
+                {
+                    RemoveUnclaimedItems();
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// Event Handler. Called in the event that the game's stage 2 timer is expired
+        /// If this event is called, the round has to be ended.
+        /// </summary>
+        public void OnStage2TimerIsExpired()
+        {
+            if (DEBUG && DEBUG_OnStage2TimerIsExpired) Debug.LogFormat("GameManager: OnStage2TimerIsExpired() PhotonNetwork.IsMasterClient = {0}", PhotonNetwork.IsMasterClient);
+            // End the round
+            EndRound();
+        }
 
         /// <Summary> 
-        /// Should be called when a user chooses to leave the room 
+        /// Event Handler for Leave Room button being clicked
         /// </Summary>
         public void LeaveRoom()
         {
-            if (DEBUG) Debug.Log("GameManger: LeaveRoom() called.");
+            if (DEBUG && DEBUG_LeaveRoom) Debug.Log("GameManger: LeaveRoom() called.");
 
             // Leave the photon game room
             PhotonNetwork.LeaveRoom();
@@ -148,6 +174,22 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // This code might not work as expected... 
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
+        }
+
+        /// <summary>
+        /// Event Handler for Play button being clicked.
+        /// </summary>
+        public void OnPlayButtonClicked()
+        {
+            // Send request to master client for team to join
+            // Raise Event for only the master client to respond to. 
+            // *** There is a chance the master client leaves before handling the event. I think that might be alright
+            // *** since the user can click the Play button again. 
+            if (DEBUG && DEBUG_Play) Debug.LogFormat("GameManager: Play() Sending request to master client for team to join");
+            object[] content = new object[] { PhotonNetwork.LocalPlayer.ActorNumber };
+            RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient };
+            SendOptions sendOptions = new SendOptions { Reliability = true };
+            PhotonNetwork.RaiseEvent(InstantiatePlayer, content, raiseEventOptions, sendOptions);
         }
 
         #endregion Public Methods
@@ -162,10 +204,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             if (!PhotonNetwork.IsMasterClient)
             {
-                if (DEBUG) Debug.LogError("GameManager: LoadArena() -> PhotonNetwork : Trying to Load a level but we are not the master Client");
+                if (DEBUG && DEBUG_LoadArena) Debug.LogError("GameManager: LoadArena() -> PhotonNetwork : Trying to Load a level but we are not the master Client");
             }
 
-            if (DEBUG) Debug.LogFormat("GameManager: LoadArena() -> PhotonNetwork : Loading Level : PhotonNetwork.CurrentRoom.PlayerCount = {0}", PhotonNetwork.CurrentRoom.PlayerCount);
+            if (DEBUG && DEBUG_LoadArena) Debug.LogFormat("GameManager: LoadArena() -> PhotonNetwork : Loading Level : PhotonNetwork.CurrentRoom.PlayerCount = {0}", PhotonNetwork.CurrentRoom.PlayerCount);
 
             // Excerpt from tutorial:
             // There are two things to watch out for here, it's very important.
@@ -256,6 +298,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
         }
 
+        /// <summary>
+        /// Removes unclaimed items. Called after the wall comes down.
+        /// </summary>
         void RemoveUnclaimedItems()
         {
             if (DEBUG && DEBUG_DestroyUnclaimedItems) Debug.LogFormat("GameManger: DestroyUnclaimedItems()");
@@ -307,7 +352,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             madeItemsVanish = true;
         }
 
-        // This method does the opposite of RemoveUnclaimedItems
+        /// <summary>
+        /// This method does the opposite of RemoveUnclaimedItems
+        /// </summary>
         void ReturnVanishedItems()
         {
             if (DEBUG && DEBUG_ReturnVanishedItems) Debug.LogFormat("GameManger: ReturnVanishedItems()");
@@ -354,14 +401,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void EndRound()
         {
-            if (DEBUG) Debug.Log("GameManager: EndRound()");
+            if (DEBUG && DEBUG_EndRound) Debug.Log("GameManager: EndRound()");
 
             // For now, we're just going to start a new round when the current round ends...
             // Later, we might figure out more interesting logic
 
             if (!PhotonNetwork.IsMasterClient)
             {
-                if (DEBUG) Debug.Log("GameManager: EndRound() NOT MASTER CLIENT: Not responsible for ending rounds");
+                if (DEBUG && DEBUG_EndRound) Debug.Log("GameManager: EndRound() NOT MASTER CLIENT: Not responsible for ending rounds");
                 return;
             }
 
@@ -378,13 +425,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             StartRound();
         }
 
+        /// <summary>
+        /// Balances teams (inelegantly) based on size. Makes both teams have same number of players (give or take one player).
+        /// Called in EndRound() right before StartRound().
+        /// </summary>
         void BalanceTeams()
         {
-            if (DEBUG) Debug.Log("GameManager: BalanceTeams()");
+            if (DEBUG && DEBUG_BalanceTeams) Debug.Log("GameManager: BalanceTeams()");
 
             if (!PhotonNetwork.IsMasterClient)
             {
-                if (DEBUG) Debug.Log("GameManager: BalanceTeams() NOT MASTER CLIENT: Not responsible for balancing teams");
+                if (DEBUG && DEBUG_BalanceTeams) Debug.Log("GameManager: BalanceTeams() NOT MASTER CLIENT: Not responsible for balancing teams");
                 return;
             }
 
@@ -407,7 +458,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                         if (playerPM.GetTeam().Equals(PlayerManager.VALUE_TEAM_NAME_A))
                         {
-                            if (DEBUG) Debug.LogFormat("GameManager: BalanceTeams() Moving player {0} from Team A to Team B", player);
+                            if (DEBUG && DEBUG_BalanceTeams) Debug.LogFormat("GameManager: BalanceTeams() Moving player {0} from Team A to Team B", player);
 
                             // Set player's team to Team B
                             playerPM.SetTeam(PlayerManager.VALUE_TEAM_NAME_B);
@@ -429,7 +480,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                         if (playerPM.GetTeam().Equals(PlayerManager.VALUE_TEAM_NAME_B))
                         {
-                            if (DEBUG) Debug.LogFormat("GameManager: BalanceTeams() Moving player {0} from Team B to Team A", player);
+                            if (DEBUG && DEBUG_BalanceTeams) Debug.LogFormat("GameManager: BalanceTeams() Moving player {0} from Team B to Team A", player);
 
                             // Set player's team to Team A
                             playerPM.SetTeam(PlayerManager.VALUE_TEAM_NAME_A);
@@ -455,11 +506,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void StartRound()
         {
-            if (DEBUG) Debug.Log("GameManager: StartRound()");
+            if (DEBUG && DEBUG_StartRound) Debug.Log("GameManager: StartRound()");
 
             if (!PhotonNetwork.IsMasterClient)
             {
-                if (DEBUG) Debug.Log("GameManager: StartRound() NOT MASTER CLIENT: Not responsible for starting rounds");
+                if (DEBUG && DEBUG_StartRound) Debug.Log("GameManager: StartRound() NOT MASTER CLIENT: Not responsible for starting rounds");
                 return;
             }
 
@@ -487,28 +538,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Make items return 
             ReturnVanishedItems();
-        }
-        
-        [PunRPC] 
-        public void ResetPlayerPosition()
-        {
-            if (DEBUG) Debug.Log("GameManager: ResetPlayerPosition()");
-            if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(PlayerManager.KEY_TEAM, out object teamNameProp))
-            {
-                // If player is on team A... pick a random team A spawn point. Else... pick a random team B spawn point
-                Transform playerSpawnPoint = ((string)teamNameProp).Equals(PlayerManager.VALUE_TEAM_NAME_A) ?
-                    teamAPlayerSpawnPoints[new System.Random().Next(teamAPlayerSpawnPoints.Length)] :
-                    teamBPlayerSpawnPoints[new System.Random().Next(teamBPlayerSpawnPoints.Length)];
-
-                // Get the player's GameObject (we set the TagObject in PlayerManager)
-                GameObject playerGO = PlayerManager.LocalPlayerInstance;
-
-                // Move the player to the spawn point
-                playerGO.GetComponent<PlayerManager>().Respawn();
-
-                // Reset player health
-                playerGO.GetComponent<PlayerManager>().ResetHealth();
-            }
         }
 
         /// <summary>
@@ -543,7 +572,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         { ((GameObject)spawnedWeaponsList[2]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
                         { ((GameObject)spawnedWeaponsList[3]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM } });
 
-            if (DEBUG) Debug.LogFormat("GameManager: SpawnNewItems() " +
+            if (DEBUG && DEBUG_SpawnNewItems) Debug.LogFormat("GameManager: SpawnNewItems() " +
                 "((GameObject)spawnedWeaponsList[0]).GetPhotonView().ViewID = {0} " +
                 "((GameObject)spawnedWeaponsList[1]).GetPhotonView().ViewID = {1}",
                 ((GameObject)spawnedWeaponsList[0]).GetPhotonView().ViewID,
@@ -551,15 +580,42 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         /// <summary>
-        /// Having this code in its own method is kinda sorta unnecessary. It's only called once from Start() so the code could just go there.
-        /// I pulled it out to make Start() code look a little cleaner... probably not a great reason. Oh, and this is a shitty comment for the 
-        /// summary of this method. Oh well! Clean it up later!
+        /// Spawns team dividng wall.
+        /// </summary>
+        void SpawnWall()
+        {
+            // Instantiate Team Dividing Wall for the scene. At least right now, this has to be done differently for each arena
+            // 
+            // If arena is "Room for 1" unity scene...
+            if (Launcher.developmentOnly_levelToLoad.Equals("Room for 1"))
+            {
+                // Instantiate the dividing wall for "Room for 1" level
+                Vector3 wallPosition = new Vector3(258.3562f, 26.397f, 279.6928f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
+                Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, -45f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
+                dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
+            }
+            // If arena is "Simple Room" unity scene...
+            else if (Launcher.developmentOnly_levelToLoad.Equals("Simple Room"))
+            {
+                // Instantiate the dividing wall for "Simple Room" level
+                Vector3 wallPosition = new Vector3(0f, 20f, 0f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
+                Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, 0f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
+                dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
+
+                // Set the scale to match the "Simple Room" level size
+                dividingWallGO.gameObject.transform.localScale = new Vector3(10f, 40f, 200f);
+            }
+        }
+
+        /// <summary>
+        /// Instantiates locally controlled player on the network. We only have to instantiate locally controlled players; 
+        /// all other (remotely controlled players) will automatically be instantiated locally by photon.
         /// </summary>
         /// <returns></returns>
-        void InstantiateLocalPlayer(string teamToJoin)
+        GameObject InstantiatePlayerForActor(string teamToJoin, int actorNumber)
         {
             // Tutorial Debug Statement
-            if (DEBUG && DEBUG_InstantiateLocalPlayer) Debug.LogFormat("GameManager: InstantiateLocalPlayer() We are Instantiating LocalPlayer from {0}", SceneManager.GetActiveScene().name);
+            if (DEBUG && DEBUG_InstantiateLocalPlayer) Debug.LogFormat("GameManager: InstantiateLocalPlayer() We are Instantiating LocalPlayer from {0}, teamToJoin = {1}", SceneManager.GetActiveScene().name, teamToJoin);
 
             // Get the size of Team A and size of Team B
             PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(KEY_TEAM_A_PLAYERS_COUNT, out object teamACountObject);
@@ -567,44 +623,51 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             int teamACount = (teamACountObject != null) ? Convert.ToInt32(teamACountObject) : 0;
             int teamBCount = (teamBCountObject != null) ? Convert.ToInt32(teamBCountObject) : 0;
 
-            // Figure out which team to add player to
-            bool addPlayerToTeamA = (teamBCount < teamACount) ? false : true;
+            // Set a flag: whether this player is joining Team A or not
+            bool addPlayerToTeamA = teamToJoin.Equals(PlayerManager.VALUE_TEAM_NAME_A);
 
-            // Increment player count on team they joined (Every client will execute this)
+            // Increment player count in CurrentRoom.CustomProperties for the team this player is joining
             PhotonNetwork.CurrentRoom.SetCustomProperties(addPlayerToTeamA ?
                 new ExitGames.Client.Photon.Hashtable { { KEY_TEAM_A_PLAYERS_COUNT, ++teamACount } } :
                 new ExitGames.Client.Photon.Hashtable { { KEY_TEAM_B_PLAYERS_COUNT, ++teamBCount } });
 
+            // Find a spawn point for the player based on the team that player is on
             // If adding player to team A... pick a random team A spawn point. Else... pick a random team B spawn point
             Transform playerSpawnPoint = addPlayerToTeamA ?
                 teamAPlayerSpawnPoints[new System.Random().Next(teamAPlayerSpawnPoints.Length)] :
                 teamBPlayerSpawnPoints[new System.Random().Next(teamBPlayerSpawnPoints.Length)];
 
             // Tutorial comment: we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
-            GameObject myPlayerGO = PhotonNetwork.Instantiate(this.PlayerPrefab.name, playerSpawnPoint.position, playerSpawnPoint.rotation, 0);
-
-            // Tell player what team they are on
-            myPlayerGO.GetComponent<PlayerManager>().SetTeam(addPlayerToTeamA ? PlayerManager.VALUE_TEAM_NAME_A : PlayerManager.VALUE_TEAM_NAME_B);
-
-            // We need to enable all the controlling components for the local player 
-            // The prefab has these components disabled so we won't be controlling other players
-            myPlayerGO.GetComponent<Animator>().enabled = true;
-            myPlayerGO.GetComponent<CharacterController>().enabled = true;
-            myPlayerGO.GetComponent<AudioSource>().enabled = true;
-            myPlayerGO.GetComponent<FirstPersonController>().enabled = true;
-            myPlayerGO.GetComponent<PlayerAnimatorManager>().enabled = true;
-            myPlayerGO.GetComponent<PlayerManager>().enabled = true;
-            myPlayerGO.GetComponentInChildren<Camera>().enabled = true;
-            myPlayerGO.GetComponentInChildren<AudioListener>().enabled = true;
-            myPlayerGO.GetComponentInChildren<FlareLayer>().enabled = true;
-
-            // Disable scene camera; we'll use player's first-person camera now
-            Camera.main.enabled = false;
+            GameObject playerGO = PhotonNetwork.Instantiate(this.PlayerPrefab.name, playerSpawnPoint.position, playerSpawnPoint.rotation, 0, new[] { (object)actorNumber, teamToJoin});
             
-            // Find the PlayerInfoUI in the canvas
-            GameObject playerInfoUIGO = canvas.GetComponentInChildren<PlayerInfoUI>().gameObject;
-            // Call SetTarget() on PlayerInfoUI component 
-            playerInfoUIGO.SendMessage("SetTarget", myPlayerGO.GetComponent<PlayerManager>(), SendMessageOptions.RequireReceiver);
+            return playerGO;
+        }
+
+        /// <summary>
+        /// Removes Gun Ownership properties for all the guns owned by the given player. 
+        /// Called from OnPlayerLeftRoom() when a player leaves a room
+        /// </summary>
+        /// <param name="player">The player whose guns need to be</param>
+        void RemoveGunOwnerships(Player player)
+        {
+            if (DEBUG && DEBUG_RemoveGunOwnerships) Debug.LogFormat("GameManager: RemoveGunOwnerships() player = {0}", player);
+
+            ExitGames.Client.Photon.Hashtable propertiesToRemove = new ExitGames.Client.Photon.Hashtable();
+            // Go through list of room properties (information about game)
+            foreach (object propertyKey in PhotonNetwork.CurrentRoom.CustomProperties.Keys)
+            {
+                // Get the propertyValue of the property using the propertyKey
+                PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(propertyKey, out object propertyValue);
+
+                if (player.NickName.Equals(propertyValue))
+                {
+                    if (DEBUG && DEBUG_RemoveGunOwnerships) Debug.LogFormat("GameManager: RemoveGunOwnerships() player = {0}, propertyKey = {1}, propertyValue = {2}", player, propertyKey, propertyValue);
+
+                    propertiesToRemove.Add(propertyKey, null);
+                }
+            }
+
+            PhotonNetwork.CurrentRoom.SetCustomProperties(propertiesToRemove);
         }
 
         #endregion Private Methods
@@ -622,106 +685,38 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             UpdatePlayerPropertiesDisplay();
             ProcessInputs();
         }
-        
+
         void Start()
         {
             if (PlayerPrefab == null)
             {
                 Debug.LogError("<Color=Red><a>Missing</a></Color> PlayerPrefab Reference. Please set it up in GameObject 'Game Manager'", this);
+                return;
+            }
+            /** Note from tutorial:
+                *  With this, we now only instantiate if the PlayerManager doesn't have a reference to an existing instance of localPlayer
+                */
+            if (PlayerManager.LocalPlayerInstance == null)
+            {
+                // Go on... Guess what this does
+                if (PhotonNetwork.IsMasterClient) // this check is redundant but kept for clarity
+                {
+                    SpawnNewItems();
+                    SpawnWall();
+                }
             }
             else
             {
-                /** Note from tutorial:
-                 *  With this, we now only instantiate if the PlayerManager doesn't have a reference to an existing instance of localPlayer
-                 */
-                if (PlayerManager.LocalPlayerInstance == null)
-                {
-                    string teamForLocalPlayerToJoin;
+                Debug.LogFormat("Ignoring scene load for {0}", SceneManagerHelper.ActiveSceneName);
+            }
 
-                    if (PhotonNetwork.IsMasterClient)
-                    {
-
-                        if (DEBUG) Debug.LogFormat("GameManager: Start() Sending request to master client for team to join");
-                        // Because we are just starting, if we're the master client there should be no one else in the room
-                        // We could place ourselves on Team A (set Team A size to 1 and Team B size to 0 in custom properties)
-                        // and then just instantiate our local player...
-                        teamForLocalPlayerToJoin = PlayerManager.VALUE_TEAM_NAME_A;
-
-                        // Instantiate locally controlled player
-                        InstantiateLocalPlayer(teamForLocalPlayerToJoin);
-                    }
-                    else
-                    {
-                        teamForLocalPlayerToJoin = PlayerManager.VALUE_TEAM_NAME_SPECT;
-
-                        // ***
-                        // Because we're not the master client, someone else must be. 
-                        // Let's ask the master client what team we should be on.
-                        // ***
-
-                        if (DEBUG) Debug.LogFormat("GameManager: Start() Sending request to master client for team to join");
-
-                        // Send request to master client for team to join
-                        // Raise Event for only the master client to respond to. 
-                        // *** Be careful! the master client may leave before responding! 
-                        // *** Need code to protect against this possibility. 
-                        // *** Possible solution: keep sending this request until you get an answer or this client becomes master client
-                        object[] content = new object[] { PhotonNetwork.LocalPlayer.ActorNumber };
-                        RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient }; 
-                        SendOptions sendOptions = new SendOptions { Reliability = true };
-                        PhotonNetwork.RaiseEvent(ChooseTeamForPlayer, content, raiseEventOptions, sendOptions);
-                        
-                        // We'll now wait for the response to come back from master client and handle it in OnEvent.
-                        // That's where we instantiate the player
-                    }
-
-
-
-                    // Go on... Guess what this does
-                    if (PhotonNetwork.IsMasterClient) // this check is redundant but kept for clarity
-                    {
-                        SpawnNewItems();
-
-                        // Instantiate Team Dividing Wall for the scene. At least right now, this has to be done differently for each arena
-                        // 
-                        // If arena is "Room for 1" unity scene...
-                        if (Launcher.developmentOnly_levelToLoad.Equals("Room for 1"))
-                        {
-                            // Instantiate the dividing wall for "Room for 1" level
-                            Vector3 wallPosition = new Vector3(258.3562f, 26.397f, 279.6928f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
-                            Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, -45f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
-                            dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
-                        }
-                        // If arena is "Simple Room" unity scene...
-                        else if (Launcher.developmentOnly_levelToLoad.Equals("Simple Room"))
-                        {
-                            // Instantiate the dividing wall for "Simple Room" level
-                            Vector3 wallPosition = new Vector3(0f, 20f, 0f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
-                            Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, 0f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
-                            dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
-                                                        
-                            // Set the scale to match the "Simple Room" level size
-                            dividingWallGO.gameObject.transform.localScale = new Vector3(10f, 40f, 200f);
-                        }
-                    }
-                }
-                else
-                {
-                    Debug.LogFormat("Ignoring scene load for {0}", SceneManagerHelper.ActiveSceneName);
-                }
-
-                // For now, we're just going to start the first round when the first client (master client) enters the gameroom...
-                // Later, we might figure out more interesting logic for when the first round should begin
-                if (PhotonNetwork.IsMasterClient) // this check is redundant but kept for clarity
-                {
-                    StartRound();
-                }
+            // For now, we're just going to start the first round when the first client (master client) enters the gameroom...
+            // Later, we might figure out more interesting logic for when the first round should begin
+            if (PhotonNetwork.IsMasterClient) // this check is redundant but kept for clarity
+            {
+                StartRound();
             }
         }
-
-        #endregion MonoBehaviour Callbacks
-
-        #region MonoBehaviourPun Callbacks
 
         public override void OnEnable()
         {
@@ -733,45 +728,16 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             CountdownTimer.OnCountdownTimer2HasExpired += OnStage2TimerIsExpired;
         }
 
-        /// <summary>
-        /// Called in the event that the game's stage 1 timer is expired
-        /// </summary>
-        public void OnStage1TimerIsExpired()
-        {
-            if (DEBUG) Debug.LogFormat("GameManager: OnStage1TimerIsExpired() PhotonNetwork.IsMasterClient = {0}", PhotonNetwork.IsMasterClient);
-
-            if (PhotonNetwork.IsMasterClient)
-            {
-                // Start the stage 2 timer on the network. This marks beginning of the second stage of the game
-                PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_STAGE_2_COUNTDOWN_START_TIME, (float)PhotonNetwork.Time } });
-
-                // If we set the game option to make items vanish when the wall timer is up AND
-                // If all the items have not been made to vanish 
-                if (MakeItemsVanish && !madeItemsVanish)
-                {
-                    RemoveUnclaimedItems();
-                }
-            }
-
-        }
-
-        /// <summary>
-        /// Called in the event that the game's stage 2 timer is expired
-        /// If this event is called, the round has to be ended.
-        /// </summary>
-        public void OnStage2TimerIsExpired()
-        {
-            if (DEBUG) Debug.LogFormat("GameManager: OnStage2TimerIsExpired() PhotonNetwork.IsMasterClient = {0}", PhotonNetwork.IsMasterClient);
-            // End the round
-            EndRound();
-        }
-
         public override void OnDisable()
         {
-            // Used to remove callbacks to OnEvent()
+            // Remove callbacks to OnEvent()
             PhotonNetwork.RemoveCallbackTarget(this);
         }
 
+        #endregion MonoBehaviour Callbacks
+
+        #region MonoBehaviourPun Callbacks
+        
         ///<summary>
         /// Called when the local player left the room. We need to load the launcher scene.
         /// </summary>
@@ -791,7 +757,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 // Tutorial comment: called before OnPlayerLeftRoom
                 if (DEBUG) Debug.LogFormat("OnPlayerEnteredRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient); 
-
             }
         }
 
@@ -799,12 +764,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public override void OnPlayerLeftRoom(Player other)
         {
             Debug.LogFormat("OnPlayerLeftRoom() {0}", other.NickName); //seen when other disconnects
+            
+            // All clients: destroy the game object (avatar) of the player who left
+            Destroy((GameObject)other.TagObject);
 
             if (PhotonNetwork.IsMasterClient)
             {
                 // Tutorial comment: called before OnPlayerLeftRoom
-                Debug.LogFormat("OnPlayerLeftRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient); 
-
+                Debug.LogFormat("OnPlayerLeftRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient);
+                
+                // Remove Gun ownership properties from the CurrentRoom.CustomProperties for the player who left
+                RemoveGunOwnerships(other);
+                
                 // Get team the player is on (we expect teamName != null after this call)
                 other.CustomProperties.TryGetValue(PlayerManager.KEY_TEAM, out object teamName);
 
@@ -832,6 +803,35 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         #endregion MonoBehaviourPun Callbacks
+
+        #region PunRPC Methods
+
+        /// <summary>
+        /// Moves the local player back to a spawn point
+        /// </summary>
+        [PunRPC]
+        public void ResetPlayerPosition()
+        {
+            if (DEBUG && DEBUG_ResetPlayerPosition) Debug.Log("GameManager: ResetPlayerPosition()");
+            if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(PlayerManager.KEY_TEAM, out object teamNameProp))
+            {
+                // If player is on team A... pick a random team A spawn point. Else... pick a random team B spawn point
+                Transform playerSpawnPoint = ((string)teamNameProp).Equals(PlayerManager.VALUE_TEAM_NAME_A) ?
+                    teamAPlayerSpawnPoints[new System.Random().Next(teamAPlayerSpawnPoints.Length)] :
+                    teamBPlayerSpawnPoints[new System.Random().Next(teamBPlayerSpawnPoints.Length)];
+
+                // Get the player's GameObject (we set the TagObject in PlayerManager)
+                GameObject playerGO = PlayerManager.LocalPlayerInstance;
+
+                // Move the player to the spawn point
+                playerGO.GetComponent<PlayerManager>().Respawn();
+
+                // Reset player health
+                playerGO.GetComponent<PlayerManager>().ResetHealth();
+            }
+        }
+
+        #endregion PunRPC Methods
 
         #region IPunObservable Implementation
 
@@ -890,15 +890,23 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region IOnEventCallback Implementation
 
+        /// <summary>
+        /// Handles Events that have been raised on the network. 
+        /// </summary>
+        /// <param name="photonEvent"></param>
         public void OnEvent(EventData photonEvent)
         {
             byte eventCode = photonEvent.Code;
 
-            // If a client is asking master client to choose a team for their local player to join
-            if (eventCode == ChooseTeamForPlayer)
+            // If a client is asking master client to instantiate a new player for them...
+            if (eventCode == InstantiatePlayer)
             {
-                // Get the actor number of the player owned by the client who sent the request for a team to join
-                // We'll use this actor number to target only them for our response
+                // Get the photon player actor number of the player owned by the client who sent the request
+                // We'll use this actor number when instantiating the player GO on the network to identify who
+                // should own/control the player. 
+                // Each client has one player with an associated actor number. In PlayerManager.Awake(), each client
+                // will find the player that belongs to them when it gets instantiated on the network and set it up as
+                // their local player. Yippee!
                 object[] data = (object[])photonEvent.CustomData;
                 int actorNumber = (int)data[0];
 
@@ -912,23 +920,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 // Figure out what team the player should join
                 string teamToJoin = (teamBCount < teamACount) ? PlayerManager.VALUE_TEAM_NAME_B: PlayerManager.VALUE_TEAM_NAME_A;
+                
+                // Instantiate player for client
+                GameObject playerGO = InstantiatePlayerForActor(teamToJoin, actorNumber);
 
-                // Respond to client with the info they wanted
-                object[] content = new object[] { teamToJoin };
-                RaiseEventOptions raiseEventOptions = new RaiseEventOptions { TargetActors = new[] { actorNumber } };
-                SendOptions sendOptions = new SendOptions { Reliability = true };
-                PhotonNetwork.RaiseEvent(JoinTeam, content, raiseEventOptions, sendOptions);
-            }
-            // If we requested a team to join from the master client and the master client responded...
-            else if (eventCode == JoinTeam)
-            {
-                // Get the teamToJoin info that was sent by the master client
-                object[] data = (object[])photonEvent.CustomData;
-                string teamToJoin = (string)data[0];
-
-                if (DEBUG) Debug.LogFormat("GameManager: OnEvent() Got a response from master client. teamToJoin = {0}", teamToJoin);
-
-                InstantiateLocalPlayer(teamToJoin);
+                // Transfer ownership of this player's photonview (and GameObject) to the client requesting a player be instantiated them
+                playerGO.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.CurrentRoom.GetPlayer(actorNumber));
             }
         }
 
