@@ -827,6 +827,19 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Drop this player's active gun (synchronized on network)
                 //photonView.RPC("DropActiveGun", RpcTarget.All);
             }
+
+            if (Input.GetKeyUp(KeyCode.C))
+            {
+                var TimeToKeepAlive = 5;
+                Debug.Log("keycode C");
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    GameObject skycar = PhotonNetwork.Instantiate("RoombaCar", new Vector3(this.gameObject.transform.position.x, this.gameObject.transform.position.y, this.gameObject.transform.position.z), Quaternion.identity);
+                    skycar.transform.rotation = this.gameObject.transform.rotation;
+                    Destroy(skycar, TimeToKeepAlive);
+                }
+                
+            }
         }
 
         #endregion Private Methods
