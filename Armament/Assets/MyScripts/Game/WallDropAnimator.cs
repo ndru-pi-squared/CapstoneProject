@@ -33,16 +33,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             instantiationData = GetComponent<PhotonView>().InstantiationData;
             originalWallPosition = (Vector3)instantiationData[0];
         }
+
         void Start()
         {
-
-            // Remember the original wall position for when we want to reset the wall
-            originalY = transform.position.y;
-
-            Debug.LogFormat("WallDropAnimator: Start() transform.position.y = {0}", transform.position.y);
-
             // Figure out what the final position of the wall should be after it is dropped
-            dropPosition = transform.position - new Vector3(0f, transform.localScale.y, 0f); // current wall position - height of wall
+            dropPosition = transform.position - new Vector3(0f, transform.localScale.y * 1.25f, 0f); // current wall position - height of wall
         }
 
         void FixedUpdate()
@@ -52,7 +47,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (PhotonNetwork.IsMasterClient)
             {
                 // If it is time to drop the wall...
-                if (GameManager.Instance.gameObject.GetComponent<CountdownTimer>().Timer1TimeIsUp)
+                if (GameManager.Instance.gameObject.GetComponent<CountdownTimer>().Timer1TimeIsUp && transform.position.y > originalWallPosition.y-transform.localScale.y)
                 {
                     // This code doesn't move the wall as I expected but I kind of like how the wall slows down as it drops...
                     // (In other words, the drop is exponential instead of linear)

@@ -531,6 +531,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (dividingWallGO != null)
             {
                 dividingWallGO.GetComponent<WallDropAnimator>().ResetWallPosition();
+                dividingWallGO.GetComponent<WallTarget>().ResetHealth();
             }
 
             // Make all clients reset their local player's position
@@ -606,7 +607,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0, new[] { (object)wallPosition });
 
                 // Set the scale to match the "Simple Room" level size
-                dividingWallGO.gameObject.transform.localScale = new Vector3(10f, 40f, 200f);
+                dividingWallGO.gameObject.transform.localScale = new Vector3(1f, 40f, 200f);
                 if(DEBUG && DEBUG_SpawnWall) Debug.LogFormat("GameManager: SpawnWall() dividingWallGO.transform.position = {0}", dividingWallGO.transform.position);
             }
         }

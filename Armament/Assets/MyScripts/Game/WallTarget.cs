@@ -1,4 +1,5 @@
 ﻿using Photon.Pun;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,7 +14,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region MonoBehaviour CallBacks
 
-        void Start()
+        void Awake()
         {
             originalHealth = health;
             meshRenderer = GetComponent<MeshRenderer>();
@@ -26,14 +27,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public void TakeDamage(float amount)
         {
             health -= amount;
-
-            // As the wall takes damage the color changes from white to black
-            meshRenderer.material.color = Color.HSVToRGB(0, 0, health/originalHealth);
+            UpdateWallColor();
 
             if (health <= 0)
-            {
-                Die();
-            }
+                GetComponent<BoxCollider>().enabled = false;
         }
 
         /// <summary>
@@ -45,14 +42,31 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             TakeDamage(amount);
         }
+        
+        public void ResetHealth()
+        {
+            // Reset wall health
+            health = originalHealth;
+            UpdateWallColor();
+
+            // Re-enable wall's box collider
+            GetComponent<BoxCollider>().enabled = true;
+        }
 
         #endregion Public Methods
 
         #region Private Methods
 
-        void Die()
+        void UpdateWallColor()
         {
-            Destroy(gameObject);
+            // As the wall takes damage the color changes from white to black
+            //meshRenderer.material.color = Color.HSVToRGB(0, 0, Math.Max(health, 0) / originalHealth);
+            
+            // Trying to make wall more transparent as health decreases - not yet successful
+            int tickleMeElmoFactor = Convert.ToInt32(Math.Floor(Math.Max(health, 0) / originalHealth));
+            Color color = Color.HSVToRGB(0, 0, tickleMeElmoFactor);
+            color.a = tickleMeElmoFactor;
+            meshRenderer.material.color = color;
         }
 
         #endregion Private Methods
