@@ -19,5 +19,9 @@ MonoBehaviour:
   EdExPath: 
   LocalCloudScriptPath: 
   PanelIsShown: 0
+<<<<<<< Updated upstream
   curMainMenuIdx: 0
+=======
+  curMainMenuIdx: 2
+>>>>>>> Stashed changes
   curSubMenuIdx: 0
