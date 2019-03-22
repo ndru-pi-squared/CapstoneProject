@@ -63,7 +63,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             //meshRenderer.material.color = Color.HSVToRGB(0, 0, Math.Max(health, 0) / originalHealth);
             
             // Trying to make wall more transparent as health decreases - not yet successful
-            int tickleMeElmoFactor = Convert.ToInt32(Math.Floor(Math.Max(health, 0) / originalHealth));
+            float tickleMeElmoFactor = Math.Max(health, 0) / originalHealth;
             Color color = Color.HSVToRGB(0, 0, tickleMeElmoFactor);
             color.a = tickleMeElmoFactor;
             meshRenderer.material.color = color;
