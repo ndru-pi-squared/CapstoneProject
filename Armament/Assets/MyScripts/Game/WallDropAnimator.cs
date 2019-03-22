@@ -16,18 +16,26 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region Private Fields
 
-        private const bool DEBUG = false; // indicates whether we are debugging this class (Debug console output will show if true)
+        private const bool DEBUG = true; // indicates whether we are debugging this class (Debug console output will show if true)
+        private const bool DEBUG_FixedUpdate = true;
+        private const bool DEBUG_ResetWallPosition = false;
 
         private Vector3 dropPosition; // stores the final position of the wall after it is dropped
         private Vector3 originalWallPosition; // keeps track of the original wall position for ResetWallPosition()
         private float originalY;
-
+        private object[] instantiationData;
         #endregion Private Fields
 
         #region MonoBehaviour Callbacks
 
+        private void Awake()
+        {
+            instantiationData = GetComponent<PhotonView>().InstantiationData;
+            originalWallPosition = (Vector3)instantiationData[0];
+        }
         void Start()
         {
+
             // Remember the original wall position for when we want to reset the wall
             originalY = transform.position.y;
 
@@ -56,11 +64,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public void ResetWallPosition()
         {
-            if (DEBUG) Debug.LogFormat("WallDropAnimator: ResetWallPosition() transform.position = {0}, originalY = {1}", transform.position, originalY);
+            /*if (DEBUG && DEBUG_ResetWallPosition) Debug.LogFormat("WallDropAnimator: ResetWallPosition() transform.position = {0}, originalY = {1}", transform.position, originalY);
             Vector3 pos = transform.position;
             pos.y = originalY;
             transform.position = pos;
-            if (DEBUG) Debug.LogFormat("WallDropAnimator: ResetWallPosition() transform.position = {0}, pos = {1}", transform.position, pos);
+            if (DEBUG && DEBUG_ResetWallPosition) Debug.LogFormat("WallDropAnimator: ResetWallPosition() transform.position = {0}, pos = {1}", transform.position, pos);
+            */
+            transform.position = originalWallPosition;
         }
 
         #endregion MonoBehaviour Callbacks

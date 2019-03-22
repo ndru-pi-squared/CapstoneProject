@@ -75,18 +75,19 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG = true;
         private const bool DEBUG_ReturnVanishedItems = false;
         private const bool DEBUG_DestroyUnclaimedItems = false;
-        private const bool DEBUG_InstantiateLocalPlayer = true;
+        private const bool DEBUG_InstantiateLocalPlayer = false;
         private const bool DEBUG_OnStage1TimerIsExpired = false;
         private const bool DEBUG_OnStage2TimerIsExpired = false;
-        private const bool DEBUG_BalanceTeams = true;
-        private const bool DEBUG_StartRound = true;
-        private const bool DEBUG_EndRound = true;
-        private const bool DEBUG_LeaveRoom = true;
-        private const bool DEBUG_LoadArena = true;
-        private const bool DEBUG_RemoveGunOwnerships = true;
-        private const bool DEBUG_SpawnNewItems = true;
-        private const bool DEBUG_Play = true;
-        private const bool DEBUG_ResetPlayerPosition = true;
+        private const bool DEBUG_BalanceTeams = false;
+        private const bool DEBUG_StartRound = false;
+        private const bool DEBUG_EndRound = false;
+        private const bool DEBUG_LeaveRoom = false;
+        private const bool DEBUG_LoadArena = false;
+        private const bool DEBUG_RemoveGunOwnerships = false;
+        private const bool DEBUG_SpawnNewItems = false;
+        private const bool DEBUG_Play = false;
+        private const bool DEBUG_ResetPlayerPosition = false;
+        private const bool DEBUG_SpawnWall = true; 
 
         // Event codes
         private readonly byte InstantiatePlayer = 0;
@@ -594,7 +595,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Instantiate the dividing wall for "Room for 1" level
                 Vector3 wallPosition = new Vector3(258.3562f, 26.397f, 279.6928f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
                 Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, -45f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
-                dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
+                dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0, new[] { (object)wallPosition });
             }
             // If arena is "Simple Room" unity scene...
             else if (Launcher.developmentOnly_levelToLoad.Equals("Simple Room"))
@@ -602,10 +603,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Instantiate the dividing wall for "Simple Room" level
                 Vector3 wallPosition = new Vector3(0f, 20f, 0f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
                 Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, 0f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
-                dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0);
+                dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0, new[] { (object)wallPosition });
 
                 // Set the scale to match the "Simple Room" level size
                 dividingWallGO.gameObject.transform.localScale = new Vector3(10f, 40f, 200f);
+                if(DEBUG && DEBUG_SpawnWall) Debug.LogFormat("GameManager: SpawnWall() dividingWallGO.transform.position = {0}", dividingWallGO.transform.position);
             }
         }
 
