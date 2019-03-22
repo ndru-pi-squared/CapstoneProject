@@ -834,7 +834,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 var TimeToKeepAlive = 5;
                 Debug.Log("keycode C");
-                if (PhotonNetwork.IsMasterClient)
+                if (photonView.IsMine)//network ismasterclient
                 {
                     GameObject skycar = PhotonNetwork.Instantiate("RoombaCar", gameObject.transform.position, gameObject.transform.rotation);
                     Destroy(skycar, TimeToKeepAlive);
