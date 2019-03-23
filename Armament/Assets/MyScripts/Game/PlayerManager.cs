@@ -80,6 +80,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private GameObject gunToBePickedUpGO; // stores a reference to the a gun we want to pick up
         private Vector3 activeGunPosition;
         private int activeGunType;
+        private int previousActiveGunType; // default value is 0
         private Gun activeGun;
         private Gun activeShowGun;
         private object[] instantiationData;
@@ -587,8 +588,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Destroy activeGunFake
                 Destroy(activeShowGun.gameObject);
                 activeShowGun = null;
-
             }
+
+            // Keep track of previous active gun type 
+            // by recording current active gun type before setting new active gun
+            previousActiveGunType = activeGunType;
 
             // Set active gun type
             // *** Will need to change how we instantiate based on type of gun
@@ -660,24 +664,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             pickedUpGun.fpsCam = photonView.gameObject.transform.Find("FirstPersonCharacter").GetComponent<Camera>();
             pickedUpGun.playerWhoOwnsThisGun = photonView.gameObject.GetComponent<MonoBehaviourPun>();
 
-        }
-
-        [PunRPC]
-        void SwapGun(int gunType)
-        {
-            if (DEBUG && DEBUG_SwapGun) Debug.LogFormat("PlayerManager: SwapGun gunType = {0}", gunType);
-
-            Transform inactiveWeapons = transform.Find("FirstPersonCharacter/Inactive Weapons");
-            for (int i = 0; i < inactiveWeapons.childCount; i++)
-            {
-                Gun gun = inactiveWeapons.GetChild(i).GetComponent<Gun>();
-
-                if (gun.TypeOfGun == gunType)
-                {
-                    SetActiveGun(gun.GetComponent<PhotonView>().ViewID);
-                    break;
-                }
-            } 
         }
 
         /// <summary>
@@ -882,19 +868,48 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (Input.GetKeyUp(KeyCode.Alpha1))
             {
                 // Call the [PunRPC] Shoot method over photon network
-                photonView.RPC("SwapGun", RpcTarget.All, 1);
+                photonView.RPC("SwapActiveGun", RpcTarget.All, 1);
             }
 
             if (Input.GetKeyUp(KeyCode.Alpha2))
             {
                 // Call the [PunRPC] Shoot method over photon network
-                photonView.RPC("SwapGun", RpcTarget.All, 2);
+                photonView.RPC("SwapActiveGun", RpcTarget.All, 2);
+            }
+
+            if (Input.GetKeyUp(KeyCode.Q))
+            {
+                // Call the [PunRPC] Shoot method over photon network
+                photonView.RPC("SwapActiveGun", RpcTarget.All, previousActiveGunType);
             }
         }
 
         #endregion Private Methods
 
         #region RPC Methods
+
+        /// <summary>
+        /// Swap 
+        /// </summary>
+        /// <param name="gunType">Type of gun to switch to. Currently, there are only two guns so the only valid options are 1 and 2</param>
+        [PunRPC]
+        void SwapActiveGun(int gunType)
+        {
+            if (DEBUG && DEBUG_SwapGun) Debug.LogFormat("PlayerManager: SwapGun gunType = {0}", gunType);
+            
+            // Find a gun in player inventory matching the gun type and set it as our active gun
+            Transform inactiveWeapons = transform.Find("FirstPersonCharacter/Inactive Weapons");
+            for (int i = 0; i < inactiveWeapons.childCount; i++)
+            {
+                Gun gun = inactiveWeapons.GetChild(i).GetComponent<Gun>();
+
+                if (gun.TypeOfGun == gunType)
+                {
+                    SetActiveGun(gun.GetComponent<PhotonView>().ViewID);
+                    break;
+                }
+            }
+        }
 
         /// <summary>
         /// Drops this player's active gun
