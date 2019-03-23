@@ -749,7 +749,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public override void OnLeftRoom()
         {
             // Load the launcher scene
-            SceneManager.LoadScene(0);
+            SceneManager.LoadScene(1);
         }
 
         // Note: I think this function is called on every computer when someone enters the room except the person who is entering the room

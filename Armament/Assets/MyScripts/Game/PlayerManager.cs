@@ -772,6 +772,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (DEBUG) Debug.LogFormat("PlayerManager: AddKill() kills = {0}, photonView.Owner.NickName = {1}", kills, photonView.Owner.NickName);
         }
 
+        IEnumerator DestroyCar(GameObject skyCar)
+        {
+            yield return new WaitForSeconds(3.0f);
+            PhotonNetwork.Destroy(skyCar);
+        }
         /// <summary>
         /// Processes the inputs. 
         /// (This method should only be called in Update if photonView.IsMine)
@@ -790,9 +795,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     // I had to create a public SetCursorLock method inside FirstPersonController to access the MouseLook.SetCursorLock method
                     // !! This might not have been the best way to handle this problem!
                     GetComponent<FirstPersonController>().SetCursorLock(false);
-                    
+
                     // Return so we don't shoot gun
-                    return;
+                    return; //
                 }
 
             }
@@ -832,12 +837,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             if (Input.GetKeyUp(KeyCode.C))
             {
-                var TimeToKeepAlive = 5;
+                //var TimeToKeepAlive = 5;
                 Debug.Log("keycode C");
-                if (PhotonNetwork.IsMasterClient)
+                if (photonView.IsMine)//network ismasterclient
                 {
-                    GameObject skycar = PhotonNetwork.Instantiate("RoombaCar", gameObject.transform.position, gameObject.transform.rotation);
-                    Destroy(skycar, TimeToKeepAlive);
+                    GameObject skyCar = PhotonNetwork.Instantiate("RoombaCar", gameObject.transform.position, gameObject.transform.rotation);
+                    //yield return new WaitForSeconds(2.0f);
+                    //PhotonNetwork.Destroy(skycar);
+                    StartCoroutine("DestroyCar", skyCar);
                 }
                 
             }
