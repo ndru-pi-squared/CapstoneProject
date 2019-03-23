@@ -189,7 +189,7 @@ GameObject:
   - component: {fileID: 125461184}
   - component: {fileID: 125461185}
   m_Layer: 5
-  m_Name: Slider
+  m_Name: AvatarSelectSlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -970,6 +970,11 @@ PrefabInstance:
       propertyPath: existingRoomList
       value: 
       objectReference: {fileID: 153116970}
+    - target: {fileID: 577088903627346121, guid: 3cbb55a0a4e29a940b7bdcf196af468e,
+        type: 3}
+      propertyPath: avatarSelectSlider
+      value: 
+      objectReference: {fileID: 125461185}
     - target: {fileID: 577088903627346122, guid: 3cbb55a0a4e29a940b7bdcf196af468e,
         type: 3}
       propertyPath: m_LocalPosition.x
