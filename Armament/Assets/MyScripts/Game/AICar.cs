@@ -22,7 +22,7 @@ public class AICar : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-            Debug.Log("AI car entered a collider");
+            //Debug.Log("AI car entered a collider");
             //Transform t = other.GetComponentInParent<Transform>();//get the transform to access the game object
             //GameObject p = t.gameObject;//TODO: change name to more descriptive
             //Debug.Log("What is the thing AI car hit: " + p.name);

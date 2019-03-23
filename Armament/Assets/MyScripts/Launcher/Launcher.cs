@@ -27,7 +27,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] private GameObject progressLabel;
         [SerializeField] private InputField roomNameInputField;
         [SerializeField] private ScrollRect existingRoomList;
-        
+        [SerializeField] private Slider avatarSelectSlider;
+
         /// <summary>
         /// The maximum number of players per room. When a room is full, it can't be joined by new players, and so new room will be created.
         /// </summary>
@@ -44,7 +45,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         string gameVersion = "1";
 
         List<RoomInfo> _roomList;
-
+        private int avatarSliderValue;
         /// <summary>
         /// An InputField to store a reference to the players. There is no null checking, players can enter room w/ blank name. This may change when we implement playfab. 
         /// </summary>
@@ -82,7 +83,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;//frees up the cursor
             controlPanel.SetActive(true);
-            
+                       
         }
 
 
@@ -90,6 +91,19 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
 
         #region Public Methods
+
+        public void GetAvatarSliderValueFromSlider()
+        {
+            if (avatarSelectSlider != null)
+            {
+                avatarSliderValue = (int)avatarSelectSlider.value; //should be either 0 or 1
+                Debug.Log("Avatar slider value: " + avatarSliderValue);
+            }
+            else
+            {
+                Debug.Log("Slider was null");
+            }
+        }
 
         /// <summary>
         /// Lists the existing rooms.
@@ -105,7 +119,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             RectTransform scrollableContent = existingRoomList.content;
             VerticalLayoutGroup verticalLayoutGroup = scrollableContent.GetComponent<VerticalLayoutGroup>();
             
-            
+
         }
 
 
@@ -154,6 +168,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public void JoinRandomRoom()
         {
+            GetAvatarSliderValueFromSlider();
             if (PhotonNetwork.IsConnected)
             {
                 progressLabel.GetComponent<Text>().text = "Joining Random Room...";
