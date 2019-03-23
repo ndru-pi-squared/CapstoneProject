@@ -21,6 +21,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public float fireRate = 1f; // how fast (per second) a bullet can be fired
         public float impactForce = 30f; // force imparted on a bullet hit
 
+        [Tooltip("Gun Prefab - used to determine type of gun programatically")]
+        public GameObject gunPrefab;
+
         [Tooltip("Audio Clip (wav file) played when gun is fired")]
         public AudioClip gunshotSound;
         [Tooltip("Muzzle flash displayed at the end of the gun when it is fired")]
@@ -58,6 +61,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public bool IsReadyToShoot
         {
             get { return Time.time >= nextTimeToFire; }
+        }
+
+        // Will need to change when we have more guns
+        public int TypeOfGun
+        {
+            get { return name.Contains("Gun 1") ? 1 : 2; }
         }
 
         #endregion Public Properties
@@ -104,7 +113,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #endregion MonoBehaviour Callbacks 
 
         #region Public Methods
-
+        
         /// <summary>
         /// Called by PlayerManager every time the gun needs to be shot.
         /// Protects against shooting faster than firerate allows

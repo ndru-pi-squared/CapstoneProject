@@ -4878,6 +4878,7 @@ MonoBehaviour:
   range: 500
   fireRate: 10
   impactForce: 30
+  gunPrefab: {fileID: 301}
   gunshotSound: {fileID: 8300000, guid: 5287744a939d70c4496596b7337b6a58, type: 3}
   muzzleFlash: {fileID: 1845}
   impactEffect: {fileID: 5362399515342332101, guid: 9ffdb672b56f647438a9a5c784b32062,

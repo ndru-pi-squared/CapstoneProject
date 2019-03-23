@@ -71,13 +71,15 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_Respawn = false;
         private const bool DEBUG_SetActiveGun = false;
         private const bool DEBUG_DropGun = false;
-        private const bool DEBUG_OnPhotonInstantiate = true; 
-
+        private const bool DEBUG_SwapGun = true;
+        private const bool DEBUG_OnPhotonInstantiate = true;
+        
         private AudioSource audioSource;
 
         private ArrayList playerWeapons;
         private GameObject gunToBePickedUpGO; // stores a reference to the a gun we want to pick up
         private Vector3 activeGunPosition;
+        private int activeGunType;
         private Gun activeGun;
         private Gun activeShowGun;
         private object[] instantiationData;
@@ -573,7 +575,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             Gun gunToBeActivated = PhotonView.Find(gunViewID).GetComponent<Gun>();
 
             // Activate gunToBeActivated
-            //gunToBeActivated.gameObject.SetActive(true);
             gunToBeActivated.transform.parent = transform.Find("FirstPersonCharacter/Active Weapon");
 
             // Set activeGun so we can make use of it other places (like shooting it)
@@ -589,9 +590,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             }
 
+            // Set active gun type
+            // *** Will need to change how we instantiate based on type of gun
+            activeGunType = gunToBeActivated.name.Contains("Gun 1") ? 1 : 2;
+
             // Instantiate show Gun based on type of gun
             // *** Will need to change how we instantiate based on type of gun
-            GameObject gunPrefab = gunToBeActivated.name.Contains("Gun 1") ? GameManager.Instance.weaponsPrefabs[0] : GameManager.Instance.weaponsPrefabs[1];
+            GameObject gunPrefab = activeGunType == 1 ? GameManager.Instance.weaponsPrefabs[0] : GameManager.Instance.weaponsPrefabs[1];
             GameObject showGunToBeActivatedGO = Instantiate(gunPrefab, transform.Find("FirstPersonCharacter/Show Weapon"));
             
             Gun showGunToBeActivated = showGunToBeActivatedGO.GetComponent<Gun>();
@@ -618,6 +623,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             // Find Gun to pick up using Photon viewID
             Gun pickedUpGun = PhotonView.Find(gunViewID).GetComponent<Gun>();
+
+            
+            // Make sure we don't pickup gun of same type
+            //if (pickedUpGun.gunPrefab)
+
 
             // Protect against double collisions (trying to pick up the same gun twice)
             // *** This check might not be necessary after recent code changes... TODO: look into it
@@ -649,6 +659,25 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Set Gun's FPS Cam and Player who owns this gun
             pickedUpGun.fpsCam = photonView.gameObject.transform.Find("FirstPersonCharacter").GetComponent<Camera>();
             pickedUpGun.playerWhoOwnsThisGun = photonView.gameObject.GetComponent<MonoBehaviourPun>();
+
+        }
+
+        [PunRPC]
+        void SwapGun(int gunType)
+        {
+            if (DEBUG && DEBUG_SwapGun) Debug.LogFormat("PlayerManager: SwapGun gunType = {0}", gunType);
+
+            Transform inactiveWeapons = transform.Find("FirstPersonCharacter/Inactive Weapons");
+            for (int i = 0; i < inactiveWeapons.childCount; i++)
+            {
+                Gun gun = inactiveWeapons.GetChild(i).GetComponent<Gun>();
+
+                if (gun.TypeOfGun == gunType)
+                {
+                    SetActiveGun(gun.GetComponent<PhotonView>().ViewID);
+                    break;
+                }
+            } 
         }
 
         /// <summary>
@@ -777,6 +806,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             yield return new WaitForSeconds(3.0f);
             PhotonNetwork.Destroy(skyCar);
         }
+
         /// <summary>
         /// Processes the inputs. 
         /// (This method should only be called in Update if photonView.IsMine)
@@ -847,6 +877,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     StartCoroutine("DestroyCar", skyCar);
                 }
                 
+            }
+
+            if (Input.GetKeyUp(KeyCode.Alpha1))
+            {
+                // Call the [PunRPC] Shoot method over photon network
+                photonView.RPC("SwapGun", RpcTarget.All, 1);
+            }
+
+            if (Input.GetKeyUp(KeyCode.Alpha2))
+            {
+                // Call the [PunRPC] Shoot method over photon network
+                photonView.RPC("SwapGun", RpcTarget.All, 2);
             }
         }
 
