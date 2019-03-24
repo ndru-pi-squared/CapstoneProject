@@ -994,6 +994,12 @@ PrefabInstance:
       propertyPath: sceneCameras.Array.data[1]
       value: 
       objectReference: {fileID: 1335304274}
+    - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
+        type: 3}
+      propertyPath: PlayerData
+      value: 
+      objectReference: {fileID: 5906270027394405360, guid: f87bb2e4516d56040bc605842136f53f,
+        type: 3}
     - target: {fileID: 5624805370660292501, guid: 7ac2123401479ef47a6d48780e05ab48,
         type: 3}
       propertyPath: m_LocalPosition.x

@@ -28,6 +28,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] private InputField roomNameInputField;
         [SerializeField] private ScrollRect existingRoomList;
         [SerializeField] private Slider avatarSelectSlider;
+        [SerializeField] private GameObject PlayerData;
 
         /// <summary>
         /// The maximum number of players per room. When a room is full, it can't be joined by new players, and so new room will be created.
@@ -92,17 +93,19 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region Public Methods
 
-        public void GetAvatarSliderValueFromSlider()
+        public int GetAvatarSliderValueFromSlider()
         {
             if (avatarSelectSlider != null)
             {
-                avatarSliderValue = (int)avatarSelectSlider.value; //should be either 0 or 1
                 Debug.Log("Avatar slider value: " + avatarSliderValue);
+                return (int)avatarSelectSlider.value; //should be either 0 or 1
             }
             else
             {
                 Debug.Log("Slider was null");
             }
+
+            return -1; //not found. let me know if this is bad practice
         }
 
         /// <summary>
@@ -168,7 +171,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public void JoinRandomRoom()
         {
-            GetAvatarSliderValueFromSlider();
+            PlayerData.GetComponent<PlayerData>().SetAvatarChoice(GetAvatarSliderValueFromSlider());
+
             if (PhotonNetwork.IsConnected)
             {
                 progressLabel.GetComponent<Text>().text = "Joining Random Room...";
