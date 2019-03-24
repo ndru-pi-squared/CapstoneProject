@@ -11,6 +11,7 @@ public class PlayerData : MonoBehaviour
     {
         Debug.Log("Created PlayerData object");
         DontDestroyOnLoad(this.gameObject);
+        AvatarChoice = "";
     }
 
     void Update()
@@ -28,20 +29,28 @@ public class PlayerData : MonoBehaviour
         Name = name;
     }
 
-    public string GetAvatarChoicee()
+    public string GetAvatarChoice()
     {
         return AvatarChoice;
     }
 
-    public void SetAvatarChoice(string avatarChoice)
+    public void SetAvatarChoice(int avatarChoice)
     {
         Debug.Log("SetAvatarChoice test");
-        AvatarChoice = avatarChoice;
+        if(avatarChoice == 0)//use polymorphic behavior for better results. something like ...
+        {
+            AvatarChoice = "KyleRobot";
+        }
+        else if (avatarChoice == 1)//use polymorphic behavior for better results. something like ...
+        {
+            AvatarChoice = "UnityChan";
+        }
+        else
+        {
+            Debug.Log("Error: avatar not found");
+        }
+        Debug.Log("SetAvatarChoice avatar Choice: " + AvatarChoice);
+       
     }
-
-
-
-
-    // Start is called before the first frame update
 
 }

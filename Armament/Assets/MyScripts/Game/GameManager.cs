@@ -66,11 +66,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] private Transform[] teamBPlayerSpawnPoints;
         [Tooltip("List of locations where a weapon can be spawned")]
         [SerializeField] private Transform[] weaponSpawnPoints;
-
+        [Tooltip("Data structure holding player data")]
+        [SerializeField] private GameObject PlayerData;
         #endregion Private Serialized Fields
 
         #region Private Fields
-        
+
         // Debug flags
         private const bool DEBUG = true;
         private const bool DEBUG_ReturnVanishedItems = false;
@@ -693,6 +694,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         void Start()
         {
+            Debug.Log("Avatar choice coming from Launcher scene into PlayerData: " + PlayerData.GetComponent<PlayerData>().GetAvatarChoice());
             if (PlayerPrefab == null)
             {
                 Debug.LogError("<Color=Red><a>Missing</a></Color> PlayerPrefab Reference. Please set it up in GameObject 'Game Manager'", this);
