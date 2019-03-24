@@ -55,12 +55,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] int howFarToTossWeapon = 10;
         [Tooltip("The Player's UI GameObject Prefab")]
         [SerializeField] private bool usingPlayerUIPrefab = false; // needed to disable tutorial code... probably should removed with playerUiPrefab
-        [Tooltip("Player data stored from Launcher UI")]
-        [SerializeField] private GameObject PlayerData;
-        [Tooltip("Stores a ref to unityChan prefab in order to get the avatar")]
-        [SerializeField] private GameObject unityChan;//feels weird to store the entire gameobject just to get the avatar. temp solution
-
-
+        
         #endregion Private Serializable Fields
 
         #region Private Fields
@@ -144,15 +139,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 GetComponentInChildren<Camera>().enabled = true;
                 GetComponentInChildren<AudioListener>().enabled = true;
                 GetComponentInChildren<FlareLayer>().enabled = true;
-                playerGO = PlayerManager.LocalPlayerInstance;
-                kyleRobotPrefab = playerGO.transform.GetChild(1).gameObject;
-                unityChanPrefab = playerGO.transform.GetChild(2).gameObject;
-                animator = this.gameObject.GetComponent<Animator>();
-                //turn this into an RPC call similar to shoot?    
-                //something like photonView.RPC("Shoot", RpcTarget.All);
-                //previously the entire routine was just regular lines of code. not working as an rpc call either
+
+
                 photonView.RPC("SetAvatar", RpcTarget.All);
-                
+
                 // Disable scene cameras; we'll use player's first-person camera now
                 foreach (Camera cam in GameManager.Instance.sceneCameras)
                     cam.enabled = false;
@@ -171,6 +161,15 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // *** \/
             // Make sure our player doesn't collide with the gun it is holding
             DisableActiveGunCollider();
+        }
+
+        [PunRPC]
+        public void SetAvatar()
+        {
+            this.gameObject.GetComponent<Animator>().runtimeAnimatorController = (RuntimeAnimatorController)Resources.Load("Animation/UnityChanLocomotions");
+            Debug.Log(GetComponent<Animator>().avatar.name);
+            this.gameObject.GetComponent<Animator>().avatar = transform.Find("Model").GetComponentInChildren<Animator>().avatar;
+
         }
 
         /// <summary>
