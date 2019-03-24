@@ -105,7 +105,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 Debug.Log("Slider was null");
             }
 
-            return -1; //not found. let me know if this is bad practice
+            return -1; //not found. not exactly a fan of the hardcoded solution but it'll do for now
         }
 
         /// <summary>
@@ -208,6 +208,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="expectedUsers">The expected users.</param>
         public void JoinOrCreateRoom(string[] expectedUsers)
         {
+            PlayerData.GetComponent<PlayerData>().SetAvatarChoice(GetAvatarSliderValueFromSlider());
             Debug.Log("Launcher: JoinOrCreateRoom(string[] expectedUsers)");
             progressLabel.GetComponent<Text>().text = "Joining or Creating Room...";
 
@@ -219,7 +220,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // If we're not connected to a master server...
             if (!PhotonNetwork.IsConnected)
             {
-                // 
+                // PlayerData.GetComponent<PlayerData>().SetAvatarChoice(GetAvatarSliderValueFromSlider());
                 progressLabel.GetComponent<Text>().text = "Not yet connected!";
                 Debug.Log("Launcher: JoinOrCreateRoom(string[] expectedUsers) Not yet connected! ");
                 // Try to connect
@@ -233,12 +234,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             
             // Create a new RoomOptions
             RoomOptions roomOptions = new RoomOptions();
-            
+
             // Set room options
             //roomOptions.CustomRoomPropertiesForLobby = { "map", "ai" };
             //roomOptions.CustomRoomProperties = new Hashtable() { { "map", 1 } };
             //roomOptions.MaxPlayers = expectedMaxPlayers;
-            
+
             // Join or create room (w/out expected users)
             PhotonNetwork.JoinOrCreateRoom(roomName, roomOptions, TypedLobby.Default, expectedUsers);
         }
