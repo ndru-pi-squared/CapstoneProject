@@ -694,6 +694,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         void UpdateWeaponsMenu()
         {
+            Debug.LogFormat("PlayerManager: UpdateWeaponsMenu()");
             Transform t = GameManager.Instance.canvas.transform.Find("Weapon Inventory Menu");
 
             t.GetComponent<WeaponsMenuManager>().UpdateWeaponInventoryMenu();
