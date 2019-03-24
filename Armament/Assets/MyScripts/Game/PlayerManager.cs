@@ -73,17 +73,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_DropGun = false;
         private const bool DEBUG_SwapGun = true;
         private const bool DEBUG_OnPhotonInstantiate = true;
-        
+        private const bool DEBUG_ProcessInputs = true;
+
         private AudioSource audioSource;
 
         private ArrayList playerWeapons;
         private GameObject gunToBePickedUpGO; // stores a reference to the a gun we want to pick up
         private Vector3 activeGunPosition;
-        private int activeGunType;
-        private Gun activeGun;
-        private Gun activeShowGun;
-        private object[] instantiationData;
- 
+        private int activeGunType; // keeps track of currently active gun's type 
+        private int previousActiveGunType; // keeps track of previously active gun's type
+        private Gun activeGun; // keeps track of active gun the active gun: a gun that is synced on network
+        private Gun activeShowGun; // keeps track of the active "show" gun: a gun that is not synced on network (instantiated locally) and used to visually and functionally represent activeGun
+        private object[] instantiationData; // information that was linked with this Gun's GO when it was instantiated by the master client
+        private bool selectingWeapon; // flag to keep track of whether user is trying to select a weapon
+        private int weaponSelectionIndex; 
+
         #endregion
         
         #region MonoBehaviour CallBacks
@@ -587,8 +591,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Destroy activeGunFake
                 Destroy(activeShowGun.gameObject);
                 activeShowGun = null;
-
             }
+
+            // Keep track of previous active gun type 
+            // by recording current active gun type before setting new active gun
+            previousActiveGunType = activeGunType;
 
             // Set active gun type
             // *** Will need to change how we instantiate based on type of gun
@@ -611,6 +618,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Set activeGun so we can make use of it other places (like shooting it)
             activeShowGun = showGunToBeActivated;
+
+            UpdateWeaponsMenu();
 
             if (DEBUG && DEBUG_SetActiveGun) Debug.LogFormat("PlayerManager: SetActiveGun() activeShowGun = {0}", activeShowGun);
         }
@@ -660,24 +669,15 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             pickedUpGun.fpsCam = photonView.gameObject.transform.Find("FirstPersonCharacter").GetComponent<Camera>();
             pickedUpGun.playerWhoOwnsThisGun = photonView.gameObject.GetComponent<MonoBehaviourPun>();
 
+            UpdateWeaponsMenu();
+
         }
 
-        [PunRPC]
-        void SwapGun(int gunType)
+        void UpdateWeaponsMenu()
         {
-            if (DEBUG && DEBUG_SwapGun) Debug.LogFormat("PlayerManager: SwapGun gunType = {0}", gunType);
+            Transform t = GameManager.Instance.canvas.transform.Find("Weapon Inventory Menu");
 
-            Transform inactiveWeapons = transform.Find("FirstPersonCharacter/Inactive Weapons");
-            for (int i = 0; i < inactiveWeapons.childCount; i++)
-            {
-                Gun gun = inactiveWeapons.GetChild(i).GetComponent<Gun>();
-
-                if (gun.TypeOfGun == gunType)
-                {
-                    SetActiveGun(gun.GetComponent<PhotonView>().ViewID);
-                    break;
-                }
-            } 
+            t.GetComponent<WeaponsMenuManager>().UpdateWeaponInventoryMenu();
         }
 
         /// <summary>
@@ -753,6 +753,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     SetActiveGun(gunViewID);
                 }
             }
+
+            UpdateWeaponsMenu();
         }
 
         /// <summary>
@@ -813,37 +815,85 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void ProcessInputs()
         {
-            if (Input.GetButtonDown("Fire1"))
+            // If user wants to select a weapon
+            if (Input.mouseScrollDelta.y != 0)
             {
-                // we don't want to fire when we interact with UI buttons for example. IsPointerOverGameObject really means IsPointerOver*UI*GameObject
-                // notice we don't use on on GetbuttonUp() few lines down, because one can mouse down, move over a UI element and release, which would lead to not lower the isFiring Flag.
-                if (EventSystem.current.IsPointerOverGameObject())
+                // If user is not currently in "selecting weapon" mode
+                if (!selectingWeapon)
                 {
-                    //Debug.Log("PlayerManager: ProcessInputs() Mouse over UI GameObject -> Do not shoot gun");
-
-                    // Remove cursor lock to enable the Leave Game UI button to be clicked
-                    // I had to create a public SetCursorLock method inside FirstPersonController to access the MouseLook.SetCursorLock method
-                    // !! This might not have been the best way to handle this problem!
-                    GetComponent<FirstPersonController>().SetCursorLock(false);
-
-                    // Return so we don't shoot gun
-                    return; //
+                    // Put user in "selecting weapon" mode
+                    selectingWeapon = true;
+                    GameManager.Instance.canvas.transform.Find("Weapon Inventory Menu").GetComponent<WeaponsMenuManager>().OpenMenu();
                 }
-
             }
 
-            // Check if the user is trying to fire gun continuously
-            //Dictionary<int, string> inputsDict = new Dictionary<InputClass, string>();
-            //or without a dict we could just have 1 input class with lots of commands. nah we should really divide them up based on input type (mobile, pc, UI for each, etc)
-            //inputsDict.get(name).execute(input); //where input is "Fire1" or "Weapon1" and map.get(name) returns a class that can execute that input.
-            //we set the state in another place in the code. this type of code is easier to maintain than the long if statements
-            if (Input.GetButton("Fire1"))
-            {
-                // Check if gun is ready to shoot before sending the RPC to avoid overloading network
-                if (activeGun != null && activeGun.IsReadyToShoot)
+            // If user is not currently selecting a weapon
+            if (!selectingWeapon) { 
+                if (Input.GetButtonDown("Fire1"))
                 {
-                    // Call the [PunRPC] Shoot method over photon network
-                    photonView.RPC("Shoot", RpcTarget.All);
+                    // we don't want to fire when we interact with UI buttons for example. IsPointerOverGameObject really means IsPointerOver*UI*GameObject
+                    // notice we don't use on on GetbuttonUp() few lines down, because one can mouse down, move over a UI element and release, which would lead to not lower the isFiring Flag.
+                    if (EventSystem.current.IsPointerOverGameObject())
+                    {
+                        // Remove cursor lock to enable the Leave Game UI button to be clicked
+                        // I had to create a public SetCursorLock method inside FirstPersonController to access the MouseLook.SetCursorLock method
+                        // !! This might not have been the best way to handle this problem!
+                        GetComponent<FirstPersonController>().SetCursorLock(false);
+
+                        // Return so we don't shoot gun
+                        return;
+                    }
+
+                }
+
+                // Check if the user is trying to fire gun continuously
+                //Dictionary<int, string> inputsDict = new Dictionary<InputClass, string>();
+                //or without a dict we could just have 1 input class with lots of commands. nah we should really divide them up based on input type (mobile, pc, UI for each, etc)
+                //inputsDict.get(name).execute(input); //where input is "Fire1" or "Weapon1" and map.get(name) returns a class that can execute that input.
+                //we set the state in another place in the code. this type of code is easier to maintain than the long if statements
+                if (Input.GetButton("Fire1"))
+                {
+                    // Check if gun is ready to shoot before sending the RPC to avoid overloading network
+                    if (activeGun != null && activeGun.IsReadyToShoot)
+                    {
+                        // Call the [PunRPC] Shoot method over photon network
+                        photonView.RPC("Shoot", RpcTarget.All);
+                    }
+                }
+            }
+            // If user is selecting weapon
+            else
+            {
+                GameObject weaponInventoryMenuGO = GameManager.Instance.canvas.transform.Find("Weapon Inventory Menu").gameObject;
+                
+                // If user wants to highlight previous weapon
+                if (Input.mouseScrollDelta.y > 0)
+                {
+                    if (DEBUG && DEBUG_ProcessInputs) Debug.LogFormat("PlayerManager: ProcessInputs() User wants to highlight PREVIOUS weapon");
+                    WeaponsMenuManager weaponsMenuManager = weaponInventoryMenuGO.GetComponent<WeaponsMenuManager>();
+                    weaponsMenuManager.MoveHighlightIndexBackward();
+                }
+
+                // If user wants to highlight next weapon
+                if (Input.mouseScrollDelta.y < 0)
+                {
+                    if (DEBUG && DEBUG_ProcessInputs) Debug.LogFormat("PlayerManager: ProcessInputs() User wants to highlight NEXT weapon");
+                    WeaponsMenuManager weaponsMenuManager = weaponInventoryMenuGO.GetComponent<WeaponsMenuManager>();
+                    weaponsMenuManager.MoveHighlightIndexForward();
+                }
+
+                // If user wants to select highlighted
+                if (Input.GetButtonUp("Fire1"))
+                {
+                    selectingWeapon = false;
+
+                    WeaponsMenuManager weaponsMenuManager = weaponInventoryMenuGO.GetComponent<WeaponsMenuManager>();
+                    weaponsMenuManager.CloseMenu();
+                    int gunViewID = weaponsMenuManager.GetHighlightedGunViewID();
+                    if (gunViewID != -1)
+                    {
+                        SetActiveGun(gunViewID);
+                    }
                 }
             }
 
@@ -852,7 +902,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (Input.GetKeyUp(KeyCode.G))
             {
                 if (activeGun == null) {
-                    if (DEBUG) Debug.Log("PlayerManager: ProcessInputs() Trying to drop active gun but this.activeGun == null");
+                    if (DEBUG && DEBUG_ProcessInputs) Debug.Log("PlayerManager: ProcessInputs() Trying to drop active gun but this.activeGun == null");
                     return;
                 }
 
@@ -868,7 +918,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (Input.GetKeyUp(KeyCode.C))
             {
                 //var TimeToKeepAlive = 5;
-                Debug.Log("keycode C");
+                if (DEBUG && DEBUG_ProcessInputs) Debug.Log("keycode C");
                 if (photonView.IsMine)//network ismasterclient
                 {
                     GameObject skyCar = PhotonNetwork.Instantiate("RoombaCar", gameObject.transform.position, gameObject.transform.rotation);
@@ -882,19 +932,49 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (Input.GetKeyUp(KeyCode.Alpha1))
             {
                 // Call the [PunRPC] Shoot method over photon network
-                photonView.RPC("SwapGun", RpcTarget.All, 1);
+                photonView.RPC("SwapActiveGun", RpcTarget.All, 1);
             }
 
             if (Input.GetKeyUp(KeyCode.Alpha2))
             {
                 // Call the [PunRPC] Shoot method over photon network
-                photonView.RPC("SwapGun", RpcTarget.All, 2);
+                photonView.RPC("SwapActiveGun", RpcTarget.All, 2);
             }
+
+            if (Input.GetKeyUp(KeyCode.Q))
+            {
+                // Call the [PunRPC] Shoot method over photon network
+                photonView.RPC("SwapActiveGun", RpcTarget.All, previousActiveGunType);
+            }
+
         }
 
         #endregion Private Methods
 
         #region RPC Methods
+
+        /// <summary>
+        /// Swap 
+        /// </summary>
+        /// <param name="gunType">Type of gun to switch to. Currently, there are only two guns so the only valid options are 1 and 2</param>
+        [PunRPC]
+        void SwapActiveGun(int gunType)
+        {
+            if (DEBUG && DEBUG_SwapGun) Debug.LogFormat("PlayerManager: SwapGun gunType = {0}", gunType);
+            
+            // Find a gun in player inventory matching the gun type and set it as our active gun
+            Transform inactiveWeapons = transform.Find("FirstPersonCharacter/Inactive Weapons");
+            for (int i = 0; i < inactiveWeapons.childCount; i++)
+            {
+                Gun gun = inactiveWeapons.GetChild(i).GetComponent<Gun>();
+
+                if (gun.TypeOfGun == gunType)
+                {
+                    SetActiveGun(gun.GetComponent<PhotonView>().ViewID);
+                    break;
+                }
+            }
+        }
 
         /// <summary>
         /// Drops this player's active gun

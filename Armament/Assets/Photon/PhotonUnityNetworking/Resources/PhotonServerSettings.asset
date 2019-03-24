@@ -42,5 +42,6 @@ MonoBehaviour:
   - PickUpGun
   - DropActiveGun
   - SwapGun
+  - SwapActiveGun
   DisableAutoOpenWizard: 1
   ShowSettings: 1
