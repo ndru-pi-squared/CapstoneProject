@@ -66,11 +66,19 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] private Transform[] teamBPlayerSpawnPoints;
         [Tooltip("List of locations where a weapon can be spawned")]
         [SerializeField] private Transform[] weaponSpawnPoints;
-        [Tooltip("Data structure holding player data")]
-        [SerializeField] private GameObject PlayerData;
+        [Tooltip("Data structure holding player data")] //notes:
+        [SerializeField] private GameObject PlayerData;//there may be some race conditions associated with using this as a serialized field. 
+                                                       //probably going to need to do some checking as to whether or not this.IsMine 
+                                                       //or hold an arraylist of character choices for each player in PlayerData and store on master?
+                                                       //it makes more sense to me to take the data from each client (launcher UI) and have GameManager (master client? need clarification) load each avatar individually
+                                                       //maybe create another serializedfield for player prefab unity chan, so there would be 2, 3, ... ,n playerPrefabs that correspond to n avatars to potentially have in game
+                                                       //another way would be to take the My Robot FPS controller, leave it as the only one, and just turn off the robot model inside GameManager before it instantiates.
         #endregion Private Serialized Fields
 
         #region Private Fields
+
+        private GameObject unityChanPrefab;
+        private GameObject kyleRobotPrefab;
 
         // Debug flags
         private const bool DEBUG = true;
@@ -645,7 +653,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Tutorial comment: we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
             GameObject playerGO = PhotonNetwork.InstantiateSceneObject(this.PlayerPrefab.name, playerSpawnPoint.position, playerSpawnPoint.rotation, 0, new[] { (object)actorNumber, teamToJoin});
-            
+            //give FPS controller both models I guess? seems like there would be unnecessary amnts of memory stored, so maybe i can fix later
+            kyleRobotPrefab = playerGO.transform.GetChild(1).gameObject;
+            unityChanPrefab = playerGO.transform.GetChild(2).gameObject;
+
             return playerGO;
         }
 
@@ -930,7 +941,20 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 
                 // Instantiate player for client
                 GameObject playerGO = InstantiatePlayerForActor(teamToJoin, actorNumber);
+                //here
+                if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "KyleRobot")//TODO change hardcoded string 
+                {
+                    Debug.Log("GameManager: Player chose KyleRobot");
+                    unityChanPrefab.SetActive(false);
 
+                    //set animator to kyle robot, or maybe do nothing since he's the default
+                }
+                else if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "UnityChan")
+                {
+                    Debug.Log("GameManager: Player chose UnityChan");
+                    kyleRobotPrefab.SetActive(false);                                  
+                    //set animator to unity chan
+                }
                 // Transfer ownership of this player's photonview (and GameObject) to the client requesting a player be instantiated them
                 playerGO.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.CurrentRoom.GetPlayer(actorNumber));
             }

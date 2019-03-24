@@ -1000,6 +1000,32 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 5906270027394405360, guid: f87bb2e4516d56040bc605842136f53f,
         type: 3}
+    - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
+        type: 3}
+      propertyPath: weaponsPrefabs.Array.data[0]
+      value: 
+      objectReference: {fileID: 320, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+    - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
+        type: 3}
+      propertyPath: weaponsPrefabs.Array.data[1]
+      value: 
+      objectReference: {fileID: 319, guid: 7f76b63222a574a4ba64ba2451b768ee, type: 3}
+    - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
+        type: 3}
+      propertyPath: dividingWallPrefab
+      value: 
+      objectReference: {fileID: 324, guid: 133dbba72a6b21745b71d1c4289bf0fe, type: 3}
+    - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
+        type: 3}
+      propertyPath: unityChanPrefab
+      value: 
+      objectReference: {fileID: 100326, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}
+    - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
+        type: 3}
+      propertyPath: kyleRobotPrefab
+      value: 
+      objectReference: {fileID: 5137182916392717761, guid: f529f65c39039e74bbd223fd27fbab43,
+        type: 3}
     - target: {fileID: 5624805370660292501, guid: 7ac2123401479ef47a6d48780e05ab48,
         type: 3}
       propertyPath: m_LocalPosition.x

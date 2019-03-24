@@ -26,6 +26,7 @@ public class PlayerData : MonoBehaviour
 
     public void SetName(string name)
     {
+
         Name = name;
     }
 
@@ -40,6 +41,7 @@ public class PlayerData : MonoBehaviour
         if(avatarChoice == 0)//use polymorphic behavior for better results. something like ...
         {
             AvatarChoice = "KyleRobot";
+            Debug.Log("Chose Kyle Robot");
         }
         else if (avatarChoice == 1)//use polymorphic behavior for better results. something like ...
         {
