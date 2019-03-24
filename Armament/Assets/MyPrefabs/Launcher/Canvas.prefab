@@ -162,7 +162,7 @@ RectTransform:
   m_Children:
   - {fileID: 1505039210626044842}
   m_Father: {fileID: 2087535014125025144}
-  m_RootOrder: 8
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
@@ -246,7 +246,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 8957913466493345736}
         m_MethodName: StartCloudUpdatePlayerStats
         m_Mode: 1
         m_Arguments:
@@ -371,7 +371,7 @@ RectTransform:
   - {fileID: 4979619736566409062}
   - {fileID: 9149433981645387065}
   m_Father: {fileID: 2087535014125025144}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -609,7 +609,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 8957913466493345736}
         m_MethodName: onClickLogin
         m_Mode: 1
         m_Arguments:
@@ -1070,7 +1070,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 8957913466493345736}
         m_MethodName: getUserPassword
         m_Mode: 0
         m_Arguments:
@@ -5402,9 +5402,9 @@ RectTransform:
   - {fileID: 2087535012954282871}
   - {fileID: 2087535013278429360}
   - {fileID: 2087535013562167696}
+  - {fileID: 319208026172968217}
   - {fileID: 1611468903835219574}
   - {fileID: 4406731179175270570}
-  - {fileID: 319208026172968217}
   m_Father: {fileID: 2087535013561930298}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5707,7 +5707,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 8957913466493345736}
         m_MethodName: getUsername
         m_Mode: 0
         m_Arguments:
@@ -6203,7 +6203,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 8957913466493345736}
         m_MethodName: closeLeaderboardPanel
         m_Mode: 1
         m_Arguments:
@@ -6993,7 +6993,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 8957913466493345736}
         m_MethodName: GetUserEmail
         m_Mode: 0
         m_Arguments:
@@ -7282,7 +7282,7 @@ RectTransform:
   m_Children:
   - {fileID: 8188225562267740068}
   m_Father: {fileID: 2087535014125025144}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
@@ -7366,7 +7366,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 8957913466493345736}
         m_MethodName: GetLeaderboard
         m_Mode: 1
         m_Arguments:
@@ -7712,7 +7712,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2754404389300935067
 RectTransform:
   m_ObjectHideFlags: 0
