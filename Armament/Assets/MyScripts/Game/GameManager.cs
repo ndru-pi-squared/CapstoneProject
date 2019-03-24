@@ -67,7 +67,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [Tooltip("List of locations where a weapon can be spawned")]
         [SerializeField] private Transform[] weaponSpawnPoints;
         [Tooltip("Data structure holding player data")] //notes:
-        [SerializeField] private GameObject PlayerData;//there may be some race conditions associated with using this as a serialized field. 
+        //[SerializeField] private GameObject PlayerData;//there may be some race conditions associated with using this as a serialized field. 
                                                        //probably going to need to do some checking as to whether or not this.IsMine 
                                                        //or hold an arraylist of character choices for each player in PlayerData and store on master?
                                                        //it makes more sense to me to take the data from each client (launcher UI) and have GameManager (master client? need clarification) load each avatar individually
@@ -77,8 +77,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region Private Fields
 
-        private GameObject unityChanPrefab;
-        private GameObject kyleRobotPrefab;
+        //private GameObject unityChanPrefab;
+        //private GameObject kyleRobotPrefab;
 
         // Debug flags
         private const bool DEBUG = true;
@@ -654,9 +654,27 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Tutorial comment: we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
             GameObject playerGO = PhotonNetwork.InstantiateSceneObject(this.PlayerPrefab.name, playerSpawnPoint.position, playerSpawnPoint.rotation, 0, new[] { (object)actorNumber, teamToJoin});
             //give FPS controller both models I guess? seems like there would be unnecessary amnts of memory stored, so maybe i can fix later
-            kyleRobotPrefab = playerGO.transform.GetChild(1).gameObject;
-            unityChanPrefab = playerGO.transform.GetChild(2).gameObject;
+            //here
+            //kyleRobotPrefab = playerGO.transform.GetChild(1).gameObject;
+            //unityChanPrefab = playerGO.transform.GetChild(2).gameObject;
+            //here
+            /*if (photonView.IsMine)
+            {
+                if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "KyleRobot")//TODO change hardcoded string 
+                {
+                    Debug.Log("GameManager: Player chose KyleRobot");
+                    unityChanPrefab.SetActive(false);//it's only doing it on the master
 
+                    //set animator to kyle robot, or maybe do nothing since he's the default
+                }
+                else if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "UnityChan")
+                {
+                    Debug.Log("GameManager: Player chose UnityChan");
+                    kyleRobotPrefab.SetActive(false);//it's only doing it on the master because this code is only called on the master client
+                    //set animator to unity chan
+                }
+            }*/
+            
             return playerGO;
         }
 
@@ -693,6 +711,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         void Awake()
         {
+            Debug.Log("Awake():");
             // Singleton!
             Instance = this;
         }
@@ -705,7 +724,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         void Start()
         {
-            Debug.Log("Avatar choice coming from Launcher scene into PlayerData: " + PlayerData.GetComponent<PlayerData>().GetAvatarChoice());
+            //Debug.Log("Start(): Avatar choice coming from Launcher scene into PlayerData: " + PlayerData.GetComponent<PlayerData>().GetAvatarChoice());
             if (PlayerPrefab == null)
             {
                 Debug.LogError("<Color=Red><a>Missing</a></Color> PlayerPrefab Reference. Please set it up in GameObject 'Game Manager'", this);
@@ -919,6 +938,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // If a client is asking master client to instantiate a new player for them...
             if (eventCode == InstantiatePlayer)
             {
+                Debug.Log("instantiate player event code in OnEvent() called");
                 // Get the photon player actor number of the player owned by the client who sent the request
                 // We'll use this actor number when instantiating the player GO on the network to identify who
                 // should own/control the player. 
@@ -941,20 +961,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 
                 // Instantiate player for client
                 GameObject playerGO = InstantiatePlayerForActor(teamToJoin, actorNumber);
-                //here
-                if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "KyleRobot")//TODO change hardcoded string 
-                {
-                    Debug.Log("GameManager: Player chose KyleRobot");
-                    unityChanPrefab.SetActive(false);
-
-                    //set animator to kyle robot, or maybe do nothing since he's the default
-                }
-                else if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "UnityChan")
-                {
-                    Debug.Log("GameManager: Player chose UnityChan");
-                    kyleRobotPrefab.SetActive(false);                                  
-                    //set animator to unity chan
-                }
+                
+                
                 // Transfer ownership of this player's photonview (and GameObject) to the client requesting a player be instantiated them
                 playerGO.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.CurrentRoom.GetPlayer(actorNumber));
             }

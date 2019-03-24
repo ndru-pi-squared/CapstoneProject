@@ -55,6 +55,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] int howFarToTossWeapon = 10;
         [Tooltip("The Player's UI GameObject Prefab")]
         [SerializeField] private bool usingPlayerUIPrefab = false; // needed to disable tutorial code... probably should removed with playerUiPrefab
+        [Tooltip("Player data stored from Launcher UI")]
+        [SerializeField] private GameObject PlayerData;
+        
 
         #endregion Private Serializable Fields
 
@@ -80,6 +83,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private ArrayList playerWeapons;
         private GameObject gunToBePickedUpGO; // stores a reference to the a gun we want to pick up
         private Vector3 activeGunPosition;
+        
         private int activeGunType; // keeps track of currently active gun's type 
         private int previousActiveGunType; // keeps track of previously active gun's type
         private Gun activeGun; // keeps track of active gun the active gun: a gun that is synced on network
@@ -87,9 +91,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private object[] instantiationData; // information that was linked with this Gun's GO when it was instantiated by the master client
         private bool selectingWeapon; // flag to keep track of whether user is trying to select a weapon
         private int weaponSelectionIndex; 
+        
+        private GameObject playerGO;
+        private GameObject unityChanPrefab;
+        private GameObject kyleRobotPrefab;
 
         #endregion
-        
+
         #region MonoBehaviour CallBacks
 
         /// <summary>
@@ -134,7 +142,25 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 GetComponentInChildren<Camera>().enabled = true;
                 GetComponentInChildren<AudioListener>().enabled = true;
                 GetComponentInChildren<FlareLayer>().enabled = true;
+                playerGO = PlayerManager.LocalPlayerInstance;
+                kyleRobotPrefab = playerGO.transform.GetChild(1).gameObject;
+                unityChanPrefab = playerGO.transform.GetChild(2).gameObject;
+                //if (photonView.IsMine)
+                
+                if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "KyleRobot")//TODO change hardcoded string 
+                {
+                    Debug.Log("GameManager: Player chose KyleRobot");
+                    unityChanPrefab.SetActive(false);//it's only doing it on the master
 
+                    //set animator to kyle robot, or maybe do nothing since he's the default
+                }
+                else if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "UnityChan")
+                {
+                    Debug.Log("GameManager: Player chose UnityChan");
+                    kyleRobotPrefab.SetActive(false);//it's only doing it on the master because this code is only called on the master client
+                                                        //set animator to unity chan
+                }
+                
                 // Disable scene cameras; we'll use player's first-person camera now
                 foreach (Camera cam in GameManager.Instance.sceneCameras)
                     cam.enabled = false;
@@ -161,7 +187,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         void Start()
         {
             if (DEBUG && DEBUG_Start) Debug.LogFormat("PlayerManager: Start() ");
-
+            Debug.Log("Start(): Avatar choice coming from Launcher scene into PlayerData: " + PlayerData.GetComponent<PlayerData>().GetAvatarChoice());
+ 
             audioSource = GetComponent<AudioSource>();
             if (!audioSource)
             {
