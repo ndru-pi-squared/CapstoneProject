@@ -321,6 +321,7 @@ MonoBehaviour:
   usingPlayerUIPrefab: 0
   PlayerData: {fileID: 5906270027394405360, guid: f87bb2e4516d56040bc605842136f53f,
     type: 3}
+  unityChan: {fileID: 100326, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}
 --- !u!114 &1907
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -579,7 +580,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 100308, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 13700000, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}
       propertyPath: m_AABB.m_Center.y

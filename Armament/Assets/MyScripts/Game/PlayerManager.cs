@@ -57,7 +57,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] private bool usingPlayerUIPrefab = false; // needed to disable tutorial code... probably should removed with playerUiPrefab
         [Tooltip("Player data stored from Launcher UI")]
         [SerializeField] private GameObject PlayerData;
-        
+        [Tooltip("Stores a ref to unityChan prefab in order to get the avatar")]
+        [SerializeField] private GameObject unityChan;//feels weird to store the entire gameobject just to get the avatar. temp solution
+
 
         #endregion Private Serializable Fields
 
@@ -95,7 +97,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private GameObject playerGO;
         private GameObject unityChanPrefab;
         private GameObject kyleRobotPrefab;
-
+        private Animator animator;
         #endregion
 
         #region MonoBehaviour CallBacks
@@ -145,6 +147,15 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 playerGO = PlayerManager.LocalPlayerInstance;
                 kyleRobotPrefab = playerGO.transform.GetChild(1).gameObject;
                 unityChanPrefab = playerGO.transform.GetChild(2).gameObject;
+                animator = this.gameObject.GetComponent<Animator>();
+                if(animator is null)
+                {
+                    Debug.Log("~~~~~~~~~~~~~~~~~~~animator is null");
+                }
+                else
+                {
+                    
+                }
                 //if (photonView.IsMine)
                 
                 if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "KyleRobot")//TODO change hardcoded string 
@@ -158,7 +169,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 {
                     Debug.Log("GameManager: Player chose UnityChan");
                     kyleRobotPrefab.SetActive(false);//it's only doing it on the master because this code is only called on the master client
-                                                        //set animator to unity chan
+                                                     //set animator to unity chan
+                    animator.runtimeAnimatorController = (RuntimeAnimatorController)Resources.Load("Animation/UnityChanLocomotions");//not sure if this will work w serializefield
+                    animator.avatar =  unityChan.GetComponent<Animator>().avatar;
+                    Debug.Log("\nunityChan childcount" + unityChan.transform.childCount + "\n");
+                    //get the unitychan prefab as gameobject. return last child
+
                 }
                 
                 // Disable scene cameras; we'll use player's first-person camera now
