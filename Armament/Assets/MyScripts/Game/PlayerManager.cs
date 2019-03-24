@@ -148,33 +148,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 kyleRobotPrefab = playerGO.transform.GetChild(1).gameObject;
                 unityChanPrefab = playerGO.transform.GetChild(2).gameObject;
                 animator = this.gameObject.GetComponent<Animator>();
-                if(animator is null)
-                {
-                    Debug.Log("~~~~~~~~~~~~~~~~~~~animator is null");
-                }
-                else
-                {
-                    
-                }
-                //if (photonView.IsMine)
-                
+                               
                 if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "KyleRobot")//TODO change hardcoded string 
                 {
                     Debug.Log("GameManager: Player chose KyleRobot");
-                    unityChanPrefab.SetActive(false);//it's only doing it on the master
+                    unityChanPrefab.SetActive(false);//it's only doing it on the local client
 
                     //set animator to kyle robot, or maybe do nothing since he's the default
                 }
                 else if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "UnityChan")
                 {
                     Debug.Log("GameManager: Player chose UnityChan");
-                    kyleRobotPrefab.SetActive(false);//it's only doing it on the master because this code is only called on the master client
-                                                     //set animator to unity chan
+                    kyleRobotPrefab.SetActive(false);//it's only doing it on the local client
                     animator.runtimeAnimatorController = (RuntimeAnimatorController)Resources.Load("Animation/UnityChanLocomotions");//not sure if this will work w serializefield
                     animator.avatar =  unityChan.GetComponent<Animator>().avatar;
-                    Debug.Log("\nunityChan childcount" + unityChan.transform.childCount + "\n");
-                    //get the unitychan prefab as gameobject. return last child
-
+                    //now i need to update this client with the info from all other clients.
                 }
                 
                 // Disable scene cameras; we'll use player's first-person camera now
