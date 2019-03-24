@@ -381,9 +381,9 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
+  m_ChildAlignment: 3
   m_Spacing: 0
-  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
   m_ChildControlHeight: 0
@@ -1750,31 +1750,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Play Button
       objectReference: {fileID: 0}
-    - target: {fileID: 5267978900346176654, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5267978900346176654, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 5267978900346176654, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: LeaveRoom
-      objectReference: {fileID: 0}
-    - target: {fileID: 5267978900346176654, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5267978900346176654, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
-        type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 2217058933116462194, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1880,31 +1855,6 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
-    - target: {fileID: 7321952599708574735, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
-        type: 3}
-      propertyPath: m_Text
-      value: Play
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: bd0cf1e5f3e8e484ab3e4613a8e23677, type: 3}
---- !u!224 &6254533080846971290 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 2217058933116462194, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
-    type: 3}
-  m_PrefabInstance: {fileID: 5190402868151277032}
-  m_PrefabAsset: {fileID: 0}
---- !u!1001 &8937606582256959086
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 8937606582062775799}
-    m_Modifications:
-    - target: {fileID: 734579987826221858, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
-        type: 3}
-      propertyPath: m_Name
-      value: Leave Button
-      objectReference: {fileID: 0}
     - target: {fileID: 5267978900346176654, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
@@ -1929,6 +1879,31 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7321952599708574735, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+        type: 3}
+      propertyPath: m_Text
+      value: Play
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: bd0cf1e5f3e8e484ab3e4613a8e23677, type: 3}
+--- !u!224 &6254533080846971290 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 2217058933116462194, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+    type: 3}
+  m_PrefabInstance: {fileID: 5190402868151277032}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8937606582256959086
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 8937606582062775799}
+    m_Modifications:
+    - target: {fileID: 734579987826221858, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+        type: 3}
+      propertyPath: m_Name
+      value: Leave Button
       objectReference: {fileID: 0}
     - target: {fileID: 2217058933116462194, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
         type: 3}
@@ -2034,6 +2009,31 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Pivot.y
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5267978900346176654, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5267978900346176654, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5267978900346176654, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: LeaveRoom
+      objectReference: {fileID: 0}
+    - target: {fileID: 5267978900346176654, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5267978900346176654, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bd0cf1e5f3e8e484ab3e4613a8e23677, type: 3}
