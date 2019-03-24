@@ -849,6 +849,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6988769529087483750, guid: 7ac2123401479ef47a6d48780e05ab48,
+        type: 3}
+      propertyPath: m_Name
+      value: Game Manager
+      objectReference: {fileID: 0}
     - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
         type: 3}
       propertyPath: spawnPoints.Array.size
@@ -999,17 +1004,17 @@ PrefabInstance:
         type: 3}
       propertyPath: weaponsPrefabs.Array.data[0]
       value: 
-      objectReference: {fileID: 321, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+      objectReference: {fileID: 349, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
     - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
         type: 3}
       propertyPath: weaponsPrefabs.Array.data[1]
       value: 
-      objectReference: {fileID: 320, guid: 7f76b63222a574a4ba64ba2451b768ee, type: 3}
+      objectReference: {fileID: 348, guid: 7f76b63222a574a4ba64ba2451b768ee, type: 3}
     - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
         type: 3}
       propertyPath: dividingWallPrefab
       value: 
-      objectReference: {fileID: 324, guid: 133dbba72a6b21745b71d1c4289bf0fe, type: 3}
+      objectReference: {fileID: 352, guid: 133dbba72a6b21745b71d1c4289bf0fe, type: 3}
     - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
         type: 3}
       propertyPath: unityChanPrefab
@@ -1025,12 +1030,7 @@ PrefabInstance:
         type: 3}
       propertyPath: PlayerPrefab
       value: 
-      objectReference: {fileID: 296, guid: ba81c471e15785649a4419c63472b492, type: 3}
-    - target: {fileID: 6988769529087483750, guid: 7ac2123401479ef47a6d48780e05ab48,
-        type: 3}
-      propertyPath: m_Name
-      value: Game Manager
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 345, guid: ba81c471e15785649a4419c63472b492, type: 3}
     - target: {fileID: 5624805370660292501, guid: 7ac2123401479ef47a6d48780e05ab48,
         type: 3}
       propertyPath: m_LocalPosition.x

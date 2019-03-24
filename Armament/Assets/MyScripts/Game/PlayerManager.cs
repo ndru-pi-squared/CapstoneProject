@@ -119,11 +119,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (DEBUG && DEBUG_Awake) Debug.LogFormat("PlayerManager: Awake() actorNumber = {0}, PhotonNetwork.LocalPlayer.ActorNumber = {1}", actorNumber, PhotonNetwork.LocalPlayer.ActorNumber);
 
             if (PhotonNetwork.LocalPlayer.ActorNumber == actorNumber) {
-                /*if (!photonView.IsMine)
-                {*/
+                //if (!photonView.IsMine)
+                //{
                     if (DEBUG && DEBUG_Awake) Debug.LogFormat("PlayerManager: Awake() Transferring ownership to PhotonNetwork.LocalPlayer = {0}", PhotonNetwork.LocalPlayer);
                     GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.LocalPlayer);
-                /*}*/
+                //}
                 
                 // #Important
                 // used in GameManager.cs: we keep track of the localPlayer instance to prevent instantiation when levels are synchronized
@@ -148,22 +148,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 kyleRobotPrefab = playerGO.transform.GetChild(1).gameObject;
                 unityChanPrefab = playerGO.transform.GetChild(2).gameObject;
                 animator = this.gameObject.GetComponent<Animator>();
-                               
-                if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "KyleRobot")//TODO change hardcoded string 
-                {
-                    Debug.Log("GameManager: Player chose KyleRobot");
-                    unityChanPrefab.SetActive(false);//it's only doing it on the local client
-
-                    //set animator to kyle robot, or maybe do nothing since he's the default
-                }
-                else if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "UnityChan")
-                {
-                    Debug.Log("GameManager: Player chose UnityChan");
-                    kyleRobotPrefab.SetActive(false);//it's only doing it on the local client
-                    animator.runtimeAnimatorController = (RuntimeAnimatorController)Resources.Load("Animation/UnityChanLocomotions");//not sure if this will work w serializefield
-                    animator.avatar =  unityChan.GetComponent<Animator>().avatar;
-                    //now i need to update this client with the info from all other clients.
-                }
+                //turn this into an RPC call similar to shoot?    
+                //something like photonView.RPC("Shoot", RpcTarget.All);
+                //previously the entire routine was just regular lines of code. not working as an rpc call either
+                photonView.RPC("SetAvatar", RpcTarget.All);
                 
                 // Disable scene cameras; we'll use player's first-person camera now
                 foreach (Camera cam in GameManager.Instance.sceneCameras)
@@ -1068,6 +1056,32 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Respawn
             Respawn();
+        }
+
+        [PunRPC]
+        void SetAvatar()//TODO: make this update on all clients not just mine. should be broadcasting the rpc but i guess not?
+        {
+            if (photonView.IsMine)
+            {
+                Transform playerMgrTransform = this.gameObject.transform;
+                if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "KyleRobot")//TODO change hardcoded string 
+                {
+                    Debug.Log("GameManager: Player chose KyleRobot");
+                    unityChanPrefab.SetActive(false);//it's only doing it on the local client
+                    playerMgrTransform.GetChild(2).gameObject.SetActive(false);//2 is the unity chan model, turn her off
+
+                    //set animator to kyle robot, or maybe do nothing since he's the default
+                }
+                else if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "UnityChan")
+                {
+                    Debug.Log("GameManager: Player chose UnityChan");
+                    //kyleRobotPrefab.SetActive(false);//it's only doing it on the local client
+                    playerMgrTransform.GetChild(1).gameObject.SetActive(false);//1 is kyle robot, turn him off
+                    animator.runtimeAnimatorController = (RuntimeAnimatorController)Resources.Load("Animation/UnityChanLocomotions");//the controller is significantly easier to get than the avatar
+                    animator.avatar = playerMgrTransform.GetChild(2).gameObject.GetComponent<Animator>().avatar;
+                    //PhotonView.Find(this.gameObject.GetPhotonView().ViewID).
+                }
+            }
         }
 
         #endregion RPC Methods
