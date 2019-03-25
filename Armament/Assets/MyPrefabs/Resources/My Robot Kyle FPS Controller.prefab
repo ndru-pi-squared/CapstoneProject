@@ -319,10 +319,9 @@ MonoBehaviour:
     type: 3}
   howFarToTossWeapon: 10
   usingPlayerUIPrefab: 0
-  PlayerData: {fileID: 5906270027394405360, guid: f87bb2e4516d56040bc605842136f53f,
+  playerData: {fileID: 5906270027394405360, guid: f87bb2e4516d56040bc605842136f53f,
     type: 3}
-  unityChan: {fileID: 100326, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}
---- !u!114 &2295
+--- !u!114 &1888
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

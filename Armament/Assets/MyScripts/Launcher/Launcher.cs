@@ -27,8 +27,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] private GameObject progressLabel;
         [SerializeField] private InputField roomNameInputField;
         [SerializeField] private ScrollRect existingRoomList;
+        [SerializeField] private GameObject playerData;
         [SerializeField] private Slider avatarSelectSlider;
-        [SerializeField] private GameObject PlayerData;
 
         /// <summary>
         /// The maximum number of players per room. When a room is full, it can't be joined by new players, and so new room will be created.
@@ -95,17 +95,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public int GetAvatarSliderValueFromSlider()
         {
-            if (avatarSelectSlider != null)
+            if(avatarSelectSlider != null)
             {
-                Debug.Log("Avatar slider value: " + avatarSliderValue);
-                return (int)avatarSelectSlider.value; //should be either 0 or 1
+                return (int)avatarSelectSlider.value;
             }
-            else
-            {
-                Debug.Log("Slider was null");
-            }
-
-            return -1; //not found. not exactly a fan of the hardcoded solution but it'll do for now
+            return -1;
         }
 
         /// <summary>
@@ -171,7 +165,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public void JoinRandomRoom()
         {
-            PlayerData.GetComponent<PlayerData>().SetAvatarChoice(GetAvatarSliderValueFromSlider());
+            playerData.GetComponent<PlayerData>().SetAvatarChoice(GetAvatarSliderValueFromSlider());
 
             if (PhotonNetwork.IsConnected)
             {
@@ -208,7 +202,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="expectedUsers">The expected users.</param>
         public void JoinOrCreateRoom(string[] expectedUsers)
         {
-            PlayerData.GetComponent<PlayerData>().SetAvatarChoice(GetAvatarSliderValueFromSlider());
+
+            playerData.GetComponent<PlayerData>().SetAvatarChoice(GetAvatarSliderValueFromSlider());
+
             Debug.Log("Launcher: JoinOrCreateRoom(string[] expectedUsers)");
             progressLabel.GetComponent<Text>().text = "Joining or Creating Room...";
 
