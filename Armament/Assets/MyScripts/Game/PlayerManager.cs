@@ -55,7 +55,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] int howFarToTossWeapon = 10;
         [Tooltip("The Player's UI GameObject Prefab")]
         [SerializeField] private bool usingPlayerUIPrefab = false; // needed to disable tutorial code... probably should removed with playerUiPrefab
-        
+
+        [Tooltip("")]
+        [SerializeField] private GameObject playerData;
+
         #endregion Private Serializable Fields
 
         #region Private Fields
@@ -74,7 +77,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_SwapGun = true;
         private const bool DEBUG_OnPhotonInstantiate = true;
         private const bool DEBUG_ProcessInputs = true;
-
+        private const bool DEBUG_SetAvatar = true;
+        
         private AudioSource audioSource;
 
         private ArrayList playerWeapons;
@@ -166,10 +170,38 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [PunRPC]
         public void SetAvatar()
         {
-            this.gameObject.GetComponent<Animator>().runtimeAnimatorController = (RuntimeAnimatorController)Resources.Load("Animation/UnityChanLocomotions");
-            Debug.Log(GetComponent<Animator>().avatar.name);
-            this.gameObject.GetComponent<Animator>().avatar = transform.Find("Model").GetComponentInChildren<Animator>().avatar;
+            if (photonView.IsMine)
+            {
+                Debug.LogFormat("PlayerManager: SetAvatar() playerData.GetComponent<PlayerData>().GetAvatarChoice() = {0}", playerData.GetComponent<PlayerData>().GetAvatarChoice());
+                // If user chooses kyle...
+                if (playerData.GetComponent<PlayerData>().GetAvatarChoice().Equals("KyleRobot"))
+                {
+                    // TODO: Deactivate unitychan
+                    if (DEBUG && DEBUG_SetAvatar) Debug.LogFormat("PlayerManager: SetAvatar() DEACTIVATING UNITYCHAN");
+                    transform.Find("Model/unitychan").gameObject.SetActive(false);
+                }
+                // If user chooses kyle...
+                else
+                {
+                    if (DEBUG && DEBUG_SetAvatar) Debug.LogFormat("PlayerManager: SetAvatar() ACTIVATING UNITYCHAN");
 
+                    // G
+                    this.gameObject.GetComponent<Animator>().runtimeAnimatorController = (RuntimeAnimatorController)Resources.Load("Animation/UnityChanLocomotions");
+
+
+                    Transform unitychanTransform = transform.Find("Model/unitychan");
+
+                    if (DEBUG && DEBUG_SetAvatar) Debug.LogFormat("PlayerManager: SetAvatar() unitychanTransform.name = {0}", unitychanTransform.name);
+
+                    if (unitychanTransform != null)
+                        this.gameObject.GetComponent<Animator>().avatar = unitychanTransform.GetComponent<Animator>().avatar;
+
+                    // Deactivate kyle
+                    if (DEBUG && DEBUG_SetAvatar) Debug.LogFormat("PlayerManager: SetAvatar() DEACTIVATING KYLE");
+                    Transform robotModelTransform = transform.Find("Model/Robot2");
+                    robotModelTransform.GetComponent<SkinnedMeshRenderer>().enabled = false;
+                }
+            }
         }
 
         /// <summary>
