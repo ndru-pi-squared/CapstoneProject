@@ -144,8 +144,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 GetComponentInChildren<AudioListener>().enabled = true;
                 GetComponentInChildren<FlareLayer>().enabled = true;
 
-
-                photonView.RPC("SetAvatar", RpcTarget.All);
+                string avatarChoice = playerData.GetComponent<PlayerData>().GetAvatarChoice();
+                Debug.LogFormat("PlayerManager: Awake() avatarChoice = {0}", avatarChoice);
+                photonView.RPC("SetAvatar", RpcTarget.AllBuffered, avatarChoice);
 
                 // Disable scene cameras; we'll use player's first-person camera now
                 foreach (Camera cam in GameManager.Instance.sceneCameras)
@@ -168,40 +169,42 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         [PunRPC]
-        public void SetAvatar()
+        public void SetAvatar(string avatarChoice)
         {
-            if (photonView.IsMine)
+            
+            Debug.LogFormat("PlayerManager: SetAvatar() avatarChoice = {0}, avatarChoice.Equals(\"KyleRobot\") = {1}", avatarChoice, avatarChoice.Equals("KyleRobot "));
+            // If user chooses kyle...
+            //if (playerData.GetComponent<PlayerData>().GetAvatarChoice().Equals("KyleRobot"))
+            if (avatarChoice.Equals("KyleRobot"))
             {
-                Debug.LogFormat("PlayerManager: SetAvatar() playerData.GetComponent<PlayerData>().GetAvatarChoice() = {0}", playerData.GetComponent<PlayerData>().GetAvatarChoice());
-                // If user chooses kyle...
-                if (playerData.GetComponent<PlayerData>().GetAvatarChoice().Equals("KyleRobot"))
-                {
-                    // TODO: Deactivate unitychan
-                    if (DEBUG && DEBUG_SetAvatar) Debug.LogFormat("PlayerManager: SetAvatar() DEACTIVATING UNITYCHAN");
-                    transform.Find("Model/unitychan").gameObject.SetActive(false);
-                }
-                // If user chooses kyle...
-                else
-                {
-                    if (DEBUG && DEBUG_SetAvatar) Debug.LogFormat("PlayerManager: SetAvatar() ACTIVATING UNITYCHAN");
-
-                    // G
-                    this.gameObject.GetComponent<Animator>().runtimeAnimatorController = (RuntimeAnimatorController)Resources.Load("Animation/UnityChanLocomotions");
-
-
-                    Transform unitychanTransform = transform.Find("Model/unitychan");
-
-                    if (DEBUG && DEBUG_SetAvatar) Debug.LogFormat("PlayerManager: SetAvatar() unitychanTransform.name = {0}", unitychanTransform.name);
-
-                    if (unitychanTransform != null)
-                        this.gameObject.GetComponent<Animator>().avatar = unitychanTransform.GetComponent<Animator>().avatar;
-
-                    // Deactivate kyle
-                    if (DEBUG && DEBUG_SetAvatar) Debug.LogFormat("PlayerManager: SetAvatar() DEACTIVATING KYLE");
-                    Transform robotModelTransform = transform.Find("Model/Robot2");
-                    robotModelTransform.GetComponent<SkinnedMeshRenderer>().enabled = false;
-                }
+                // TODO: Deactivate unitychan
+                if (DEBUG && DEBUG_SetAvatar) Debug.LogFormat("PlayerManager: SetAvatar() DEACTIVATING UNITYCHAN");
+                transform.Find("Model/unitychan").gameObject.SetActive(false);
             }
+            // If user chooses kyle...
+            else
+            {
+                if (DEBUG && DEBUG_SetAvatar) Debug.LogFormat("PlayerManager: SetAvatar() ACTIVATING UNITYCHAN");
+
+                // G
+                this.gameObject.GetComponent<Animator>().runtimeAnimatorController = (RuntimeAnimatorController)Resources.Load("Animation/UnityChanLocomotions");
+
+
+                Transform unitychanTransform = transform.Find("Model/unitychan");
+
+                if (DEBUG && DEBUG_SetAvatar) Debug.LogFormat("PlayerManager: SetAvatar() unitychanTransform.name = {0}", unitychanTransform.name);
+
+                if (unitychanTransform != null)
+                    this.gameObject.GetComponent<Animator>().avatar = unitychanTransform.GetComponent<Animator>().avatar;
+
+                // Deactivate kyle
+                if (DEBUG && DEBUG_SetAvatar) Debug.LogFormat("PlayerManager: SetAvatar() DEACTIVATING KYLE");
+                Transform robotModelTransform = transform.Find("Model/Robot2");
+                robotModelTransform.GetComponent<SkinnedMeshRenderer>().enabled = false;
+            }
+            /*if (photonView.IsMine)
+            {
+            }*/
         }
 
         /// <summary>
