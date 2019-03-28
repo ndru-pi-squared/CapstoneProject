@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 170076734}
-  m_IndirectSpecularColor: {r: 0.5444145, g: 0.50700045, b: 0.5242461, a: 1}
+  m_IndirectSpecularColor: {r: 0.5425668, g: 0.5047162, b: 0.52498007, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -996,41 +996,24 @@ PrefabInstance:
       objectReference: {fileID: 1335304274}
     - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
         type: 3}
-      propertyPath: PlayerData
+      propertyPath: PlayerPrefab
       value: 
-      objectReference: {fileID: 5906270027394405360, guid: f87bb2e4516d56040bc605842136f53f,
-        type: 3}
+      objectReference: {fileID: 357, guid: ba81c471e15785649a4419c63472b492, type: 3}
     - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
         type: 3}
       propertyPath: weaponsPrefabs.Array.data[0]
       value: 
-      objectReference: {fileID: 349, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+      objectReference: {fileID: 381, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
     - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
         type: 3}
       propertyPath: weaponsPrefabs.Array.data[1]
       value: 
-      objectReference: {fileID: 348, guid: 7f76b63222a574a4ba64ba2451b768ee, type: 3}
+      objectReference: {fileID: 380, guid: 7f76b63222a574a4ba64ba2451b768ee, type: 3}
     - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
         type: 3}
       propertyPath: dividingWallPrefab
       value: 
-      objectReference: {fileID: 352, guid: 133dbba72a6b21745b71d1c4289bf0fe, type: 3}
-    - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
-        type: 3}
-      propertyPath: unityChanPrefab
-      value: 
-      objectReference: {fileID: 100326, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}
-    - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
-        type: 3}
-      propertyPath: kyleRobotPrefab
-      value: 
-      objectReference: {fileID: 5137182916392717761, guid: f529f65c39039e74bbd223fd27fbab43,
-        type: 3}
-    - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
-        type: 3}
-      propertyPath: PlayerPrefab
-      value: 
-      objectReference: {fileID: 345, guid: ba81c471e15785649a4419c63472b492, type: 3}
+      objectReference: {fileID: 385, guid: 133dbba72a6b21745b71d1c4289bf0fe, type: 3}
     - target: {fileID: 5624805370660292501, guid: 7ac2123401479ef47a6d48780e05ab48,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1615,7 +1598,43 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6254533080846971290, guid: c7c20e00edc26bf49a9248816acf0c3e,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 6254533080846971290, guid: c7c20e00edc26bf49a9248816acf0c3e,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6254533080846971290, guid: c7c20e00edc26bf49a9248816acf0c3e,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 173
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7189985828892409515, guid: c7c20e00edc26bf49a9248816acf0c3e, type: 3}
     - {fileID: 7178821208609935229, guid: c7c20e00edc26bf49a9248816acf0c3e, type: 3}
+    - {fileID: 8212329934493216489, guid: c7c20e00edc26bf49a9248816acf0c3e, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: c7c20e00edc26bf49a9248816acf0c3e, type: 3}
+--- !u!1 &8937606582304413127 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4118805620668242635, guid: c7c20e00edc26bf49a9248816acf0c3e,
+    type: 3}
+  m_PrefabInstance: {fileID: 8937606582304413126}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8937606582304413128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8937606582304413127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf40a5e27e0b10745a205e3270238609, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponItemPrefab: {fileID: 8197309065436075343, guid: 1e929de24b7b16f48beacf49326bfadc,
+    type: 3}
