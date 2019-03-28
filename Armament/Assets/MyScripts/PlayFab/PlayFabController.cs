@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using Photon.Pun;
 using PlayFab;
 using PlayFab.ClientModels;
 using PlayFab.Json;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PlayFabController : MonoBehaviour
 {
@@ -16,6 +18,8 @@ public class PlayFabController : MonoBehaviour
     public GameObject addLoginPanel;
     public GameObject recoverButton;
     public SceneManager SM;
+    [Tooltip("The UI Label in the Authentication section to inform the user that the connection is in progress")]
+    [SerializeField] private GameObject authProgressLabel;
 
     private void OnEnable() {
         if (PlayFabController.PFC == null) {
@@ -66,28 +70,34 @@ public class PlayFabController : MonoBehaviour
     #region Login
     private void OnLoginSuccess(LoginResult result)
     {
+        authProgressLabel.GetComponent<Text>().text = "Login Success!";
         Debug.Log("Login Success!");
         PlayerPrefs.SetString("EMAIL", userEmail);
         PlayerPrefs.SetString("PASSWORD", userPassword);
         loginPanel.SetActive(false);
-        recoverButton.SetActive(false);
         getStats();
 
-        // Load the launcher scene
-        SceneManager.LoadScene(1);
+        //Move the camera to reveal the new input options
+        //var moveScript = GameObject.Find("Main Camera").GetComponent<CameraMove>();
+        //moveScript.MoveBack();
+        //instead, we will launch our Launcher scene
+        PhotonNetwork.LoadLevel("Launcher");//TODO: change hardcoded string
     }
 
     private void OnLoginMobileSuccess(LoginResult result)
     {
+        authProgressLabel.GetComponent<Text>().text = "Mobile Login Success!";
         Debug.Log("Mobile Login Success!");
         getStats();
         loginPanel.SetActive(false);
 
-        // Load the launcher scene
-        SceneManager.LoadScene(1);
+        //Move the camera to reveal the new input options
+        var moveScript = GameObject.Find("Main Camera").GetComponent<CameraMove>();
+        moveScript.MoveBack();
     }
 
     private void onRegisterSuccess(RegisterPlayFabUserResult result) {
+        authProgressLabel.GetComponent<Text>().text = "Registration Success!";
         Debug.Log("Registration Success!");
         PlayerPrefs.SetString("EMAIL", userEmail);
         PlayerPrefs.SetString("PASSWORD", userPassword);
@@ -96,8 +106,9 @@ public class PlayFabController : MonoBehaviour
         getStats();
         loginPanel.SetActive(false);
 
-        // Load the launcher scene
-        SceneManager.LoadScene(1);
+        //Move the camera to reveal the new input options
+        var moveScript = GameObject.Find("Main Camera").GetComponent<CameraMove>();
+        moveScript.MoveBack();
     }
 
     void OnDisplayName(UpdateUserTitleDisplayNameResult result) {
@@ -132,6 +143,7 @@ public class PlayFabController : MonoBehaviour
     }
 
     public void onClickLogin() {
+        authProgressLabel.GetComponent<Text>().text = "Authenticating...";
         var request = new LoginWithEmailAddressRequest { Email = userEmail, Password = userPassword };
         PlayFabClientAPI.LoginWithEmailAddress(request, OnLoginSuccess, OnLoginFailure);
     }
@@ -143,42 +155,42 @@ public class PlayFabController : MonoBehaviour
 
     public void openAddLogin() {
         addLoginPanel.SetActive(true);
+
+        //Move the camera to reveal the new input options
+        var moveScript = GameObject.Find("Main Camera").GetComponent<CameraMove>();
+        moveScript.MoveForward();
     }
 
     public void onClickAddLogin() {
-        var addLoginRequest = new AddUsernamePasswordRequest { Email = userEmail, Password = userPassword, Username = username };
-        PlayFabClientAPI.AddUsernamePassword(addLoginRequest, onAddLoginSuccess, onRegisterFailure);
+        addLoginPanel.SetActive(false);
+        var request = new LoginWithEmailAddressRequest { Email = userEmail, Password = userPassword };
+        PlayFabClientAPI.LoginWithEmailAddress(request, OnLoginSuccess, OnLoginFailure);
     }
 
     private void onAddLoginSuccess(AddUsernamePasswordResult result)
     {
+        authProgressLabel.GetComponent<Text>().text = "Login Success!";
         Debug.Log("Login Success!");
         PlayerPrefs.SetString("EMAIL", userEmail);
         PlayerPrefs.SetString("PASSWORD", userPassword);
         getStats();
         addLoginPanel.SetActive(false);
+
+        //Move the camera to reveal the new input options
+        var moveScript = GameObject.Find("Main Camera").GetComponent<CameraMove>();
+        moveScript.MoveBack();
     }
     #endregion Login
 
     #region PlayerStats
 
-    public int playerLevel;
-    public int gameLevel;
-
-    public int playerHealth;
-    public int playerDamage;
-
-    public int playerHighScore;
+    public int playerKillCount;
 
     public void setStats() { 
         PlayFabClientAPI.UpdatePlayerStatistics( new UpdatePlayerStatisticsRequest {
             // request.Statistics is a list, so multiple StatisticUpdate objects can be defined if required.
             Statistics = new List<StatisticUpdate> {
-            new StatisticUpdate { StatisticName = "PlayerLevel", Value = playerLevel },
-            new StatisticUpdate { StatisticName = "GameLevel", Value = gameLevel },
-            new StatisticUpdate { StatisticName = "PlayerHealth", Value = playerHealth },
-            new StatisticUpdate { StatisticName = "PlayerDamage", Value = playerDamage },
-            new StatisticUpdate { StatisticName = "PlayerHighScore", Value = playerHighScore },
+            new StatisticUpdate { StatisticName = "PlayerKillCount", Value = playerKillCount }
             }
         },
         result => { Debug.Log("User statistics updated"); },
@@ -200,20 +212,8 @@ public class PlayFabController : MonoBehaviour
         {
             Debug.Log("Statistic (" + eachStat.StatisticName + "): " + eachStat.Value);
             switch(eachStat.StatisticName) {
-                case "PlayerLevel":
-                    playerLevel = eachStat.Value;
-                    break;
-                case "GameLevel":
-                    gameLevel = eachStat.Value;
-                    break;
-                case "PlayerHealth":
-                    playerHealth = eachStat.Value;
-                    break;
-                case "PlayerDamage":
-                    playerDamage = eachStat.Value;
-                    break;
-                case "PlayerHighScore":
-                    playerHighScore = eachStat.Value;
+                case "PlayerKillCount":
+                    playerKillCount = eachStat.Value;
                     break;
             }
         }
@@ -225,11 +225,10 @@ public class PlayFabController : MonoBehaviour
         PlayFabClientAPI.ExecuteCloudScript(new ExecuteCloudScriptRequest()
         {
             FunctionName = "UpdatePlayerStats", // Arbitrary function name (must exist in your uploaded cloud.js file)
-            FunctionParameter = new { pLevel = playerLevel, gLevel = gameLevel, pHighScore = playerHighScore}, // The parameter provided to your function
+            FunctionParameter = new { pKillCount = playerKillCount}, // The parameter provided to your function
             GeneratePlayStreamEvent = true, // Optional - Shows this event in PlayStream
         }, OnCloudUpdateStats, OnErrorShared);
     }
-    // OnCloudHelloWorld defined in the next code block
 
 
     private static void OnCloudUpdateStats(ExecuteCloudScriptResult result)
@@ -256,7 +255,7 @@ public class PlayFabController : MonoBehaviour
 
     #region Leaderboard
     public void GetLeaderboard() {
-        var requestLeaderboard = new GetLeaderboardRequest { StartPosition = 0, StatisticName = "PlayerHighScore", MaxResultsCount = 20 };
+        var requestLeaderboard = new GetLeaderboardRequest { StartPosition = 0, StatisticName = "PlayerKillCount", MaxResultsCount = 20 };
         PlayFabClientAPI.GetLeaderboard(requestLeaderboard, onGetLeaderboard, onErrorLeaderboard);
     }
 
