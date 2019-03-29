@@ -202,6 +202,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient };
             SendOptions sendOptions = new SendOptions { Reliability = true };
             PhotonNetwork.RaiseEvent(InstantiatePlayer, content, raiseEventOptions, sendOptions);
+
+            //Create an AI player
+            //object[] content2 = new object[] { PhotonNetwork.LocalPlayer.ActorNumber };
+            //PhotonNetwork.RaiseEvent(InstantiatePlayer, content2, raiseEventOptions, sendOptions);
         }
 
         #endregion Public Methods
@@ -964,8 +968,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 
                 // Instantiate player for client
                 GameObject playerGO = InstantiatePlayerForActor(teamToJoin, actorNumber);
-                
-                
+
+                //Assign the newly created player to be the target of the enemy AI
+                var script = GameObject.Find("EnemyAI").GetComponent<EnemyAI>();
+                script.AssignTarget(playerGO.transform);
+
                 // Transfer ownership of this player's photonview (and GameObject) to the client requesting a player be instantiated them
                 playerGO.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.CurrentRoom.GetPlayer(actorNumber));
             }
