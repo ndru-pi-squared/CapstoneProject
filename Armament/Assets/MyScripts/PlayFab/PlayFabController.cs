@@ -74,12 +74,11 @@ public class PlayFabController : MonoBehaviour
         PlayerPrefs.SetString("EMAIL", userEmail);
         PlayerPrefs.SetString("PASSWORD", userPassword);
         loginPanel.SetActive(false);
-        recoverButton.SetActive(false);
         getStats();
 
         //Move the camera to reveal the new input options
         var moveScript = GameObject.Find("Main Camera").GetComponent<CameraMove>();
-        moveScript.Move();
+        moveScript.MoveBack();
     }
 
     private void OnLoginMobileSuccess(LoginResult result)
@@ -90,7 +89,7 @@ public class PlayFabController : MonoBehaviour
 
         //Move the camera to reveal the new input options
         var moveScript = GameObject.Find("Main Camera").GetComponent<CameraMove>();
-        moveScript.Move();
+        moveScript.MoveBack();
     }
 
     private void onRegisterSuccess(RegisterPlayFabUserResult result) {
@@ -101,7 +100,7 @@ public class PlayFabController : MonoBehaviour
 
         //Move the camera to reveal the new input options
         var moveScript = GameObject.Find("Main Camera").GetComponent<CameraMove>();
-        moveScript.Move();
+        moveScript.MoveBack();
     }
 
     #region Login
@@ -151,6 +150,72 @@ public class PlayFabController : MonoBehaviour
     void OnDisplayName(UpdateUserTitleDisplayNameResult result) {
         Debug.Log(result.DisplayName + " is your new display name");
     }
+
+    private void OnLoginFailure(PlayFabError error)
+    {
+        var registerRequest = new RegisterPlayFabUserRequest { Email = userEmail, Password = userPassword, Username = username};
+        PlayFabClientAPI.RegisterPlayFabUser(registerRequest, onRegisterSuccess, onRegisterFailure);
+    }
+
+    private void OnLoginMobileFailure(PlayFabError error)
+    {
+        Debug.Log(error.GenerateErrorReport());
+    }
+
+    private void onRegisterFailure(PlayFabError error) {
+        Debug.LogError(error.GenerateErrorReport());
+    }
+
+    public void GetUserEmail(string emailIn) {
+        userEmail = emailIn;
+    }
+
+    public void getUserPassword(string passwordIn) {
+        userPassword = passwordIn;
+    }
+
+    public void getUsername(string usernameIn) {
+        username = usernameIn;
+    }
+
+    public void onClickLogin() {
+        var request = new LoginWithEmailAddressRequest { Email = userEmail, Password = userPassword };
+        PlayFabClientAPI.LoginWithEmailAddress(request, OnLoginSuccess, OnLoginFailure);
+    }
+
+    public static string returnMobileID() {
+        string deviceID = SystemInfo.deviceUniqueIdentifier;
+        return deviceID;
+    }
+
+    public void openAddLogin() {
+        addLoginPanel.SetActive(true);
+
+        //Move the camera to reveal the new input options
+        var moveScript = GameObject.Find("Main Camera").GetComponent<CameraMove>();
+        moveScript.MoveForward();
+    }
+
+    public void onClickAddLogin() {
+        addLoginPanel.SetActive(false);
+
+        var request = new LoginWithEmailAddressRequest { Email = userEmail, Password = userPassword };
+        PlayFabClientAPI.LoginWithEmailAddress(request, OnLoginSuccess, OnLoginFailure);
+    }
+
+    private void onAddLoginSuccess(AddUsernamePasswordResult result)
+    {
+        Debug.Log("Login Success!");
+        PlayerPrefs.SetString("EMAIL", userEmail);
+        PlayerPrefs.SetString("PASSWORD", userPassword);
+        getStats();
+        addLoginPanel.SetActive(false);
+
+        //Move the camera to reveal the new input options
+        var moveScript = GameObject.Find("Main Camera").GetComponent<CameraMove>();
+        moveScript.MoveBack();
+    }
+    #endregion Login
 
     #region PlayerStats
 
