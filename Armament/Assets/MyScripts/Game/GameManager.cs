@@ -230,6 +230,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             //   to load this level on all connected clients in the room, since we've enabled PhotonNetwork.AutomaticallySyncScene for this Game.
             // Old code (from tutorial): 
             // - PhotonNetwork.LoadLevel("Room for " + PhotonNetwork.CurrentRoom.PlayerCount);
+
             PhotonNetwork.LoadLevel("Room for 1");
         }
 
@@ -781,7 +782,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public override void OnLeftRoom()
         {
             // Load the launcher scene
-            SceneManager.LoadScene(1);
+            SceneManager.LoadScene(0);
         }
 
         // Note: I think this function is called on every computer when someone enters the room except the person who is entering the room
