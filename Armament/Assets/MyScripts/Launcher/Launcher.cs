@@ -3,6 +3,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 { 
@@ -37,6 +38,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] private GameObject playerData;
         [SerializeField] private Slider avatarSelectSlider;
         [SerializeField] private Dropdown arenaFilterDropdown;
+        [Tooltip("Names of Unity Scenes that will be used as game arenas. Make sure you get the name exactly right!")]
+        [SerializeField] private string[] namesOfArenas;
+
 
         /// <summary>
         /// The maximum number of players per room. When a room is full, it can't be joined by new players, and so new room will be created.
@@ -45,8 +49,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] private byte maxPlayersPerRoom = 4;
 
         #endregion Private Serializable Fields
-            
+
         #region Private Fields
+
+        // Debug flags
+        private const bool DEBUG = true; // indicates whether we are debugging this class
+        private const bool DEBUG_JoinRandomRoom = true; 
 
         /// <summary>
         /// This client's version number. Users are separated from each other by gameVersion (which allows you to make breaking changes).
@@ -87,11 +95,26 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void Start()
         {
+            // If no arena names were specified in the inspector
+            if (namesOfArenas.Length == 0)
+            {
+                Debug.LogError("Launcher: Start() Names of Arenas were not set in inspector!");
+                return;
+            }
+
             //progressLabel.SetActive(false);
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;//frees up the cursor
             controlPanel.SetActive(true);
-                       
+            
+            // Add options to the arena filter dropdown based on the list of arenas specified on this script in the inspector
+            List<Dropdown.OptionData> arenaOptions = new List<Dropdown.OptionData>();
+            foreach (string arenaName in namesOfArenas)
+            {
+                arenaOptions.Add(new Dropdown.OptionData(arenaName));
+            }
+            arenaFilterDropdown.AddOptions(arenaOptions);
+
         }
 
 
@@ -178,6 +201,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Get the arena filter information
                 int arenaFilterIndex = arenaFilterDropdown.value;
                 string selectedArenaFilter = arenaFilterDropdown.options[arenaFilterIndex].text;
+
+                if (DEBUG && DEBUG_JoinRandomRoom) Debug.LogFormat("Launcher: JoinRandomRoom() arenaFilterIndex = {0}, selectedArenaFilter = {1}", arenaFilterIndex, selectedArenaFilter);
 
                 // If user does not want to filter arenas...
                 if (arenaFilterIndex == 0)
@@ -295,7 +320,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 else
                 {
                     //#Critical: The first we try to do is to join a potential existing room. If there is, good, else, we'll be called back with OnJoinRandomFailed()
-                    PhotonNetwork.JoinRandomRoom();
+                    //PhotonNetwork.JoinRandomRoom();
+                    // We need to call JoinRandomRoom back to finish its work
+                    JoinRandomRoom();
                 }
             }
         }
@@ -355,8 +382,16 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 int arenaFilterIndex = arenaFilterDropdown.value;
                 string selectedArenaFilter = arenaFilterDropdown.options[arenaFilterIndex].text;
 
-                // Set the level/arena to load
-                developmentOnly_levelToLoad = selectedArenaFilter;
+                // If user doesn't care what Arena is loaded
+                if (arenaFilterIndex == 0)
+                {
+                    developmentOnly_levelToLoad = namesOfArenas[new System.Random().Next(0, namesOfArenas.Length)];
+                }
+                else
+                {
+                    // Set the level/arena to load
+                    developmentOnly_levelToLoad = selectedArenaFilter;
+                }
 
                 progressLabel.GetComponent<Text>().text = "Loading the '" + developmentOnly_levelToLoad + "' map...";
 
