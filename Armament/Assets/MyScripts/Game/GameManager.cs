@@ -866,6 +866,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 // Reset player health
                 playerGO.GetComponent<PlayerManager>().ResetHealth();
+                // Reset player shield
+                playerGO.GetComponent<PlayerManager>().ResetShield();
             }
         }
 

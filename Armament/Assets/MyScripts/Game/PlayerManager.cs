@@ -31,6 +31,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public const string VALUE_TEAM_NAME_SPECT = "Spectator";
 
         public const int MAX_HEALTH = 100;
+        public const int MAX_SHIELD = 100;
 
         public static GameObject LocalPlayerInstance;
 
@@ -40,6 +41,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         [Tooltip("The current Health of our player")]
         public float Health = 100f;
+
+        [Tooltip("The current Health of our player")]
+        public float Shield = 100f;
+
+        [Tooltip("How many shield points to regenerate per second")]
+        public float ShieldRegenerationRate = 5f;
 
         #endregion
 
@@ -271,6 +278,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (photonView.IsMine)
             {
                 ProcessInputs();
+            }
+            
+            // Regenerate Shield
+            if (Shield < MAX_SHIELD)
+            {
+
+                //Shield = Mathf.Lerp(Shield, MAX_SHIELD, ShieldRegenerationRate/MAX_SHIELD * Time.deltaTime);
+                Shield += ShieldRegenerationRate * Time.deltaTime;
             }
         }
 
@@ -547,8 +562,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // If the player being damaged is the one this client owns...
             if (photonView.IsMine)
             {
-                Health -= amount;
-                
+                if (Shield > 0)
+                {
+                    // Player's Shield takes damage equal to amount of damage inflicted
+                    Shield -= amount;
+                    // Player's health takes damage proportional to the amount of shield they have left
+                    Health -= (1 - Shield/MAX_SHIELD) * amount;
+                }
+                else
+                {
+                    Health -= amount;
+                }
+
                 // If player should die...
                 if (Health <= 0)
                 {
@@ -574,6 +599,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             Health = MAX_HEALTH;
         }
 
+        /// <summary>
+        /// Resets health
+        /// </summary>
+        public void ResetShield()
+        {
+            Shield = MAX_SHIELD;
+        }
+
         public void MovePlayer(Transform t)
         {
             if (DEBUG && DEBUG_MovePlayer) Debug.LogFormat("PlayerManager: MovePlayer() t.position = {0}", t.position);
@@ -596,6 +629,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (photonView.IsMine)
             {
                 ResetHealth();
+                ResetShield();
 
                 // Temporary respawning action: Pretend the player has respawned by raising him in the air a bit
                 transform.GetComponent<FirstPersonController>().enabled = false; // disables the first person controller so 
@@ -1163,12 +1197,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 // We own this player: send the others our data
                 stream.SendNext(Health);
+                stream.SendNext(Shield);
             }
             // If this client doesn't own this player (specifically, the PhotonView component on this player)...
             else
             {
                 // Network player, receive data
                 this.Health = (float)stream.ReceiveNext();
+                this.Shield = (float)stream.ReceiveNext();
             }
         }
 
