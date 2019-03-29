@@ -857,6 +857,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 577088903627346121, guid: 3cbb55a0a4e29a940b7bdcf196af468e,
         type: 3}
+      propertyPath: namesOfArenas.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 577088903627346121, guid: 3cbb55a0a4e29a940b7bdcf196af468e,
+        type: 3}
       propertyPath: controlPanel
       value: 
       objectReference: {fileID: 2023223622}
@@ -890,6 +895,16 @@ PrefabInstance:
       propertyPath: arenaFilterDropdown
       value: 
       objectReference: {fileID: 1796420293}
+    - target: {fileID: 577088903627346121, guid: 3cbb55a0a4e29a940b7bdcf196af468e,
+        type: 3}
+      propertyPath: namesOfArenas.Array.data[0]
+      value: Simple Room
+      objectReference: {fileID: 0}
+    - target: {fileID: 577088903627346121, guid: 3cbb55a0a4e29a940b7bdcf196af468e,
+        type: 3}
+      propertyPath: namesOfArenas.Array.data[1]
+      value: Simple Room 2
+      objectReference: {fileID: 0}
     - target: {fileID: 577088903627346122, guid: 3cbb55a0a4e29a940b7bdcf196af468e,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1733,6 +1748,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_RootOrder
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8474288623567957754, guid: 95f993387ace9cd47979a5f55b28c48d,
+        type: 3}
+      propertyPath: m_Options.m_Options.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8474288623567957754, guid: 95f993387ace9cd47979a5f55b28c48d,
+        type: 3}
+      propertyPath: m_Options.m_Options.Array.data[1].m_Text
+      value: Simple Room 2
       objectReference: {fileID: 0}
     - target: {fileID: 2069518742280438004, guid: 95f993387ace9cd47979a5f55b28c48d,
         type: 3}
