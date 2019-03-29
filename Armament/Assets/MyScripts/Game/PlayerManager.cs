@@ -146,7 +146,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 string avatarChoice = playerData.GetComponent<PlayerData>().GetAvatarChoice();
                 Debug.LogFormat("PlayerManager: Awake() avatarChoice = {0}", avatarChoice);
-                photonView.RPC("SetAvatar", RpcTarget.AllBuffered, avatarChoice);
+                //photonView.RPC("SetAvatar", RpcTarget.AllBuffered, avatarChoice);
 
                 // Disable scene cameras; we'll use player's first-person camera now
                 foreach (Camera cam in GameManager.Instance.sceneCameras)
@@ -172,7 +172,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public void SetAvatar(string avatarChoice)
         {
             
-            Debug.LogFormat("PlayerManager: SetAvatar() avatarChoice = {0}, avatarChoice.Equals(\"KyleRobot\") = {1}", avatarChoice, avatarChoice.Equals("KyleRobot "));
+            /*Debug.LogFormat("PlayerManager: SetAvatar() avatarChoice = {0}, avatarChoice.Equals(\"KyleRobot\") = {1}", avatarChoice, avatarChoice.Equals("KyleRobot "));
             // If user chooses kyle...
             //if (playerData.GetComponent<PlayerData>().GetAvatarChoice().Equals("KyleRobot"))
             if (avatarChoice.Equals("KyleRobot"))
@@ -202,7 +202,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 Transform robotModelTransform = transform.Find("Model/Robot2");
                 robotModelTransform.GetComponent<SkinnedMeshRenderer>().enabled = false;
             }
-            /*if (photonView.IsMine)
+            //if (photonView.IsMine)
             {
             }*/
         }
@@ -213,7 +213,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         void Start()
         {
             if (DEBUG && DEBUG_Start) Debug.LogFormat("PlayerManager: Start() ");
-            Debug.Log("Start(): Avatar choice coming from Launcher scene into PlayerData: " + PlayerData.GetComponent<PlayerData>().GetAvatarChoice());
+            //Debug.Log("Start(): Avatar choice coming from Launcher scene into PlayerData: " + PlayerData.GetComponent<PlayerData>().GetAvatarChoice());
  
             audioSource = GetComponent<AudioSource>();
             if (!audioSource)
@@ -1096,7 +1096,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [PunRPC]
         void SetAvatar()//TODO: make this update on all clients not just mine. should be broadcasting the rpc but i guess not?
         {
-            if (photonView.IsMine)
+            /*if (photonView.IsMine)
             {
                 Transform playerMgrTransform = this.gameObject.transform;
                 if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "KyleRobot")//TODO change hardcoded string 
@@ -1116,7 +1116,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     animator.avatar = playerMgrTransform.GetChild(2).gameObject.GetComponent<Animator>().avatar;
                     //PhotonView.Find(this.gameObject.GetPhotonView().ViewID).
                 }
-            }
+            }*/
         }
 
         #endregion RPC Methods

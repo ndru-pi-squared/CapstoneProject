@@ -44,11 +44,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d77a52fe1dc331e43a3b28cb013eda24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerPrefab: {fileID: 275, guid: ba81c471e15785649a4419c63472b492, type: 3}
+  PlayerPrefab: {fileID: 100000, guid: ba81c471e15785649a4419c63472b492, type: 3}
   weaponsPrefabs:
-  - {fileID: 303, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
-  - {fileID: 301, guid: 7f76b63222a574a4ba64ba2451b768ee, type: 3}
-  dividingWallPrefab: {fileID: 307, guid: 133dbba72a6b21745b71d1c4289bf0fe, type: 3}
+  - {fileID: 381, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+  - {fileID: 380, guid: 7f76b63222a574a4ba64ba2451b768ee, type: 3}
+  dividingWallPrefab: {fileID: 385, guid: 133dbba72a6b21745b71d1c4289bf0fe, type: 3}
   environment: {fileID: 0}
   canvas: {fileID: 0}
   sceneCameras: []
