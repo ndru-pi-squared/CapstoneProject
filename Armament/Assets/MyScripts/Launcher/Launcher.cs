@@ -9,6 +9,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
     
     public class Launcher : MonoBehaviourPunCallbacks
     {
+        #region Public Fields
+
+        public const string KEY_ARENA_FILTER = "map";
+        public const string KEY_AI_FILTER = "ai";
+        
+        #endregion Public Fields
+
         #region Private Serializable Fields
 
         // *This variable is temporary and just to be used during early development. 
@@ -29,6 +36,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] private ScrollRect existingRoomList;
         [SerializeField] private GameObject playerData;
         [SerializeField] private Slider avatarSelectSlider;
+        [SerializeField] private Dropdown arenaFilterDropdown;
 
         /// <summary>
         /// The maximum number of players per room. When a room is full, it can't be joined by new players, and so new room will be created.
@@ -62,7 +70,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #endregion Private Fields
 
-
         #region MonoBehaviour CallBacks
 
         /// <summary>
@@ -89,8 +96,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
 
         #endregion
-
-
+        
         #region Public Methods
 
         public int GetAvatarSliderValueFromSlider()
@@ -169,17 +175,24 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             if (PhotonNetwork.IsConnected)
             {
-                progressLabel.GetComponent<Text>().text = "Joining Random Room...";
-                // #Critical we need at this point to attempt joining a Random Room. If it fails, we'll get notified in OnJoinRandomFailed() and we'll create one.
-                PhotonNetwork.JoinRandomRoom();
+                // Get the arena filter information
+                int arenaFilterIndex = arenaFilterDropdown.value;
+                string selectedArenaFilter = arenaFilterDropdown.options[arenaFilterIndex].text;
 
-                /*PlayerName = (InputField)GameObject.FindWithTag("PlayerName").GetComponent<InputField>();
-                Debug.Log("Launcher: JoinRandomRoom()");
-                if (PlayerName.text != "" || PlayerName.text != " ") //right now we're checking for either null or an accidental space. lets see if we can refine this
+                // If user does not want to filter arenas...
+                if (arenaFilterIndex == 0)
                 {
-                    
-                }*/
-                //else, tell user please enter name and reprompt?
+                    progressLabel.GetComponent<Text>().text = "Joining Random Room...";
+                    // Join random room with no filter
+                    PhotonNetwork.JoinRandomRoom();
+                }
+                // If user wants to filter arenas...
+                else
+                {
+                    progressLabel.GetComponent<Text>().text = "Joining Random Room... (Arena Filter = " + selectedArenaFilter + ")";
+                    // Join random room matching arena filter
+                    PhotonNetwork.JoinRandomRoom(new ExitGames.Client.Photon.Hashtable() { { KEY_ARENA_FILTER, arenaFilterIndex } }, 0);
+                }
             }
             else
             {
@@ -242,7 +255,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #endregion
 
-
         #region MonoBehaviourPunCallbacks Callbacks
 
         public override void OnJoinedLobby()
@@ -299,11 +311,33 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public override void OnJoinRandomFailed(short returnCode, string message)
         {
-            Debug.Log("PUN Basics Tutorial/Launcher:OnJoinRandomFailed() was called by PUN. No random room available, so we create one.\nCalling: PhotonNetwork.CreateRoom");
-            progressLabel.GetComponent<Text>().text = "No random room available, so we create one....";
-            
-            // #Critical: we failed to join a random room, maybe none exists or they are all full. No worries, we create a new room.
-            PhotonNetwork.CreateRoom(null, new RoomOptions { MaxPlayers = maxPlayersPerRoom });
+            //Debug.Log("PUN Basics Tutorial/Launcher:OnJoinRandomFailed() was called by PUN. No random room available, so we create one.\nCalling: PhotonNetwork.CreateRoom");
+
+
+            // Get the arena filter information
+            int arenaFilterIndex = arenaFilterDropdown.value;
+            string selectedArenaFilter = arenaFilterDropdown.options[arenaFilterIndex].text;
+
+            // If user does not want to filter arenas...
+            if (arenaFilterIndex == 0)
+            {
+                progressLabel.GetComponent<Text>().text = "No random room available. Creating new room...";
+
+                // #Critical: we failed to join a random room, maybe none exists or they are all full. No worries, we create a new room.
+                PhotonNetwork.CreateRoom(null, new RoomOptions { MaxPlayers = maxPlayersPerRoom });
+            }
+            // If user wants to filter arenas...
+            else
+            {
+                progressLabel.GetComponent<Text>().text = "No random room available. Creating new room... (Arena Filter = " + selectedArenaFilter + ")";
+
+                RoomOptions roomOptions = new RoomOptions();
+                roomOptions.CustomRoomPropertiesForLobby = new string[]{ KEY_ARENA_FILTER, KEY_AI_FILTER };
+                roomOptions.CustomRoomProperties = new ExitGames.Client.Photon.Hashtable() { { KEY_ARENA_FILTER, arenaFilterIndex } };
+                roomOptions.MaxPlayers = maxPlayersPerRoom;
+                PhotonNetwork.CreateRoom(null, roomOptions);
+            }
+
         }
 
         public override void OnJoinedRoom()
@@ -315,7 +349,16 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
             {
                 Debug.Log("We load the '"+ developmentOnly_levelToLoad + "'");
-                progressLabel.GetComponent<Text>().text = "Loading the '" + developmentOnly_levelToLoad  + "' map...";
+
+
+                // Get the arena filter information
+                int arenaFilterIndex = arenaFilterDropdown.value;
+                string selectedArenaFilter = arenaFilterDropdown.options[arenaFilterIndex].text;
+
+                // Set the level/arena to load
+                developmentOnly_levelToLoad = selectedArenaFilter;
+
+                progressLabel.GetComponent<Text>().text = "Loading the '" + developmentOnly_levelToLoad + "' map...";
 
                 // #Critical
                 // Load the Room Level.
