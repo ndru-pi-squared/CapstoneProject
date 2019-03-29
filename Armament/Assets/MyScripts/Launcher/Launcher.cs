@@ -385,7 +385,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // If user doesn't care what Arena is loaded
                 if (arenaFilterIndex == 0)
                 {
-                    developmentOnly_levelToLoad = namesOfArenas[new System.Random().Next(0, namesOfArenas.Length)];
+                    developmentOnly_levelToLoad = namesOfArenas[new System.Random().Next(0, namesOfArenas.Length-1)];
                 }
                 else
                 {
