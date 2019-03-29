@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class EnemyAI : MonoBehaviour
 {
-    public Transform target;
+    public Transform[] potentialTargets;
+    public Transform currentTarget;
     public float distance;
     public float lookAtDistance = 25.0f;
     public float attackRange = 15.0f;
@@ -20,7 +21,7 @@ public class EnemyAI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        distance = Vector3.Distance(target.position, transform.position);
+        distance = Vector3.Distance(currentTarget.position, transform.position);
 
         if (distance < lookAtDistance)
         {
@@ -42,7 +43,7 @@ public class EnemyAI : MonoBehaviour
 
     void LookAt()
     {
-        var rotation = Quaternion.LookRotation(target.position - transform.position);
+        var rotation = Quaternion.LookRotation(currentTarget.position - transform.position);
         transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * damping);
     }
 
@@ -52,6 +53,16 @@ public class EnemyAI : MonoBehaviour
     }
 
     public void AssignTarget(Transform t) {
-        target = t;
+        currentTarget = t;
+    }
+
+    public void AddTarget(Transform t) {
+        if (potentialTargets.Length == 0) {
+            potentialTargets[0] = t;
+        }
+        else {
+            int i = potentialTargets.Length - 1;
+            potentialTargets[i] = t;
+        } 
     }
 }
