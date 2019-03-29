@@ -7,8 +7,7 @@ public class CameraMove : MonoBehaviour
     public Transform target;
     public float distance;
     private float moveSpeed = 500.0f;
-    private bool timeToMoveBack = false;
-    private bool timeToMoveForward = false;
+    private bool timeToMove = false;
 
     // Start is called before the first frame update
     void Start()
@@ -21,26 +20,15 @@ public class CameraMove : MonoBehaviour
     {
         distance = Vector3.Distance(target.position, transform.position);
 
-        if (timeToMoveBack && distance > 5)
+        if (timeToMove && distance > 5)
         {
             transform.Translate(Vector3.back * moveSpeed * Time.deltaTime);
         }
-
-        else if (timeToMoveForward && distance < 940)
-        {
-            transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
-        }
     }
 
-    public void MoveBack()
+    public void Move()
     {
-        timeToMoveForward = false;
-        timeToMoveBack = true;
-    }
-
-    public void MoveForward() {
-        timeToMoveBack = false;
-        timeToMoveForward = true;
+        timeToMove = true;
     }
 
     public void AssignTarget(Transform t)
