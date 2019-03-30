@@ -881,12 +881,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void AddKill()
         {
+            //Add Kill to player's db stats
+            //var addKillScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
+            //addKillScript.IncrementKillCount();
+
             // Get current deaths for this player
             photonView.Owner.CustomProperties.TryGetValue(KEY_KILLS, out object value);
             int kills = (value == null) ? 0 : Convert.ToInt32(value);
 
             // Add a kill for this player
-            photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { {KEY_KILLS, ++kills} });
+            photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_KILLS, ++kills } });
+
 
             if (DEBUG) Debug.LogFormat("PlayerManager: AddKill() kills = {0}, photonView.Owner.NickName = {1}", kills, photonView.Owner.NickName);
         }
@@ -1015,6 +1020,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     StartCoroutine("DestroyCar", skyCar);
                 }
                 
+            }
+
+            if (Input.GetKeyUp(KeyCode.K))
+            {
+                if (photonView.IsMine)//network ismasterclient
+                {
+                    //Add Kill to player's db stats
+                    var addKillScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
+                    addKillScript.IncrementKillCount();
+                }
+
             }
 
             if (Input.GetKeyUp(KeyCode.Alpha1))
