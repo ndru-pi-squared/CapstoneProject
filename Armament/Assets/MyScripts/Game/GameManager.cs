@@ -38,7 +38,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #region Public Fields 
 
         [Tooltip("The prefab to use for representing the local player")]
-        public GameObject PlayerPrefab; // used to instantiate the player pref on PhotonNetwork
+        public GameObject PlayerPrefab1; // used to instantiate the player pref on PhotonNetwork
+        [Tooltip("The prefab to use for representing the local player")]
+        public GameObject PlayerPrefab2; // used to instantiate the player pref on PhotonNetwork
         [Tooltip("List of weapon prefabs for this game")]
         public GameObject[] weaponsPrefabs; // used to instantiate the weapons on PhotonNetwork
         [Tooltip("Prefab for the team dividing wall")]
@@ -66,13 +68,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] private Transform[] teamBPlayerSpawnPoints;
         [Tooltip("List of locations where a weapon can be spawned")]
         [SerializeField] private Transform[] weaponSpawnPoints;
-        [Tooltip("Data structure holding player data")] //notes:
-        //[SerializeField] private GameObject PlayerData;//there may be some race conditions associated with using this as a serialized field. 
-                                                       //probably going to need to do some checking as to whether or not this.IsMine 
-                                                       //or hold an arraylist of character choices for each player in PlayerData and store on master?
-                                                       //it makes more sense to me to take the data from each client (launcher UI) and have GameManager (master client? need clarification) load each avatar individually
-                                                       //maybe create another serializedfield for player prefab unity chan, so there would be 2, 3, ... ,n playerPrefabs that correspond to n avatars to potentially have in game
-                                                       //another way would be to take the My Robot FPS controller, leave it as the only one, and just turn off the robot model inside GameManager before it instantiates.
+
+        [Tooltip("")]
+        [SerializeField] private GameObject playerData;
+
         #endregion Private Serialized Fields
 
         #region Private Fields
@@ -96,7 +95,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_SpawnNewItems = false;
         private const bool DEBUG_Play = false;
         private const bool DEBUG_ResetPlayerPosition = false;
-        private const bool DEBUG_SpawnWall = true; 
+        private const bool DEBUG_SpawnWall = true;
 
         // Event codes
         private readonly byte InstantiatePlayer = 0;
@@ -198,14 +197,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // *** There is a chance the master client leaves before handling the event. I think that might be alright
             // *** since the user can click the Play button again. 
             if (DEBUG && DEBUG_Play) Debug.LogFormat("GameManager: Play() Sending request to master client for team to join");
-            object[] content = new object[] { PhotonNetwork.LocalPlayer.ActorNumber };
+
+            string teamPreference = playerData.GetComponent<PlayerData>().GetAvatarChoice(); // *** We'll take this information for now but PlayerData.cs should be changed
+
+            object[] content = new object[] { PhotonNetwork.LocalPlayer.ActorNumber, teamPreference };
             RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient };
             SendOptions sendOptions = new SendOptions { Reliability = true };
             PhotonNetwork.RaiseEvent(InstantiatePlayer, content, raiseEventOptions, sendOptions);
-
-            //Create an AI player
-            //object[] content2 = new object[] { PhotonNetwork.LocalPlayer.ActorNumber };
-            //PhotonNetwork.RaiseEvent(InstantiatePlayer, content2, raiseEventOptions, sendOptions);
         }
 
         #endregion Public Methods
@@ -391,7 +389,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         if (VALUE_VANISHED_ITEM.Equals((string)owner))
                         {
                             if (DEBUG && DEBUG_ReturnVanishedItems) Debug.LogFormat("GameManger: ReturnVanishedItems() owner = {0}", owner.ToString());
-                            
+
                             // The above code caused a fatal error that I couldn't figure out so for now I'm just going 
                             // to move the guns where players can't reach them. 
                             // (I already tried just disabling the photonView.gameObject but that didn't sync over the network.)
@@ -463,7 +461,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             int teamBCount = (teamBCountObject != null) ? Convert.ToInt32(teamBCountObject) : 0;
 
             // While teams are unbalanced...
-            while (teamACount - teamBCount  > 1 || teamBCount - teamACount > 1)
+            while (teamACount - teamBCount > 1 || teamBCount - teamACount > 1)
             {
                 // If Team A has more players than Team B...
                 if (teamACount > teamBCount)
@@ -622,7 +620,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 // Set the scale to match the "Simple Room" level size
                 dividingWallGO.gameObject.transform.localScale = new Vector3(1f, 40f, 200f);
-                if(DEBUG && DEBUG_SpawnWall) Debug.LogFormat("GameManager: SpawnWall() dividingWallGO.transform.position = {0}", dividingWallGO.transform.position);
+                if (DEBUG && DEBUG_SpawnWall) Debug.LogFormat("GameManager: SpawnWall() dividingWallGO.transform.position = {0}", dividingWallGO.transform.position);
             }
         }
 
@@ -656,8 +654,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 teamAPlayerSpawnPoints[new System.Random().Next(teamAPlayerSpawnPoints.Length)] :
                 teamBPlayerSpawnPoints[new System.Random().Next(teamBPlayerSpawnPoints.Length)];
 
+            GameObject playerPrefab = addPlayerToTeamA ? PlayerPrefab1 : PlayerPrefab2;
+
             // Tutorial comment: we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
-            GameObject playerGO = PhotonNetwork.InstantiateSceneObject(this.PlayerPrefab.name, playerSpawnPoint.position, playerSpawnPoint.rotation, 0, new[] { (object)actorNumber, teamToJoin});
+            GameObject playerGO = PhotonNetwork.InstantiateSceneObject(playerPrefab.name, playerSpawnPoint.position, playerSpawnPoint.rotation, 0, new[] { (object)actorNumber, teamToJoin });
             //give FPS controller both models I guess? seems like there would be unnecessary amnts of memory stored, so maybe i can fix later
             //here
             //kyleRobotPrefab = playerGO.transform.GetChild(1).gameObject;
@@ -679,7 +679,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     //set animator to unity chan
                 }
             }*/
-            
+
             return playerGO;
         }
 
@@ -729,12 +729,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         void Start()
         {
-            //Debug.Log("Start(): Avatar choice coming from Launcher scene into PlayerData: " + PlayerData.GetComponent<PlayerData>().GetAvatarChoice());
-            if (PlayerPrefab == null)
+            if (PlayerPrefab1 == null)
             {
-                Debug.LogError("<Color=Red><a>Missing</a></Color> PlayerPrefab Reference. Please set it up in GameObject 'Game Manager'", this);
+                Debug.LogError("<Color=Red><a>Missing</a></Color> PlayerPrefab1 Reference. Please set it up in GameObject 'Game Manager'", this);
                 return;
             }
+            if (PlayerPrefab2 == null)
+            {
+                Debug.LogError("<Color=Red><a>Missing</a></Color> PlayerPrefab2 Reference. Please set it up in GameObject 'Game Manager'", this);
+                return;
+            }
+
             /** Note from tutorial:
                 *  With this, we now only instantiate if the PlayerManager doesn't have a reference to an existing instance of localPlayer
                 */
@@ -779,7 +784,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #endregion MonoBehaviour Callbacks
 
         #region MonoBehaviourPun Callbacks
-        
+
         ///<summary>
         /// Called when the local player left the room. We need to load the launcher scene.
         /// </summary>
@@ -793,12 +798,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public override void OnPlayerEnteredRoom(Player other)
         {
             // Tutorial comment: not seen if you're the player connecting
-            if (DEBUG) Debug.LogFormat("OnPlayerEnteredRoom() {0}", other.NickName); 
+            if (DEBUG) Debug.LogFormat("OnPlayerEnteredRoom() {0}", other.NickName);
 
             if (PhotonNetwork.IsMasterClient)
             {
                 // Tutorial comment: called before OnPlayerLeftRoom
-                if (DEBUG) Debug.LogFormat("OnPlayerEnteredRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient); 
+                if (DEBUG) Debug.LogFormat("OnPlayerEnteredRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient);
             }
         }
 
@@ -806,7 +811,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public override void OnPlayerLeftRoom(Player other)
         {
             Debug.LogFormat("OnPlayerLeftRoom() {0}", other.NickName); //seen when other disconnects
-            
+
             // All clients: destroy the game object (avatar) of the player who left
             Destroy((GameObject)other.TagObject);
 
@@ -814,10 +819,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 // Tutorial comment: called before OnPlayerLeftRoom
                 Debug.LogFormat("OnPlayerLeftRoom IsMasterClient {0}", PhotonNetwork.IsMasterClient);
-                
+
                 // Remove Gun ownership properties from the CurrentRoom.CustomProperties for the player who left
                 RemoveGunOwnerships(other);
-                
+
                 // Get team the player is on (we expect teamName != null after this call)
                 other.CustomProperties.TryGetValue(PlayerManager.KEY_TEAM, out object teamName);
 
@@ -955,6 +960,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 object[] data = (object[])photonEvent.CustomData;
                 int actorNumber = (int)data[0];
 
+                string teamPreference = (string)data[1] == "KyleRobot" ? PlayerManager.VALUE_TEAM_NAME_A : PlayerManager.VALUE_TEAM_NAME_B;
+
                 if (DEBUG) Debug.LogFormat("GameManager: OnEvent() Got a request to choose a team for player with actorNumber = {0}", actorNumber);
 
                 // Get the size of Team A and size of Team B
@@ -964,14 +971,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 int teamBCount = (teamBCountObject != null) ? Convert.ToInt32(teamBCountObject) : 0;
 
                 // Figure out what team the player should join
-                string teamToJoin = (teamBCount < teamACount) ? PlayerManager.VALUE_TEAM_NAME_B: PlayerManager.VALUE_TEAM_NAME_A;
-                
+                string teamToJoin = teamBCount < teamACount ? PlayerManager.VALUE_TEAM_NAME_B : PlayerManager.VALUE_TEAM_NAME_A;
+                teamToJoin = teamBCount == teamACount ? teamPreference : teamToJoin;
+
                 // Instantiate player for client
                 GameObject playerGO = InstantiatePlayerForActor(teamToJoin, actorNumber);
 
-                //Assign the newly created player to be one of the targets of the enemy AI
-                var script = GameObject.Find("EnemyAI").GetComponent<EnemyAI>();
-                script.AddTarget(playerGO.transform);
 
                 // Transfer ownership of this player's photonview (and GameObject) to the client requesting a player be instantiated them
                 playerGO.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.CurrentRoom.GetPlayer(actorNumber));
