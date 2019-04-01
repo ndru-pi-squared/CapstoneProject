@@ -44,7 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d77a52fe1dc331e43a3b28cb013eda24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerPrefab: {fileID: 100000, guid: ba81c471e15785649a4419c63472b492, type: 3}
+  PlayerPrefab1: {fileID: 357, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
+  PlayerPrefab2: {fileID: 357, guid: 42f8eb1b658ad7045b68699a8c322132, type: 3}
   weaponsPrefabs:
   - {fileID: 381, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
   - {fileID: 380, guid: 7f76b63222a574a4ba64ba2451b768ee, type: 3}
@@ -58,6 +59,8 @@ MonoBehaviour:
   teamAPlayerSpawnPoints: []
   teamBPlayerSpawnPoints: []
   weaponSpawnPoints: []
+  playerData: {fileID: 5906270027394405360, guid: c6c749e8608a44271a8a1c8e2e9922d0,
+    type: 3}
 --- !u!114 &312477208123618658
 MonoBehaviour:
   m_ObjectHideFlags: 0
