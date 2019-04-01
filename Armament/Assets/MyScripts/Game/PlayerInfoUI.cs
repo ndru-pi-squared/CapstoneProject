@@ -18,17 +18,16 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         [Tooltip("UI Slider to display Player's Health")]
         [SerializeField] private Slider playerHealthSlider;
-        
+
+        [Tooltip("UI Slider to display Player's Shield")]
+        [SerializeField] private Slider playerShieldSlider;
+
         private PlayerManager target;
         
         #endregion
 
         #region MonoBehaviour Callbacks
         
-        void Awake()
-        {
-        }
-
         void Update()
         {
             // Reflect the Player Health
@@ -38,7 +37,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 playerHealthSlider.value = target.Health;
             }
 
-
+            // Reflect the Player Shield
+            if (playerShieldSlider != null && target != null)
+            {
+                //Debug.LogFormat("PlayerInfoUI: Update() targert = {0}", target);
+                playerShieldSlider.value = target.Shield;
+            }
         }
 
         #endregion
@@ -69,7 +73,5 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         #endregion
-
-
     }
 }

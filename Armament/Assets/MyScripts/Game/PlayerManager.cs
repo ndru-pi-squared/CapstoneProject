@@ -31,6 +31,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public const string VALUE_TEAM_NAME_SPECT = "Spectator";
 
         public const int MAX_HEALTH = 100;
+        public const int MAX_SHIELD = 100;
 
         public static GameObject LocalPlayerInstance;
 
@@ -40,6 +41,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         [Tooltip("The current Health of our player")]
         public float Health = 100f;
+
+        [Tooltip("The current Health of our player")]
+        public float Shield = 100f;
+
+        [Tooltip("How many shield points to regenerate per second")]
+        public float ShieldRegenerationRate = 5f;
 
         #endregion
 
@@ -55,11 +62,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] int howFarToTossWeapon = 10;
         [Tooltip("The Player's UI GameObject Prefab")]
         [SerializeField] private bool usingPlayerUIPrefab = false; // needed to disable tutorial code... probably should removed with playerUiPrefab
-        [Tooltip("Player data stored from Launcher UI")]
-        [SerializeField] private GameObject PlayerData;
-        [Tooltip("Stores a ref to unityChan prefab in order to get the avatar")]
-        [SerializeField] private GameObject unityChan;//feels weird to store the entire gameobject just to get the avatar. temp solution
 
+        [Tooltip("")]
+        [SerializeField] private GameObject playerData;
 
         #endregion Private Serializable Fields
 
@@ -79,7 +84,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_SwapGun = true;
         private const bool DEBUG_OnPhotonInstantiate = true;
         private const bool DEBUG_ProcessInputs = true;
-
+        private const bool DEBUG_SetAvatar = true;
+        
         private AudioSource audioSource;
 
         private ArrayList playerWeapons;
@@ -144,15 +150,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 GetComponentInChildren<Camera>().enabled = true;
                 GetComponentInChildren<AudioListener>().enabled = true;
                 GetComponentInChildren<FlareLayer>().enabled = true;
-                playerGO = PlayerManager.LocalPlayerInstance;
-                kyleRobotPrefab = playerGO.transform.GetChild(1).gameObject;
-                unityChanPrefab = playerGO.transform.GetChild(2).gameObject;
-                animator = this.gameObject.GetComponent<Animator>();
-                //turn this into an RPC call similar to shoot?    
-                //something like photonView.RPC("Shoot", RpcTarget.All);
-                //previously the entire routine was just regular lines of code. not working as an rpc call either
-                photonView.RPC("SetAvatar", RpcTarget.All);
-                
+
+                string avatarChoice = playerData.GetComponent<PlayerData>().GetAvatarChoice();
+                Debug.LogFormat("PlayerManager: Awake() avatarChoice = {0}", avatarChoice);
+                //photonView.RPC("SetAvatar", RpcTarget.AllBuffered, avatarChoice);
+
                 // Disable scene cameras; we'll use player's first-person camera now
                 foreach (Camera cam in GameManager.Instance.sceneCameras)
                     cam.enabled = false;
@@ -173,13 +175,52 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             DisableActiveGunCollider();
         }
 
+        [PunRPC]
+        public void SetAvatar(string avatarChoice)
+        {
+            
+            /*Debug.LogFormat("PlayerManager: SetAvatar() avatarChoice = {0}, avatarChoice.Equals(\"KyleRobot\") = {1}", avatarChoice, avatarChoice.Equals("KyleRobot "));
+            // If user chooses kyle...
+            //if (playerData.GetComponent<PlayerData>().GetAvatarChoice().Equals("KyleRobot"))
+            if (avatarChoice.Equals("KyleRobot"))
+            {
+                // TODO: Deactivate unitychan
+                if (DEBUG && DEBUG_SetAvatar) Debug.LogFormat("PlayerManager: SetAvatar() DEACTIVATING UNITYCHAN");
+                transform.Find("Model/unitychan").gameObject.SetActive(false);
+            }
+            // If user chooses kyle...
+            else
+            {
+                if (DEBUG && DEBUG_SetAvatar) Debug.LogFormat("PlayerManager: SetAvatar() ACTIVATING UNITYCHAN");
+
+                // G
+                this.gameObject.GetComponent<Animator>().runtimeAnimatorController = (RuntimeAnimatorController)Resources.Load("Animation/UnityChanLocomotions");
+
+
+                Transform unitychanTransform = transform.Find("Model/unitychan");
+
+                if (DEBUG && DEBUG_SetAvatar) Debug.LogFormat("PlayerManager: SetAvatar() unitychanTransform.name = {0}", unitychanTransform.name);
+
+                if (unitychanTransform != null)
+                    this.gameObject.GetComponent<Animator>().avatar = unitychanTransform.GetComponent<Animator>().avatar;
+
+                // Deactivate kyle
+                if (DEBUG && DEBUG_SetAvatar) Debug.LogFormat("PlayerManager: SetAvatar() DEACTIVATING KYLE");
+                Transform robotModelTransform = transform.Find("Model/Robot2");
+                robotModelTransform.GetComponent<SkinnedMeshRenderer>().enabled = false;
+            }
+            //if (photonView.IsMine)
+            {
+            }*/
+        }
+
         /// <summary>
         /// MonoBehaviour method called on GameObject by Unity during initialization phase.
         /// </summary>
         void Start()
         {
             if (DEBUG && DEBUG_Start) Debug.LogFormat("PlayerManager: Start() ");
-            Debug.Log("Start(): Avatar choice coming from Launcher scene into PlayerData: " + PlayerData.GetComponent<PlayerData>().GetAvatarChoice());
+            //Debug.Log("Start(): Avatar choice coming from Launcher scene into PlayerData: " + PlayerData.GetComponent<PlayerData>().GetAvatarChoice());
  
             audioSource = GetComponent<AudioSource>();
             if (!audioSource)
@@ -237,6 +278,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (photonView.IsMine)
             {
                 ProcessInputs();
+            }
+            
+            // Regenerate Shield
+            if (Shield < MAX_SHIELD)
+            {
+
+                //Shield = Mathf.Lerp(Shield, MAX_SHIELD, ShieldRegenerationRate/MAX_SHIELD * Time.deltaTime);
+                Shield += ShieldRegenerationRate * Time.deltaTime;
             }
         }
 
@@ -513,8 +562,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // If the player being damaged is the one this client owns...
             if (photonView.IsMine)
             {
-                Health -= amount;
-                
+                if (Shield > 0)
+                {
+                    // Player's Shield takes damage equal to amount of damage inflicted
+                    Shield -= amount;
+                    // Player's health takes damage proportional to the amount of shield they have left
+                    Health -= (1 - Shield/MAX_SHIELD) * amount;
+                }
+                else
+                {
+                    Health -= amount;
+                }
+
                 // If player should die...
                 if (Health <= 0)
                 {
@@ -540,6 +599,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             Health = MAX_HEALTH;
         }
 
+        /// <summary>
+        /// Resets health
+        /// </summary>
+        public void ResetShield()
+        {
+            Shield = MAX_SHIELD;
+        }
+
         public void MovePlayer(Transform t)
         {
             if (DEBUG && DEBUG_MovePlayer) Debug.LogFormat("PlayerManager: MovePlayer() t.position = {0}", t.position);
@@ -562,6 +629,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (photonView.IsMine)
             {
                 ResetHealth();
+                ResetShield();
 
                 // Temporary respawning action: Pretend the player has respawned by raising him in the air a bit
                 transform.GetComponent<FirstPersonController>().enabled = false; // disables the first person controller so 
@@ -694,6 +762,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         void UpdateWeaponsMenu()
         {
+            Debug.LogFormat("PlayerManager: UpdateWeaponsMenu()");
             Transform t = GameManager.Instance.canvas.transform.Find("Weapon Inventory Menu");
 
             t.GetComponent<WeaponsMenuManager>().UpdateWeaponInventoryMenu();
@@ -812,12 +881,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void AddKill()
         {
+            //Add Kill to player's db stats
+            //var addKillScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
+            //addKillScript.IncrementKillCount();
+
             // Get current deaths for this player
             photonView.Owner.CustomProperties.TryGetValue(KEY_KILLS, out object value);
             int kills = (value == null) ? 0 : Convert.ToInt32(value);
 
             // Add a kill for this player
-            photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { {KEY_KILLS, ++kills} });
+            photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_KILLS, ++kills } });
+
 
             if (DEBUG) Debug.LogFormat("PlayerManager: AddKill() kills = {0}, photonView.Owner.NickName = {1}", kills, photonView.Owner.NickName);
         }
@@ -948,6 +1022,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 
             }
 
+            if (Input.GetKeyUp(KeyCode.K))
+            {
+                if (photonView.IsMine)//network ismasterclient
+                {
+                    //Add Kill to player's db stats
+                    var addKillScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
+                    addKillScript.IncrementKillCount();
+                }
+
+            }
+
             if (Input.GetKeyUp(KeyCode.Alpha1))
             {
                 // Call the [PunRPC] Shoot method over photon network
@@ -1061,7 +1146,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [PunRPC]
         void SetAvatar()//TODO: make this update on all clients not just mine. should be broadcasting the rpc but i guess not?
         {
-            if (photonView.IsMine)
+            /*if (photonView.IsMine)
             {
                 Transform playerMgrTransform = this.gameObject.transform;
                 if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "KyleRobot")//TODO change hardcoded string 
@@ -1081,7 +1166,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     animator.avatar = playerMgrTransform.GetChild(2).gameObject.GetComponent<Animator>().avatar;
                     //PhotonView.Find(this.gameObject.GetPhotonView().ViewID).
                 }
-            }
+            }*/
         }
 
         #endregion RPC Methods
@@ -1128,12 +1213,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 // We own this player: send the others our data
                 stream.SendNext(Health);
+                stream.SendNext(Shield);
             }
             // If this client doesn't own this player (specifically, the PhotonView component on this player)...
             else
             {
                 // Network player, receive data
                 this.Health = (float)stream.ReceiveNext();
+                this.Shield = (float)stream.ReceiveNext();
             }
         }
 

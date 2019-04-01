@@ -38,21 +38,17 @@ public class PlayerData : MonoBehaviour
     public void SetAvatarChoice(int avatarChoice)
     {
         Debug.Log("SetAvatarChoice test");
-        if(avatarChoice == 0)//use polymorphic behavior for better results. something like ...
+        
+        if (avatarChoice == 0)
         {
             AvatarChoice = "KyleRobot";
-            Debug.Log("Chose Kyle Robot");
         }
-        else if (avatarChoice == 1)//use polymorphic behavior for better results. something like ...
+        else if (avatarChoice == 1)
         {
             AvatarChoice = "UnityChan";
         }
-        else
-        {
-            Debug.Log("Error: avatar not found");
-        }
-        Debug.Log("SetAvatarChoice avatar Choice: " + AvatarChoice);
-       
+
+        //AvatarChoice = avatarChoice == 0 ? "KyleRobot" : "UnityChan";
     }
 
 }

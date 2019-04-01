@@ -137,7 +137,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
 
             if (localPlayerPM == null)
-                return;
+                localPlayerPM = PlayerManager.LocalPlayerInstance.GetComponent<PlayerManager>();
 
             // Find references to the player's weapon inventory
             Transform activeWeaponInventory = localPlayerPM.gameObject.transform.Find("FirstPersonCharacter/Active Weapon");
