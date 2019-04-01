@@ -7,6 +7,8 @@ TagManager:
   - SkyCar
   - Weapon
   - PlayerName
+  - Button
+  - InputField
   layers:
   - Default
   - TransparentFX
