@@ -85,7 +85,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_OnPhotonInstantiate = true;
         private const bool DEBUG_ProcessInputs = true;
         private const bool DEBUG_SetAvatar = true;
-        
+        private const bool DEBUG_TakeDamage = true; 
+
         private AudioSource audioSource;
 
         private ArrayList playerWeapons;
@@ -563,6 +564,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // If the player being damaged is the one this client owns...
             if (photonView.IsMine)
             {
+                if (GameManager.Instance.FriendlyFire == false && playerWhoCausedDamage.GetTeam().Equals(GetTeam()))
+                {
+                    if (DEBUG && DEBUG_TakeDamage) Debug.Log("PlayerManager: TakeDamage() Players are on same team. Not logging damage.");
+                    return;
+                }
+
                 if (Shield > 0)
                 {
                     // Player's Shield takes damage equal to amount of damage inflicted
