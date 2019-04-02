@@ -59,6 +59,7 @@ MonoBehaviour:
   teamAPlayerSpawnPoints: []
   teamBPlayerSpawnPoints: []
   weaponSpawnPoints: []
+  friendlyFire: 1
   playerData: {fileID: 5906270027394405360, guid: c6c749e8608a44271a8a1c8e2e9922d0,
     type: 3}
 --- !u!114 &312477208123618658
