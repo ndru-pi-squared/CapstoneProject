@@ -302,6 +302,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 {
                     if (DEBUG && DEBUG_OnTriggerEnter) Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with WEAPON with name \"{0}\"," +
                         " photonView.Owner.NickName = {1}", other.GetComponentInParent<Gun>().name, photonView.Owner.NickName);
+                    Debug.Log("Player collideed with something");
 
                     // Save a reference to the gun we want to pick up. We will need it later in OnRoomPropertiesUpdate() 
                     // to actually pick up the gun if we were successful in claiming ownership of the gun in this method
