@@ -21,7 +21,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         // Key references for the Player CustomProperties hash table (so we don't use messy string literals)
         public const string KEY_KILLS = "Kills";
         public const string KEY_DEATHS = "Deaths";
-        public const string KEY_ISALIVE = "IsAlive";
+        public const string KEY_MODE = "Mode"; 
         public const string KEY_TEAM = "Team";
         public const string KEY_ACTIVE_GUN = "Active Gun";
 
@@ -29,6 +29,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public const string VALUE_TEAM_NAME_A = "A";
         public const string VALUE_TEAM_NAME_B = "B";
         public const string VALUE_TEAM_NAME_SPECT = "Spectator";
+        public const string VALUE_MODE_ALIVE = "Alive";
+        public const string VALUE_MODE_DEAD_SPECT = "Dead_Spectator";
 
         public const int MAX_HEALTH = 100;
         public const int MAX_SHIELD = 100;
@@ -72,20 +74,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         // Debug flags
         private const bool DEBUG = true; // indicates whether we are debugging this class
-        private const bool DEBUG_Awake = true;
-        private const bool DEBUG_Start = true;
+        private const bool DEBUG_Awake = false;
+        private const bool DEBUG_Start = false;
         private const bool DEBUG_OnTriggerEnter = false;
         private const bool DEBUG_OnRoomPropertiesUpdate = false;
         private const bool DEBUG_OnPlayerPropertiesUpdate = false;
-        private const bool DEBUG_MovePlayer = false;
-        private const bool DEBUG_Respawn = false;
+        private const bool DEBUG_MovePlayer = true;
+        private const bool DEBUG_Respawn = true;
         private const bool DEBUG_SetActiveGun = false;
         private const bool DEBUG_DropGun = false;
-        private const bool DEBUG_SwapGun = true;
-        private const bool DEBUG_OnPhotonInstantiate = true;
-        private const bool DEBUG_ProcessInputs = true;
-        private const bool DEBUG_SetAvatar = true;
-        private const bool DEBUG_TakeDamage = true; 
+        private const bool DEBUG_SwapGun = false;
+        private const bool DEBUG_OnPhotonInstantiate = false;
+        private const bool DEBUG_ProcessInputs = false;
+        private const bool DEBUG_SetAvatar = false;
+        private const bool DEBUG_TakeDamage = false;
+        private const bool DEBUG_SetMode = true; 
 
         private AudioSource audioSource;
 
@@ -617,19 +620,27 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public void MovePlayer(Transform t)
         {
             if (DEBUG && DEBUG_MovePlayer) Debug.LogFormat("PlayerManager: MovePlayer() t.position = {0}", t.position);
-            // Temporary respawning action: Pretend the player has respawned by raising him in the air a bit
-            transform.GetComponent<FirstPersonController>().enabled = false; // disables the first person controller so 
-            transform.position = t.position;
-            transform.rotation = t.rotation;
+
+            /*
+            transform.GetComponent<FirstPersonController>().enabled = false; // disables the first person controller so we can manually move the player's position
+            //transform.position = t.position;
+            transform.localRotation = t.rotation;
+            GetComponentInChildren<Camera>().transform.localRotation = Quaternion.Euler(Vector3.zero);
             Update();
             transform.GetComponent<FirstPersonController>().enabled = true;
+            */
+
+            // Move the player to the target position
+            GetComponent<CharacterController>().Move(t.position - transform.position);
+
+            if (DEBUG && DEBUG_MovePlayer) Debug.LogFormat("PlayerManager: MovePlayer() transform.position = {0}", transform.position);
         }
 
         /// <summary>
         /// Right now, we just reset the health to 100% and act like nothing happened.
         /// Later, we'll figure out something better to do...
         /// </summary>
-        public void Respawn()
+        public void Respawn(Transform playerSpawnPoint)
         {
             if (DEBUG && DEBUG_Respawn) Debug.LogFormat("PlayerManager: Respawn() photonView.Owner.NickName = {0}", photonView.Owner.NickName);
 
@@ -638,29 +649,91 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 ResetHealth();
                 ResetShield();
 
+                /*
+                // If KEY_MODE is set in player's CustomProperties...
+                if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(KEY_MODE, out object modeValueProp))
+                {
+                    // If player is dead and spectating...
+                    if (VALUE_MODE_DEAD_SPECT.Equals((string)modeValueProp))
+                    {
+                        // Undo the changes we made to the player's GO in StartDeadSpectatorMode()
+                        StopDeadSpectatorMode();
+                    }
+                }
+                */
+
+                /*
                 // Temporary respawning action: Pretend the player has respawned by raising him in the air a bit
-                transform.GetComponent<FirstPersonController>().enabled = false; // disables the first person controller so 
+                transform.GetComponent<FirstPersonController>().enabled = false; // disables the first person controller so we can manually move the player's position
                 transform.position = transform.position + new Vector3(0f, 20f, 0f);
                 Update();
-                transform.GetComponent<FirstPersonController>().enabled = true;
+                transform.GetComponent<FirstPersonController>().enabled = true;*/
+                
+                // Move player to spawn point
+                MovePlayer(playerSpawnPoint);
             }
         }
-
-        #endregion Public Methods
-
-        #region Private Methods
-
-#if UNITY_5_4_OR_NEWER
-        void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode loadingMode)
+        
+        public void StartDeadSpectatorMode()
         {
-            this.CalledOnLevelWasLoaded(scene.buildIndex);
+            // Sync player's mode (whether they are alive or dead and spectating)
+            SetMode(VALUE_MODE_DEAD_SPECT);
+
+            // If we control this player...
+            if (photonView.IsMine)
+            {
+                // Enable scene cameras
+                foreach (Camera cam in GameManager.Instance.sceneCameras)
+                    cam.enabled = true;
+
+                // Disable all the controlling components for this player 
+                // The prefab has these components disabled so we won't be controlling other players with our input
+                GetComponent<Animator>().enabled = false;
+                GetComponent<CharacterController>().enabled = false;
+                GetComponent<AudioSource>().enabled = false;
+                GetComponent<FirstPersonController>().enabled = false;
+                GetComponent<PlayerAnimatorManager>().enabled = false;
+                //GetComponent<PlayerManager>().enabled = false;
+                GetComponentInChildren<Camera>().enabled = false;
+                GetComponentInChildren<AudioListener>().enabled = false;
+                GetComponentInChildren<FlareLayer>().enabled = false;
+            }
+
+            // Make player invisible by disabling their model
+            transform.Find("Model").gameObject.SetActive(false);
         }
-#endif
+
+        public void StopDeadSpectatorMode()
+        {
+            // Sync player's mode (whether they are alive or dead and spectating)
+            SetMode(VALUE_MODE_ALIVE);
+
+            if (photonView.IsMine)
+            {
+                // Enable scene cameras
+                foreach (Camera cam in GameManager.Instance.sceneCameras)
+                    cam.enabled = false;
+
+                // Enable all the controlling components for the local player 
+                GetComponent<Animator>().enabled = true;
+                GetComponent<CharacterController>().enabled = true;
+                GetComponent<AudioSource>().enabled = true;
+                GetComponent<FirstPersonController>().enabled = true;
+                GetComponent<PlayerAnimatorManager>().enabled = true;
+                //GetComponent<PlayerManager>().enabled = true;
+                GetComponentInChildren<Camera>().enabled = true;
+                GetComponentInChildren<AudioListener>().enabled = true;
+                GetComponentInChildren<FlareLayer>().enabled = true;
+            }
+
+            // Make player visible by enabling their model
+            transform.Find("Model").gameObject.SetActive(true);
+        }
 
         public void SetActiveGun(int gunViewID)
         {
             if (DEBUG && DEBUG_SetActiveGun) Debug.LogFormat("PlayerManager: SetActiveGun() gunViewID = {0}", gunViewID);
-            
+
             // If there is a currently an active gun...
             if (activeGun != null)
             {
@@ -677,7 +750,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Set activeGun so we can make use of it other places (like shooting it)
             activeGun = gunToBeActivated;
-            
+
             // If there is a currently an active "show" gun...
             if (activeShowGun != null)
             {
@@ -699,7 +772,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // *** Will need to change how we instantiate based on type of gun
             GameObject gunPrefab = activeGunType == 1 ? GameManager.Instance.weaponsPrefabs[0] : GameManager.Instance.weaponsPrefabs[1];
             GameObject showGunToBeActivatedGO = Instantiate(gunPrefab, transform.Find("FirstPersonCharacter/Show Weapon"));
-            
+
             Gun showGunToBeActivated = showGunToBeActivatedGO.GetComponent<Gun>();
             showGunToBeActivated.GetComponentInChildren<Collider>().enabled = false;
 
@@ -727,7 +800,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Find Gun to pick up using Photon viewID
             Gun pickedUpGun = PhotonView.Find(gunViewID).GetComponent<Gun>();
 
-            
+
             // Make sure we don't pickup gun of same type
             //if (pickedUpGun.gunPrefab)
 
@@ -755,7 +828,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Set the local position and rotation of the gun
             pickedUpGun.transform.localPosition = new Vector3(-0.06f, 0.216f, -0.496f);
             pickedUpGun.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
-            
+
             // Make sure the picked up gun is not visible
             pickedUpGun.gameObject.SetActive(false);
 
@@ -766,6 +839,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             UpdateWeaponsMenu();
 
         }
+
+        #endregion Public Methods
+
+        #region Private Methods
+
+#if UNITY_5_4_OR_NEWER
+        void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode loadingMode)
+        {
+            this.CalledOnLevelWasLoaded(scene.buildIndex);
+        }
+#endif
 
         void UpdateWeaponsMenu()
         {
@@ -898,8 +982,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Add a kill for this player
             photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_KILLS, ++kills } });
-
-
+            
             if (DEBUG) Debug.LogFormat("PlayerManager: AddKill() kills = {0}, photonView.Owner.NickName = {1}", kills, photonView.Owner.NickName);
         }
 
@@ -1060,6 +1143,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         }
 
+        void SetMode(string modeValue)
+        {
+            if (DEBUG && DEBUG_SetMode) Debug.LogFormat("PlayerManger: SetMode() modeValue = {0}", modeValue);
+            // If we don't control this player...
+            if (!photonView.IsMine)
+            {
+                return;
+            }
+
+            photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_MODE, modeValue } });
+        }
+
         #endregion Private Methods
 
         #region RPC Methods
@@ -1143,11 +1238,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Play death sound
             audioSource.PlayOneShot(deathSound); // I read somewhere online that this allows the sounds to overlap
 
-            // Register a death for this player on all client
+            // Register a death for this player on all clients
             AddDeath();
 
             // Respawn
-            Respawn();
+            //Respawn();
+
+            // Go to spectator mode
+            StartDeadSpectatorMode();
         }
 
         [PunRPC]

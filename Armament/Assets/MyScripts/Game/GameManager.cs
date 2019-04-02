@@ -96,8 +96,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_RemoveGunOwnerships = false;
         private const bool DEBUG_SpawnNewItems = false;
         private const bool DEBUG_Play = false;
-        private const bool DEBUG_ResetPlayerPosition = false;
-        private const bool DEBUG_SpawnWall = true;
+        private const bool DEBUG_ResetPlayerPosition = true;
+        private const bool DEBUG_SpawnWall = false;
 
         // Event codes
         private readonly byte InstantiatePlayer = 0;
@@ -867,6 +867,23 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public void ResetPlayerPosition()
         {
             if (DEBUG && DEBUG_ResetPlayerPosition) Debug.Log("GameManager: ResetPlayerPosition()");
+
+            // Every client needs to: 
+            // Go through list of all players
+            foreach (Player player in PhotonNetwork.PlayerList)
+            {
+                // If player has Mode set...
+                if (player.CustomProperties.TryGetValue(PlayerManager.KEY_MODE, out object modeProp))
+                {
+                    // If they are in Dead spectator Mode...
+                    if (PlayerManager.VALUE_MODE_DEAD_SPECT.Equals((string)modeProp))
+                    {
+                        // Change to Alive Mode
+                        ((GameObject)player.TagObject).GetComponent<PlayerManager>().StopDeadSpectatorMode();
+                    }
+                }
+            }
+
             if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(PlayerManager.KEY_TEAM, out object teamNameProp))
             {
                 // If player is on team A... pick a random team A spawn point. Else... pick a random team B spawn point
@@ -878,7 +895,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 GameObject playerGO = PlayerManager.LocalPlayerInstance;
 
                 // Move the player to the spawn point
-                playerGO.GetComponent<PlayerManager>().Respawn();
+                playerGO.GetComponent<PlayerManager>().Respawn(playerSpawnPoint);
 
                 // Reset player health
                 playerGO.GetComponent<PlayerManager>().ResetHealth();
