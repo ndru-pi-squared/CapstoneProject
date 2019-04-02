@@ -68,6 +68,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] private Transform[] teamBPlayerSpawnPoints;
         [Tooltip("List of locations where a weapon can be spawned")]
         [SerializeField] private Transform[] weaponSpawnPoints;
+        [Tooltip("Whether players can damage players on same team")]
+        [SerializeField] private bool friendlyFire;
 
         [Tooltip("")]
         [SerializeField] private GameObject playerData;
@@ -116,6 +118,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #endregion Private Fields
 
         #region Properties
+
+        public bool FriendlyFire { get; private set; }
 
         // USE WITH CARE! 
         // It can start with any positive value.
@@ -719,6 +723,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             Debug.Log("Awake():");
             // Singleton!
             Instance = this;
+
+            // Set public property to the value set in inspector
+            FriendlyFire = friendlyFire;
         }
 
         void Update()
