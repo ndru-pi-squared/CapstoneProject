@@ -12,8 +12,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
     /// <para>This definitely needs a better summary</para>
     /// </summary>
     [RequireComponent(typeof(AudioSource))]
-    public class Gun : MonoBehaviour, IPunInstantiateMagicCallback
+    public class Gun : MonoBehaviour, IPunInstantiateMagicCallback, IShootable
     {
+        
         #region Public Fields
 
         public float damage = 10f; // how much damage a gun's bullet can impart (on a target)
@@ -58,16 +59,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region Public Properties
 
-        public bool IsReadyToShoot
-        {
-            get { return Time.time >= nextTimeToFire; }
-        }
-
-        // Will need to change when we have more guns
-        public int TypeOfGun
-        {
-            get { return name.Contains("Gun 1") ? 1 : 2; }
-        }
+        
 
         #endregion Public Properties
 
@@ -113,7 +105,16 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #endregion MonoBehaviour Callbacks 
 
         #region Public Methods
-        
+        public bool IsReadyToShoot()
+        {
+            return Time.time >= nextTimeToFire; 
+        }
+
+        // Will need to change when we have more guns
+        public int GetTypeOfGun()
+        {
+            return name.Contains("Gun 1") ? 1 : 2;//todo: change this
+        }
         /// <summary>
         /// Called by PlayerManager every time the gun needs to be shot.
         /// Protects against shooting faster than firerate allows
@@ -122,7 +123,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public void Shoot()
         {
             // Make sure we can't shoot until it's time
-            if (!IsReadyToShoot) { return; }
+            if (!IsReadyToShoot()) { return; }
 
             // Calculate the next time we can fire based on current time and the firerate
             nextTimeToFire = Time.time + 1f / fireRate;
@@ -172,15 +173,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
         }
 
-        #endregion Public methods
-
-        #region Private methods
-
-        private void PlayGunShotSound()
+        public void PlayGunShotSound()
         {
             // I read somewhere online that this allows the sounds to overlap
             audioSource.PlayOneShot(gunshotSound);
         }
+
+        #endregion Public methods
+
+        #region Private methods
+
+
 
         #endregion Private methods
 
@@ -243,7 +246,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 }
             }
         }
-
         #endregion IPunInstantiateMagicCallback implementation
     }
 }

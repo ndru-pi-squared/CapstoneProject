@@ -955,7 +955,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 if (Input.GetButton("Fire1"))
                 {
                     // Check if gun is ready to shoot before sending the RPC to avoid overloading network
-                    if (activeGun != null && activeGun.IsReadyToShoot)
+                    if (activeGun != null && activeGun.IsReadyToShoot())
                     {
                         // Call the [PunRPC] Shoot method over photon network
                         photonView.RPC("Shoot", RpcTarget.All);
@@ -1080,7 +1080,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 Gun gun = inactiveWeapons.GetChild(i).GetComponent<Gun>();
 
-                if (gun.TypeOfGun == gunType)
+                if (gun.GetTypeOfGun() == gunType)
                 {
                     SetActiveGun(gun.GetComponent<PhotonView>().ViewID);
                     break;
