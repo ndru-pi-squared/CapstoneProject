@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 398805723129173496}
   - component: {fileID: 2117395974688345347}
   m_Layer: 0
-  m_Name: RoombaCar
+  m_Name: FragGrenade
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5833,7 +5833,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 123396, guid: d6c1b1c4c00b08c4d84c7adc9668a6fb, type: 3}
       propertyPath: m_Name
-      value: FragGrenade
+      value: Frag
       objectReference: {fileID: 0}
     - target: {fileID: 426230, guid: d6c1b1c4c00b08c4d84c7adc9668a6fb, type: 3}
       propertyPath: m_LocalPosition.x

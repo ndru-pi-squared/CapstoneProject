@@ -1022,7 +1022,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 if (DEBUG && DEBUG_ProcessInputs) Debug.Log("keycode C");
                 if (photonView.IsMine)//network ismasterclient
                 {
-                    GameObject skyCar = PhotonNetwork.Instantiate("RoombaCar", gameObject.transform.position, gameObject.transform.rotation);
+                    GameObject skyCar = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
                     //yield return new WaitForSeconds(2.0f);
                     //PhotonNetwork.Destroy(skycar);
                     StartCoroutine("DestroyCar", skyCar);
