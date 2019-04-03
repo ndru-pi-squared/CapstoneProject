@@ -39,10 +39,15 @@ public class CameraAnimationHandler : MonoBehaviour
         anim.SetTrigger("MoveUp");
     }
 
+    public void MoveDown() {
+        anim.SetTrigger("MoveDown");
+    }
+
     public void ResetTriggers() {
         anim.ResetTrigger("MoveLeft");
         anim.ResetTrigger("MoveRight");
         anim.ResetTrigger("MoveBack");
         anim.ResetTrigger("MoveUp");
+        anim.ResetTrigger("MoveDown");
     }
 }
