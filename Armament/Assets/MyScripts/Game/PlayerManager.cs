@@ -78,7 +78,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_Start = false;
         private const bool DEBUG_OnTriggerEnter = false;
         private const bool DEBUG_OnRoomPropertiesUpdate = false;
-        private const bool DEBUG_OnPlayerPropertiesUpdate = false;
+        private const bool DEBUG_OnPlayerPropertiesUpdate = true;
         private const bool DEBUG_MovePlayer = true;
         private const bool DEBUG_Respawn = true;
         private const bool DEBUG_SetActiveGun = false;
@@ -489,7 +489,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     {
                         int gunViewID = Convert.ToInt32((string)value);
 
-
                         // At this point, all clients know this player owns this gun.
                         // This gun is ready to be visibly "picked up" by this player on all clients
                         // ...
@@ -498,6 +497,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                         // Set this player's (Gun)activeGun reference (so we can use it to do things like shoot the gun)
                         targetPlayerManager.SetActiveGun(gunViewID);
+                    }
+                }
+
+                // If the player property that changed was KEY_MODE...
+                if (KEY_MODE.Equals((string)key))
+                {
+                    // If player's MODE just changed to VALUE_MODE_DEAD_SPECT....
+                    if (VALUE_MODE_DEAD_SPECT.Equals((string)value))
+                    {
+                        // Notify GameManager Instance that targetPlayerManager's player just died
+                        // so GameManager can check if new round needs to be created
+                        GameManager.Instance.OnPlayerDeath(targetPlayerManager);
                     }
                 }
             }
