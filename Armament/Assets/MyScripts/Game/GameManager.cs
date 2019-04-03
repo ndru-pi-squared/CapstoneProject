@@ -70,6 +70,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] private Transform[] weaponSpawnPoints;
         [Tooltip("Whether players can damage players on same team")]
         [SerializeField] private bool friendlyFire;
+        [Tooltip("Whether round ends when last opponent dies")]
+        [SerializeField] private bool roundEndsWhenLastOpponentDies = true;
+        [Tooltip("Audio Clip to play when a round starts.")]
+        [SerializeField] private AudioClip newRoundSound;
 
         [Tooltip("")]
         [SerializeField] private GameObject playerData;
@@ -98,6 +102,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_Play = false;
         private const bool DEBUG_ResetPlayerPosition = true;
         private const bool DEBUG_SpawnWall = false;
+        private const bool DEBUG_OnPlayerDeath = true;
 
         // Event codes
         private readonly byte InstantiatePlayer = 0;
@@ -553,11 +558,26 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Make all clients reset their local player's position
             photonView.RPC("ResetPlayerPosition", RpcTarget.All);
 
+            // Make all clients reset their local player's position
+            photonView.RPC("PlayNewRoundSound", RpcTarget.All);
+
             // Spawn new items
             //SpawnNewItems();
 
             // Make items return 
             ReturnVanishedItems();
+        }
+
+        [PunRPC]
+        void PlayNewRoundSound()
+        {
+            GameObject announcer = new GameObject("Announcer");
+            AudioSource audioSource = announcer.AddComponent<AudioSource>();
+            Debug.LogFormat("PlayerManager: Die() audioSource = {0}, newRoundSound = {1}", audioSource, newRoundSound);
+
+            // Play death sound
+            audioSource.PlayOneShot(newRoundSound); // I read somewhere online that this allows the sounds to overlap
+            Destroy(announcer, 5f);
         }
 
         /// <summary>
@@ -789,6 +809,66 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         #endregion MonoBehaviour Callbacks
+
+        #region PlayerManager Callbacks
+
+        public void OnPlayerDeath(PlayerManager deadPlayer)
+        {
+            // TODO if master client, figure out if player was last one on team and if so, start next round
+
+            if (DEBUG && DEBUG_OnPlayerDeath) Debug.Log("GameManager: OnPlayerDeath()");
+
+            if (!PhotonNetwork.IsMasterClient)
+            {
+                if (DEBUG && DEBUG_OnPlayerDeath) Debug.Log("GameManager: OnPlayerDeath() NOT MASTER CLIENT: Doing nothing...");
+                return;
+            }
+            
+            if (!roundEndsWhenLastOpponentDies)
+            {
+                if (DEBUG && DEBUG_OnPlayerDeath) Debug.Log("GameManager: OnPlayerDeath() CLIENT IS MasterClient: " +
+                    "roundEndsWhenLastOpponentDies = false, so Doing nothing...");
+                return;
+            }
+
+            if (DEBUG && DEBUG_OnPlayerDeath) Debug.Log("GameManager: OnPlayerDeath() CLIENT IS MasterClient: " +
+                "roundEndsWhenLastOpponentDies = true, so Checking if player who just died was last one alive on team...");
+
+            // Figure out if player who just died was last one alive on team
+            bool morePlayersOnTeamStillAlive = false;
+            foreach (Player player in PhotonNetwork.PlayerList)
+            {
+                PlayerManager pPlayerManager = ((GameObject)player.TagObject).GetComponent<PlayerManager>();
+
+                // If player is on the same team as deadPlayer...
+                if (pPlayerManager.GetTeam().Equals(deadPlayer.GetTeam()))
+                {
+                    // If mode key was set...
+                    if (player.CustomProperties.TryGetValue(PlayerManager.KEY_MODE, out object modeProp))
+                    {
+                        // If player is alive
+                        if (((string)modeProp).Equals(PlayerManager.VALUE_MODE_ALIVE))
+                        {
+                            morePlayersOnTeamStillAlive = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // If player who just died was last one alive on team
+            if (!morePlayersOnTeamStillAlive)
+            {
+                if (DEBUG && DEBUG_OnPlayerDeath) Debug.Log("GameManager: OnPlayerDeath() CLIENT IS MasterClient: " +
+                    "morePlayersOnTeamStillAlive = false, so Ending this round...");
+                
+                // End this round (which will start a new round)
+                EndRound();
+            }
+
+        }
+
+        #endregion PlayerManager Callbacks
 
         #region MonoBehaviourPun Callbacks
 
