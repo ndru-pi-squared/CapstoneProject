@@ -59,6 +59,9 @@ MonoBehaviour:
   teamAPlayerSpawnPoints: []
   teamBPlayerSpawnPoints: []
   weaponSpawnPoints: []
+  friendlyFire: 1
+  roundEndsWhenLastOpponentDies: 1
+  newRoundSound: {fileID: 8300000, guid: cd859ddd2770c4d4cb84cc123412a378, type: 3}
   playerData: {fileID: 5906270027394405360, guid: c6c749e8608a44271a8a1c8e2e9922d0,
     type: 3}
 --- !u!114 &312477208123618658
