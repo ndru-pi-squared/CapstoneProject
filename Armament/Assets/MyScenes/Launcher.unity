@@ -112,12 +112,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!224 &147677608 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 8314811920407425602, guid: 81e507b06e9424eb0b97ed60696231ce,
-    type: 3}
-  m_PrefabInstance: {fileID: 8314811920286487530}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &399480646
 GameObject:
   m_ObjectHideFlags: 0
@@ -185,14 +179,20 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1 &1288488902 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8314811919400752172, guid: 81e507b06e9424eb0b97ed60696231ce,
+--- !u!114 &1054240971 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 466138569578197233, guid: 81e507b06e9424eb0b97ed60696231ce,
     type: 3}
   m_PrefabInstance: {fileID: 8314811920286487530}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7345007e0bfd144dba94f6b4be832283, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &8314811920286487530
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -474,11 +474,21 @@ PrefabInstance:
         type: 3}
       propertyPath: leaderboardPanel
       value: 
-      objectReference: {fileID: 1288488902}
+      objectReference: {fileID: 0}
     - target: {fileID: 8314811920862350555, guid: 81e507b06e9424eb0b97ed60696231ce,
         type: 3}
       propertyPath: listingContainer
       value: 
-      objectReference: {fileID: 147677608}
+      objectReference: {fileID: 0}
+    - target: {fileID: 2419553669820689578, guid: 81e507b06e9424eb0b97ed60696231ce,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1054240971}
+    - target: {fileID: 2419553669820689578, guid: 81e507b06e9424eb0b97ed60696231ce,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnClickNewUser
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 81e507b06e9424eb0b97ed60696231ce, type: 3}
