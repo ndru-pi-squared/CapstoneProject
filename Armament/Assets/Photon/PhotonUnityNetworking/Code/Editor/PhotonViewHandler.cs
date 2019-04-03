@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------
 // <copyright file="PhotonViewHandler.cs" company="Exit Games GmbH">
 //   PhotonNetwork Framework for Unity - Copyright (C) 2018 Exit Games GmbH
 // </copyright>
@@ -30,12 +30,12 @@ namespace Photon.Pun
 
 		static PhotonViewHandler()
 		{
-			// hierarchyWindowChanged is called on hierarchy changed and on save. It's even called when hierarchy-window is closed and if a prefab with instances is changed.
+			// hierarchyChanged is called on hierarchy changed and on save. It's even called when hierarchy-window is closed and if a prefab with instances is changed.
 			// this is not called when you edit a instance's value but: on save
 			#if UNITY_2018
 				EditorApplication.hierarchyChanged += HierarchyChange;
 			#else
-				EditorApplication.hierarchyWindowChanged += HierarchyChange;
+				EditorApplication.hierarchyChanged += HierarchyChange;
 			#endif
 		}
 
