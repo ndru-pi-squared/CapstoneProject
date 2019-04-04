@@ -2,7 +2,7 @@
 //using System.Collections.Generic;
 //using UnityEngine;
 
-interface IThrowable<T>
+interface IThrowable
 {
-    void Throw(T obj);
+    void Throw();
 }

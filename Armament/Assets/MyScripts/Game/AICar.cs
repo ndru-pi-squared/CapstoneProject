@@ -6,6 +6,7 @@ public class AICar : MonoBehaviour
 {
     //Collider objectCollider;
     Rigidbody rb;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -20,6 +21,7 @@ public class AICar : MonoBehaviour
         rb.velocity = transform.forward * 10;
     }
 
+   
     private void OnTriggerEnter(Collider other)
     {
             //Debug.Log("AI car entered a collider");
@@ -29,7 +31,6 @@ public class AICar : MonoBehaviour
             //if p.name is player | FPScamp | whatever it is for a player TODO: build out and check what the player name attribute is actually set to in debugger
             //p.getComponent<PlayerManager>().TakeDamage(10f, p.GetComponent<PlayerManager>());  //something like that
             
-            //previously this was the only line not commented out. commented it out for the swap to a grenade:
-            //this.gameObject.transform.Rotate(new Vector3(0, 90, 0));//only turn right
+            this.gameObject.transform.Rotate(new Vector3(0, 90, 0));//only turn right
     }
 }
