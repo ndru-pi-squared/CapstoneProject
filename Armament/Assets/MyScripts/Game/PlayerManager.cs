@@ -306,6 +306,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 {
                     if (DEBUG && DEBUG_OnTriggerEnter) Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with WEAPON with name \"{0}\"," +
                         " photonView.Owner.NickName = {1}", other.GetComponentInParent<Gun>().name, photonView.Owner.NickName);
+                    Debug.Log("Player collideed with something");
 
                     // Save a reference to the gun we want to pick up. We will need it later in OnRoomPropertiesUpdate() 
                     // to actually pick up the gun if we were successful in claiming ownership of the gun in this method
@@ -1048,7 +1049,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 if (Input.GetButton("Fire1"))
                 {
                     // Check if gun is ready to shoot before sending the RPC to avoid overloading network
-                    if (activeGun != null && activeGun.IsReadyToShoot)
+                    if (activeGun != null && activeGun.IsReadyToShoot())
                     {
                         // Call the [PunRPC] Shoot method over photon network
                         photonView.RPC("Shoot", RpcTarget.All);
@@ -1115,7 +1116,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 if (DEBUG && DEBUG_ProcessInputs) Debug.Log("keycode C");
                 if (photonView.IsMine)//network ismasterclient
                 {
-                    GameObject skyCar = PhotonNetwork.Instantiate("RoombaCar", gameObject.transform.position, gameObject.transform.rotation);
+                    GameObject skyCar = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
                     //yield return new WaitForSeconds(2.0f);
                     //PhotonNetwork.Destroy(skycar);
                     StartCoroutine("DestroyCar", skyCar);
@@ -1185,7 +1186,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 Gun gun = inactiveWeapons.GetChild(i).GetComponent<Gun>();
 
-                if (gun.TypeOfGun == gunType)
+                if (gun.GetTypeOfGun() == gunType)
                 {
                     SetActiveGun(gun.GetComponent<PhotonView>().ViewID);
                     break;

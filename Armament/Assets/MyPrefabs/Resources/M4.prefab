@@ -4839,7 +4839,7 @@ GameObject:
   - component: {fileID: 1321}
   - component: {fileID: 1382}
   m_Layer: 0
-  m_Name: Gun 1
+  m_Name: M4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4887,6 +4887,7 @@ MonoBehaviour:
   range: 500
   fireRate: 10
   impactForce: 30
+  gunPrefab: {fileID: 0}
   gunshotSound: {fileID: 8300000, guid: ba931c756adb4d144a68cb6e4ae83218, type: 3}
   muzzleFlash: {fileID: 1336}
   impactEffect: {fileID: 5362399515342332101, guid: 9ffdb672b56f647438a9a5c784b32062,
