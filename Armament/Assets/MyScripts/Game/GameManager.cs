@@ -756,6 +756,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         void Start()
         {
+            DontDestroyOnLoad(this.gameObject);//tentative fix for null gameobject, but it happened after i left the room when i put this line in. gotta look into this
             if (PlayerPrefab1 == null)
             {
                 Debug.LogError("<Color=Red><a>Missing</a></Color> PlayerPrefab1 Reference. Please set it up in GameObject 'Game Manager'", this);

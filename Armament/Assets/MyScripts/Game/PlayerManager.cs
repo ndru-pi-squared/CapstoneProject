@@ -819,7 +819,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Protect against double collisions (trying to pick up the same gun twice)
             // *** This check might not be necessary after recent code changes... TODO: look into it
-            if (pickedUpGun.Equals(activeGun))
+            
+            if (pickedUpGun.Equals(activeGun))//sometimes this is null for some reason.
             {
                 return;
             }
@@ -1119,7 +1120,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     GameObject skyCar = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
                     //yield return new WaitForSeconds(2.0f);
                     //PhotonNetwork.Destroy(skycar);
-                    StartCoroutine("DestroyCar", skyCar);
+                    //StartCoroutine("DestroyCar", skyCar);
                 }
                 
             }

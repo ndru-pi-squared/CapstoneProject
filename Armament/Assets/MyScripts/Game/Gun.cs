@@ -20,7 +20,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public float damage = 10f; // how much damage a gun's bullet can impart (on a target)
         public float range = 100f; // how far a bullet can go
         public float fireRate = 1f; // how fast (per second) a bullet can be fired
-        public float impactForce = 30f; // force imparted on a bullet hit
+        public float impactForce = 1000f; // force imparted on a bullet hit
 
         [Tooltip("Gun Prefab - used to determine type of gun programatically")]
         public GameObject gunPrefab;

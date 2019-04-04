@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1019278121}
   - component: {fileID: 1019278119}
   - component: {fileID: 1019278120}
-  - component: {fileID: 1857277912149534584}
+  - component: {fileID: 3946462456835368540}
   - component: {fileID: 398805723129173496}
   - component: {fileID: 2117395974688345347}
   m_Layer: 0
@@ -94,7 +94,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1.4670682, y: 0.9566307, z: 4.077778}
   m_Center: {x: 0.022152185, y: 0.522562, z: -0.13644171}
---- !u!114 &1857277912149534584
+--- !u!114 &3946462456835368540
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -103,10 +103,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1019278116}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dbd8b80d58b05f9498e27e245524aac2, type: 3}
+  m_Script: {fileID: 11500000, guid: b04bde7e6f40f9e4fa004caf25a5ae86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosionPrefab: {fileID: 100010, guid: 031d08f52af1daa4f929b85221519426, type: 3}
+  explosionPrefab: {fileID: 313269101178279654}
+  radius: 5
+  power: 10
+  explosiveLift: 1
+  explosiveDelay: 1
 --- !u!114 &398805723129173496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5885,8 +5889,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 11400000, guid: deae065280038074ca61e2130d04332c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400002, guid: deae065280038074ca61e2130d04332c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: deae065280038074ca61e2130d04332c, type: 3}
+--- !u!1 &313269101178279654 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 100002, guid: deae065280038074ca61e2130d04332c,
+    type: 3}
+  m_PrefabInstance: {fileID: 313269101178376260}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &313269101177981638 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400002, guid: deae065280038074ca61e2130d04332c,
