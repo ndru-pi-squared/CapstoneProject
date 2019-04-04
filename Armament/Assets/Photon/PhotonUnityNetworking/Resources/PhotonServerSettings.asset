@@ -44,5 +44,6 @@ MonoBehaviour:
   - SwapGun
   - SwapActiveGun
   - SetAvatar
+  - PlayNewRoundSound
   DisableAutoOpenWizard: 1
   ShowSettings: 1
