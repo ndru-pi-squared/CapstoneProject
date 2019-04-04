@@ -151,7 +151,7 @@ namespace Photon.Pun
             EditorApplication.hierarchyChanged += EditorUpdate;
             #else
             EditorApplication.projectWindowChanged += EditorUpdate;
-            EditorApplication.hierarchyWindowChanged += EditorUpdate;
+            EditorApplication.hierarchyChanged += EditorUpdate;
             #endif
             EditorApplication.update += OnUpdate;
         }
