@@ -640,6 +640,16 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 561799720499223707, guid: 81e507b06e9424eb0b97ed60696231ce,
+        type: 3}
+      propertyPath: m_Options.m_Options.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 561799720499223707, guid: 81e507b06e9424eb0b97ed60696231ce,
+        type: 3}
+      propertyPath: m_Options.m_Options.Array.data[3].m_Text
+      value: AI Test Room
+      objectReference: {fileID: 0}
     - target: {fileID: 9171352643189258265, guid: 81e507b06e9424eb0b97ed60696231ce,
         type: 3}
       propertyPath: m_AnchorMax.y

@@ -11,6 +11,7 @@ using Photon.Realtime;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using ExitGames.Client.Photon;
+using UnityStandardAssets.Characters.ThirdPerson;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
@@ -43,6 +44,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public GameObject PlayerPrefab2; // used to instantiate the player pref on PhotonNetwork
         [Tooltip("List of weapon prefabs for this game")]
         public GameObject[] weaponsPrefabs; // used to instantiate the weapons on PhotonNetwork
+        [Tooltip("List of AIBot prefabs for this game")]
+        public GameObject[] botPrefabs; // used to instantiate the bots on PhotonNetwork
         [Tooltip("Prefab for the team dividing wall")]
         public GameObject dividingWallPrefab; // used to instantiate the player pref on PhotonNetwork
         [Tooltip("The root GameObject in the hierarchy for all our game levels that we call \"Environment\"")]
@@ -113,6 +116,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private ArrayList teamBList;
         private GameObject dividingWallGO;
 
+        //AICount
+        public int AIBotsToSpawn;
+
         /// <summary>
         /// Keeps track of whether items were destroyed. Synchronized on all clients; 
         /// This is important in case master client changes anytime before all items are destroyed.
@@ -142,6 +148,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         public ArrayList SpawnedWeaponsList { get; private set; }
+
+        public ArrayList SpawnedBotsList { get; private set; }
 
         #endregion
 
@@ -777,6 +785,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 {
                     SpawnNewItems();
                     SpawnWall();
+                    SpawnBots(AIBotsToSpawn);
                 }
             }
             else
@@ -1088,5 +1097,27 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         #endregion IOnEventCallback Implementation
+
+        public void SpawnBots(int bots) {
+            if (!PhotonNetwork.IsMasterClient)
+            {
+                return;
+            }
+
+            // Create a new list to keep track of spawned bots
+            SpawnedBotsList = new ArrayList();
+
+            // Instantiate our two bots at different spawn points for team A. Add each newly spawned bot to the list
+            SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[0].name, teamAPlayerSpawnPoints[0].position, teamAPlayerSpawnPoints[0].rotation, 0));
+            SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[1].name, teamAPlayerSpawnPoints[1].position, teamAPlayerSpawnPoints[1].rotation, 0));
+            // Instantiate our two bots at different spawn points for team B. Add each newly spawned bot to the list
+            SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[0].name, teamBPlayerSpawnPoints[0].position, teamBPlayerSpawnPoints[0].rotation, 0));
+            SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[1].name, teamBPlayerSpawnPoints[1].position, teamBPlayerSpawnPoints[1].rotation, 0));
+
+            ((GameObject)SpawnedBotsList[0]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
+            ((GameObject)SpawnedBotsList[1]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
+            ((GameObject)SpawnedBotsList[2]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
+            ((GameObject)SpawnedBotsList[3]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
+        }
     }
 }
