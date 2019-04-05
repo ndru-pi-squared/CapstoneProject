@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/MyScenes/AI Test Room.unity
     guid: 13a4217fa9aec4b8a8f3441b3cf0295c
+  - enabled: 1
+    path: Assets/MyScenes/ChatBox Room.unity
+    guid: e6785ad0117dc43919c24117def57f67
   m_configObjects: {}

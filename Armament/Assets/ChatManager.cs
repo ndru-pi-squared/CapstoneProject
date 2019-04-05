@@ -1,88 +1,107 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
+
+using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using ExitGames.Client.Photon;
 
-public class ChatManager : MonoBehaviour
+
+namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
-    public string username;
-
-    public int maxMessages = 25;
-
-    public GameObject chatPanel, textObject;
-    public InputField chatBox;
-
-    public Color playerMessage, info;
-
-    [SerializeField]
-    List<Message> messageList = new List<Message>();
-
-    // Start is called before the first frame update
-    void Start()
+    public class ChatManager : MonoBehaviourPunCallbacks
     {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (chatBox.text != "") {
-            if (Input.GetKeyDown(KeyCode.Return))
-            {
-                sendMessageToChat(username + ": " + chatBox.text, Message.MessageType.playerMessage);
-                chatBox.text = "";
-            }
-        }
+        public string username;
 
-        else { 
-            if (!chatBox.isFocused && Input.GetKeyDown(KeyCode.Return))  {
-                chatBox.ActivateInputField();
-            }
-        }
+        public int maxMessages = 25;
 
-        if (!chatBox.isFocused)
+        public GameObject chatPanel, textObject;
+        public InputField chatBox;
+
+        public Color playerMessage, info;
+
+        [SerializeField]
+        List<Message> messageList = new List<Message>();
+
+        // Start is called before the first frame update
+        void Start()
         {
-            if (Input.GetKeyDown(KeyCode.Space))
+
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+            if (chatBox.text != "")
             {
-                sendMessageToChat("That's a spicy meat-a-ball", Message.MessageType.info);
+                if (Input.GetKeyDown(KeyCode.Return))
+                {
+                    sendMessageToChat(username + ": " + chatBox.text, Message.MessageType.playerMessage);
+                    chatBox.text = "";
+                }
+            }
+
+            else
+            {
+                if (!chatBox.isFocused && Input.GetKeyDown(KeyCode.Return))
+                {
+                    chatBox.ActivateInputField();
+                }
+            }
+
+            if (!chatBox.isFocused)
+            {
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    sendMessageToChat("That's a spicy meat-a-ball", Message.MessageType.info);
+                }
             }
         }
-    }
 
-    public void sendMessageToChat(string text, Message.MessageType messageType) {
-        if (messageList.Count > maxMessages) {
-            Destroy(messageList[0].textObject.gameObject);
-            messageList.Remove(messageList[0]);
-            Debug.Log("Space");
+        public void sendMessageToChat(string text, Message.MessageType messageType)
+        {
+            if (messageList.Count > maxMessages)
+            {
+                Destroy(messageList[0].textObject.gameObject);
+                messageList.Remove(messageList[0]);
+                Debug.Log("Space");
+            }
+            Message newMessage = new Message();
+            newMessage.text = text;
+
+            GameObject newText = Instantiate(textObject, chatPanel.transform);
+
+            newMessage.textObject = newText.GetComponent<Text>();
+            newMessage.textObject.text = newMessage.text;
+            newMessage.textObject.color = MessageTypeColor(messageType);
+            messageList.Add(newMessage);
         }
-        Message newMessage = new Message();
-        newMessage.text = text;
 
-        GameObject newText = Instantiate(textObject, chatPanel.transform);
-
-        newMessage.textObject = newText.GetComponent<Text>();
-        newMessage.textObject.text = newMessage.text;
-        newMessage.textObject.color = MessageTypeColor(messageType);
-        messageList.Add(newMessage);
-    }
-
-    Color MessageTypeColor(Message.MessageType messageType) {
-        Color color = info;
-        switch (messageType) {
-            case Message.MessageType.playerMessage:
-                color = playerMessage;
-                break;
+        Color MessageTypeColor(Message.MessageType messageType)
+        {
+            Color color = info;
+            switch (messageType)
+            {
+                case Message.MessageType.playerMessage:
+                    color = playerMessage;
+                    break;
+            }
+            return color;
         }
-        return color;
+
     }
-}
 
-[System.Serializable]
-public class Message {
+    [System.Serializable]
+    public class Message
+    {
 
-    public string text;
-    public Text textObject;
-    public MessageType messageType;
+        public string text;
+        public Text textObject;
+        public MessageType messageType;
 
-    public enum MessageType {playerMessage, info}
+        public enum MessageType { playerMessage, info }
+    }
 }
