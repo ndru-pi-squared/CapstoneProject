@@ -999,10 +999,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (DEBUG) Debug.LogFormat("PlayerManager: AddKill() kills = {0}, photonView.Owner.NickName = {1}", kills, photonView.Owner.NickName);
         }
 
-        IEnumerator DestroyCar(GameObject skyCar)
+        IEnumerator DestroyCar(GameObject fragGrenade)
         {
             yield return new WaitForSeconds(3.0f);
-            PhotonNetwork.Destroy(skyCar);
+            PhotonNetwork.Destroy(fragGrenade);
         }
 
         /// <summary>
@@ -1117,7 +1117,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 if (DEBUG && DEBUG_ProcessInputs) Debug.Log("keycode C");
                 if (photonView.IsMine)//network ismasterclient
                 {
-                    GameObject skyCar = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
+                    GameObject fragGrenade = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
+                    fragGrenade.GetComponent<FragGrenade>().playerWhoOwnsThisGrenade = this;
                     //yield return new WaitForSeconds(2.0f);
                     //PhotonNetwork.Destroy(skycar);
                     //StartCoroutine("DestroyCar", skyCar);

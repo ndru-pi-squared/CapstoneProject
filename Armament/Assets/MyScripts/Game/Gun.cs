@@ -137,7 +137,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Create a raycast from fps camera position in the direction it is facing (limit raycast to 'range' distance away)
             // Get back the 'hit' value (what got hit)
             // If cast hit something...
-            if (Physics.Raycast(fpsCam.transform.position, fpsCam.transform.forward, out RaycastHit hit, range))
+            if (Physics.Raycast(fpsCam.transform.position, fpsCam.transform.forward, out RaycastHit hit, range))//raycast hit declares it
             {
                 // Log what we hit
                 //Debug.LogFormat("Gun: Shoot() hit object: {0}", hit.transform.name);

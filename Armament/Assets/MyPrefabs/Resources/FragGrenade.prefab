@@ -107,6 +107,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   explosionParticle: {fileID: 100010, guid: 031d08f52af1daa4f929b85221519426, type: 3}
+  playerWhoOwnsThisGrenade: {fileID: 0}
 --- !u!114 &398805723129173496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5913,6 +5914,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1019278118}
     m_Modifications:
+    - target: {fileID: 123396, guid: d6c1b1c4c00b08c4d84c7adc9668a6fb, type: 3}
+      propertyPath: m_Name
+      value: Frag
+      objectReference: {fileID: 0}
     - target: {fileID: 426230, guid: d6c1b1c4c00b08c4d84c7adc9668a6fb, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.0261
@@ -5968,10 +5973,6 @@ PrefabInstance:
     - target: {fileID: 426230, guid: d6c1b1c4c00b08c4d84c7adc9668a6fb, type: 3}
       propertyPath: m_LocalScale.z
       value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 123396, guid: d6c1b1c4c00b08c4d84c7adc9668a6fb, type: 3}
-      propertyPath: m_Name
-      value: Frag
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d6c1b1c4c00b08c4d84c7adc9668a6fb, type: 3}
