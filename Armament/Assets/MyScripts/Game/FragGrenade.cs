@@ -8,6 +8,8 @@ public class FragGrenade : MonoBehaviour, IThrowable
 
     float timer = 3.0f;
     float countdown;
+    float explosionRadius = 3.0f;
+    float force = 500.0f;
     bool hasExploded;
     [SerializeField] GameObject explosionParticle;
 
@@ -41,11 +43,23 @@ public class FragGrenade : MonoBehaviour, IThrowable
     void Explode()
     {
         GameObject spawnedParticle = Instantiate(explosionParticle, transform.position, transform.rotation);
+       
         //Destroy(spawnedParticle,1);
         //Debug.Log("Explosion");
         hasExploded = true;
         PhotonNetwork.Destroy(this.gameObject);
         //StartCoroutine("DestroyGrenade", this.gameObject);
+        Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);
+        Rigidbody rb;
+        foreach (Collider nearbyObject in colliders)
+        {
+             rb = nearbyObject.GetComponent<Rigidbody>();
+            if(rb != null)//if rigidbody found
+            {
+                rb.AddExplosionForce(force, transform.position,explosionRadius);//also can use addforce but we'd have to create other variables and calculate them. much simpler to use addexplosion force
+            }
+
+        }
     }
 
     public void Throw()//called from playermanager?

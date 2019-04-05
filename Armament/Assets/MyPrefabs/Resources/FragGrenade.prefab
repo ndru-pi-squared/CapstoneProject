@@ -5833,6 +5833,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1019278118}
     m_Modifications:
+    - target: {fileID: 100002, guid: deae065280038074ca61e2130d04332c, type: 3}
+      propertyPath: m_Name
+      value: Explosion 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 100002, guid: deae065280038074ca61e2130d04332c, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: deae065280038074ca61e2130d04332c, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.04
@@ -5877,14 +5885,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 100002, guid: deae065280038074ca61e2130d04332c, type: 3}
-      propertyPath: m_Name
-      value: Explosion 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 100002, guid: deae065280038074ca61e2130d04332c, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: deae065280038074ca61e2130d04332c, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -5897,7 +5897,8 @@ PrefabInstance:
       propertyPath: explosionForce
       value: 1000
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 11400002, guid: deae065280038074ca61e2130d04332c, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: deae065280038074ca61e2130d04332c, type: 3}
 --- !u!4 &313269101177981638 stripped
 Transform:
