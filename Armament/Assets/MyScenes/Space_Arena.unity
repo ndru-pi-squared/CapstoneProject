@@ -165,7 +165,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &877612531
 PrefabInstance:
@@ -485,7 +485,6 @@ GameObject:
   - component: {fileID: 1276121070}
   - component: {fileID: 1276121073}
   - component: {fileID: 1276121072}
-  - component: {fileID: 1276121071}
   m_Layer: 0
   m_Name: Scene Camera Team B
   m_TagString: MainCamera
@@ -507,15 +506,6 @@ Transform:
   m_Father: {fileID: 1265032706}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!45 &1276121071
-Skybox:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1276121069}
-  m_Enabled: 1
-  m_CustomSkybox: {fileID: 2100000, guid: 4067de1a02072244798361060c5e7325, type: 2}
 --- !u!81 &1276121072
 AudioListener:
   m_ObjectHideFlags: 0
@@ -827,7 +817,6 @@ GameObject:
   - component: {fileID: 1930903343}
   - component: {fileID: 1930903346}
   - component: {fileID: 1930903345}
-  - component: {fileID: 1930903344}
   m_Layer: 0
   m_Name: Scene Camera Team A
   m_TagString: MainCamera
@@ -849,15 +838,6 @@ Transform:
   m_Father: {fileID: 1265032706}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: -180, z: 0}
---- !u!45 &1930903344
-Skybox:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1930903342}
-  m_Enabled: 1
-  m_CustomSkybox: {fileID: 2100000, guid: 4067de1a02072244798361060c5e7325, type: 2}
 --- !u!81 &1930903345
 AudioListener:
   m_ObjectHideFlags: 0
@@ -1083,6 +1063,16 @@ PrefabInstance:
     - target: {fileID: 2100713105, guid: 6ea03386c3065c04a9a5b717520118ec, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2705801635397932725, guid: 6ea03386c3065c04a9a5b717520118ec,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -286.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2705801635397932725, guid: 6ea03386c3065c04a9a5b717520118ec,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -76.502
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2100713105, guid: 6ea03386c3065c04a9a5b717520118ec, type: 3}

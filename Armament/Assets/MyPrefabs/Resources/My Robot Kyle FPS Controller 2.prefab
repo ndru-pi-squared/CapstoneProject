@@ -2092,7 +2092,6 @@ GameObject:
   - component: {fileID: 1631}
   - component: {fileID: 2227}
   - component: {fileID: 2240}
-  - component: {fileID: 2032}
   m_Layer: 0
   m_Name: FirstPersonCharacter
   m_TagString: MainCamera
@@ -2175,15 +2174,6 @@ Behaviour:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 376}
   m_Enabled: 0
---- !u!45 &2032
-Skybox:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 376}
-  m_Enabled: 1
-  m_CustomSkybox: {fileID: 2100000, guid: 4067de1a02072244798361060c5e7325, type: 2}
 --- !u!1 &377
 GameObject:
   m_ObjectHideFlags: 0
