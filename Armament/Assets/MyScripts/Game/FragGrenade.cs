@@ -1,34 +1,59 @@
-﻿using System.Collections;
+﻿using Photon.Pun;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class FragGrenade : MonoBehaviour, IThrowable
 {
-    public GameObject explosionPrefab;
+
+    float timer = 3.0f;
+    float countdown;
+    bool hasExploded;
+    [SerializeField] GameObject explosionParticle;
+
+
+   /* public GameObject explosionPrefab;
     public float radius = 5.0f;
     public float power = 10.0f;
     public float explosiveLift = 1.0f;
     public float explosiveDelay = 1.0f;
-    private IEnumerator coroutine;
+    private IEnumerator coroutine;*/ 
     // Start is called before the first frame update
     void Start()
     {
-        coroutine = TimedExplosion(explosiveDelay);
-        StartCoroutine(coroutine);
+        hasExploded = false;
+        countdown = timer;
+        //coroutine = TimedExplosion(explosiveDelay);
+        //StartCoroutine(coroutine);
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        Debug.Log("test");
+        countdown -= Time.deltaTime;
+        if (countdown <= 0 && !hasExploded)
+        {
+            Explode();
+        }
     }
 
-    public void Throw()
+    void Explode()
+    {
+        GameObject spawnedParticle = Instantiate(explosionParticle, transform.position, transform.rotation);
+        //Destroy(spawnedParticle,1);
+        //Debug.Log("Explosion");
+        hasExploded = true;
+        PhotonNetwork.Destroy(this.gameObject);
+        //StartCoroutine("DestroyGrenade", this.gameObject);
+    }
+
+    public void Throw()//called from playermanager?
     {
 
     }
 
-    private IEnumerator TimedExplosion(float waitTime)
+   /* private IEnumerator TimedExplosion(float waitTime)
     {
         yield return new WaitForSeconds(waitTime);//might break out? research it
         Debug.Log("Testing");
@@ -42,13 +67,13 @@ public class FragGrenade : MonoBehaviour, IThrowable
                 hit.GetComponent<Rigidbody>().AddExplosionForce(power, grenadeOrigin, radius, explosiveLift);
                 //Destroy(gameObject);
             }
-        }
+        }*/
         
         /*Vector3 position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
         Quaternion rotation = new Quaternion(transform.rotation.w, transform.rotation.x, transform.rotation.y, transform.rotation.z);
         GameObject obj = Instantiate(explosionPrefab, position, rotation) as GameObject;*/
         
-    }
+    //}
 
     private void OnTriggerEnter(Collider other)
     {
