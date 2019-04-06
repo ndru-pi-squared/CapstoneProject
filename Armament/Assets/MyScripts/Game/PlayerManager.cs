@@ -1118,7 +1118,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 if (photonView.IsMine)//network ismasterclient
                 {
                     GameObject fragGrenade = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
-                    fragGrenade.GetComponent<FragGrenade>().playerWhoOwnsThisGrenade = this;
+                    fragGrenade.GetComponent<FragGrenade>().playerWhoOwnsThisGrenade = this;//setting this for TakeDamage(int/float,playerwhoowns...)
+                                     
                     //yield return new WaitForSeconds(2.0f);
                     //PhotonNetwork.Destroy(skycar);
                     //StartCoroutine("DestroyCar", skyCar);
@@ -1250,6 +1251,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             Debug.LogFormat("PlayerManager: Die() audioSource = {0}, deathSound = {1}", audioSource, deathSound);
 
             // Play death sound
+            audioSource.priority = 10;
             audioSource.PlayOneShot(deathSound); // I read somewhere online that this allows the sounds to overlap
 
             // Register a death for this player on all clients

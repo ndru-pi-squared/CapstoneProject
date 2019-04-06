@@ -571,13 +571,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [PunRPC]
         void PlayNewRoundSound()
         {
-            GameObject announcer = new GameObject("Announcer");
+           /* GameObject announcer = new GameObject("Announcer");
             AudioSource audioSource = announcer.AddComponent<AudioSource>();
             Debug.LogFormat("PlayerManager: Die() audioSource = {0}, newRoundSound = {1}", audioSource, newRoundSound);
 
             // Play death sound
             audioSource.PlayOneShot(newRoundSound); // I read somewhere online that this allows the sounds to overlap
-            Destroy(announcer, 5f);
+            Destroy(announcer, 5f);*/
         }
 
         /// <summary>
