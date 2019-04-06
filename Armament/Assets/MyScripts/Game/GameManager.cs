@@ -101,7 +101,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_SpawnNewItems = false;
         private const bool DEBUG_Play = false;
         private const bool DEBUG_ResetPlayerPosition = true;
-        private const bool DEBUG_SpawnWall = false;
+        private const bool DEBUG_SpawnWall = true;
         private const bool DEBUG_OnPlayerDeath = true;
 
         // Event codes
@@ -635,7 +635,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0, new[] { (object)wallPosition });
             }
             // If arena is "Simple Room" unity scene...
-            else if (Launcher.developmentOnly_levelToLoad.Equals("Simple Room"))
+            else if (Launcher.developmentOnly_levelToLoad.Equals("Simple Room") || Launcher.developmentOnly_levelToLoad.Equals("Simple Room 2"))
             {
                 // Instantiate the dividing wall for "Simple Room" level
                 Vector3 wallPosition = new Vector3(0f, 20f, 0f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
