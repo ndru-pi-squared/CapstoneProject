@@ -66,21 +66,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
             float h = Input.GetAxis("Horizontal");
             float v = Input.GetAxis("Vertical");
-            if(v < 0)
-            {
-                v = 0;
-            }
             /** My note:
              *   Without Animator>Apply Root Motion = true, the speed and direction properties of the animation don't affect position of transform
              */
             animator.SetFloat("Speed", h * h + v * v);
             animator.SetFloat("Direction_horizontal", h, directionDampTime, Time.deltaTime);
-            if(Input.GetKey(KeyCode.S)) {
-                animator.SetFloat("Direction_vertical", v - 0.5f, directionDampTime, Time.deltaTime);
-            } else
-            {
-                animator.SetFloat("Direction_vertical", v, directionDampTime, Time.deltaTime);
-            }
+            animator.SetFloat("Direction_vertical", v, directionDampTime, Time.deltaTime);
         }
         
         #endregion
