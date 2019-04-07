@@ -146,10 +146,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // We need to enable all the controlling components for the local player 
                 // The prefab has these components disabled so we won't be controlling other players with our input
                 GetComponent<Animator>().enabled = true;
-                GetComponent<CharacterController>().enabled = true;
                 GetComponent<AudioSource>().enabled = true;
                 GetComponent<PlayerAnimatorManager>().enabled = true;
                 GetComponent<PlayerManager>().enabled = true;
+                this.transform.parent.GetComponent<CharacterController>().enabled = true;
                 this.transform.parent.GetComponent<FirstPersonController>().enabled = true;
                 this.transform.parent.Find("FirstPersonCharacter").GetComponent<Camera>().enabled = true;
                 this.transform.parent.Find("FirstPersonCharacter").GetComponent<AudioListener>().enabled = true;
@@ -656,7 +656,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             */
 
             // Move the player to the target position
-            GetComponent<CharacterController>().Move(t.position - transform.position);
+            this.transform.parent.GetComponent<CharacterController>().Move(t.position - transform.position);
 
             if (DEBUG && DEBUG_MovePlayer) Debug.LogFormat("PlayerManager: MovePlayer() transform.position = {0}", transform.position);
         }
@@ -714,7 +714,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Disable all the controlling components for this player 
                 // The prefab has these components disabled so we won't be controlling other players with our input
                 GetComponent<Animator>().enabled = false;
-                GetComponent<CharacterController>().enabled = false;
+                this.transform.parent.GetComponent<CharacterController>().enabled = false;
                 GetComponent<AudioSource>().enabled = false;
                 GetComponent<PlayerAnimatorManager>().enabled = false;
                 // this.transform.Find("Model").GetComponent<PlayerManager>().enabled = true;
@@ -741,7 +741,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 // Enable all the controlling components for the local player 
                 GetComponent<Animator>().enabled = true;
-                GetComponent<CharacterController>().enabled = true;
+                this.transform.parent.GetComponent<CharacterController>().enabled = true;
                 GetComponent<AudioSource>().enabled = true;
                 GetComponent<PlayerAnimatorManager>().enabled = true;
                 //this.transform.Find("Model").GetComponent<PlayerManager>().enabled = true;

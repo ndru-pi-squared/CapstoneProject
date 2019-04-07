@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657868, g: 0.49641263, b: 0.57481706, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.5748172, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -179,105 +179,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1001 &972561149
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 357, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_Name
-      value: My Robot Kyle FPS Controller 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_RootOrder
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2282, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2229, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2333, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2333, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_WalkSpeed
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2333, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_RunSpeed
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 2333, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_JumpSpeed
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 2329, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2328, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2332, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: viewIdField
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1631, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
 --- !u!1 &1065549856
 GameObject:
   m_ObjectHideFlags: 0
@@ -367,7 +270,7 @@ Transform:
   m_LocalScale: {x: 30, y: 1, z: 30}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1759906322
 GameObject:
@@ -451,3 +354,126 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 16.523, y: 0, z: 0}
+--- !u!1001 &1868274780
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 357, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
+      propertyPath: m_Name
+      value: My Robot Kyle FPS Controller 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.35837412
+      objectReference: {fileID: 0}
+    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -1.6327053
+      objectReference: {fileID: 0}
+    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1035, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7066547562468493159, guid: d9ef29bbc70eb814091cf1216dfd1fcd,
+        type: 3}
+      propertyPath: m_Center.y
+      value: 1.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 3962922039020111875, guid: d9ef29bbc70eb814091cf1216dfd1fcd,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8176537438370855245, guid: d9ef29bbc70eb814091cf1216dfd1fcd,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5246950338710272361, guid: d9ef29bbc70eb814091cf1216dfd1fcd,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1631, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2227, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2240, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8544865896027636454, guid: d9ef29bbc70eb814091cf1216dfd1fcd,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4963854424448310932, guid: d9ef29bbc70eb814091cf1216dfd1fcd,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7600427088757023377, guid: d9ef29bbc70eb814091cf1216dfd1fcd,
+        type: 3}
+      propertyPath: viewIdField
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 985693012014795333, guid: d9ef29bbc70eb814091cf1216dfd1fcd,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2774226869339335197, guid: d9ef29bbc70eb814091cf1216dfd1fcd,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1162472990869830944, guid: d9ef29bbc70eb814091cf1216dfd1fcd,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2242, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
+      propertyPath: m_CastShadows
+      value: 3
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
