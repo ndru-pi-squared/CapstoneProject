@@ -795,7 +795,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Instantiate show Gun based on type of gun
             // *** Will need to change how we instantiate based on type of gun
-            GameObject gunPrefab = activeGunType == 1 ? GameManager.Instance.weaponsPrefabs[0] : GameManager.Instance.weaponsPrefabs[1];
+            GameObject gunPrefab;
+            if(activeGunType == 1)
+            {
+                gunPrefab = GameManager.Instance.weaponsPrefabs[0];
+                transform.Find("FirstPersonCharacter/Show Weapon").transform.localPosition = new Vector3(0, 0, 0.18f);
+            }
+            else
+            {
+                gunPrefab = GameManager.Instance.weaponsPrefabs[1];
+                transform.Find("FirstPersonCharacter/Show Weapon").transform.localPosition = new Vector3(0, 0.05f, 0);
+            }
+            
             GameObject showGunToBeActivatedGO = Instantiate(gunPrefab, transform.Find("FirstPersonCharacter/Show Weapon"));
 
             Gun showGunToBeActivated = showGunToBeActivatedGO.GetComponent<Gun>();
