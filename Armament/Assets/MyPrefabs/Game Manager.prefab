@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerPrefab1: {fileID: 357, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
-  PlayerPrefab2: {fileID: 357, guid: 42f8eb1b658ad7045b68699a8c322132, type: 3}
+  PlayerPrefab2: {fileID: 357, guid: e3c30ae7730f75e49bf17bd855f3a752, type: 3}
   weaponsPrefabs:
   - {fileID: 381, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
   - {fileID: 380, guid: 7f76b63222a574a4ba64ba2451b768ee, type: 3}

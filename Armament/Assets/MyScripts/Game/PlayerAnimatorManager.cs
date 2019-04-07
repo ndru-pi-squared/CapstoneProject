@@ -44,7 +44,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
              * features per se. And so with this additional expression, we will allow input to be used if we are not 
              * connected. It's a very simple trick and will greatly improve your workflow during development.
              */
-            if (photonView.IsMine == false && PhotonNetwork.IsConnected == true)
+            if (photonView && photonView.IsMine == false && PhotonNetwork.IsConnected == true)
             {
                 return;
             }

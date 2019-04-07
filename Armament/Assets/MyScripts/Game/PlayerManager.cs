@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 using System.Collections;
@@ -154,6 +154,19 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 GetComponentInChildren<Camera>().enabled = true;
                 GetComponentInChildren<AudioListener>().enabled = true;
                 GetComponentInChildren<FlareLayer>().enabled = true;
+
+                // Set up appropriate combination of rendering for MY view
+                this.transform.Find("Model/Robot2").gameObject.GetComponent<SkinnedMeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
+
+                GameObject _fpLegs = this.transform.Find("Model FP LEGS").gameObject;
+                _fpLegs.SetActive(true);
+                _fpLegs.transform.Find("Robot2").GetComponent<SkinnedMeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
+
+                GameObject _fpArms = this.transform.Find("FirstPersonCharacter/Model FP ARMS").gameObject;
+                _fpArms.SetActive(true);
+                _fpArms.transform.Find("Robot2").GetComponent<SkinnedMeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
 
                 string avatarChoice = playerData.GetComponent<PlayerData>().GetAvatarChoice();
                 Debug.LogFormat("PlayerManager: Awake() avatarChoice = {0}", avatarChoice);
