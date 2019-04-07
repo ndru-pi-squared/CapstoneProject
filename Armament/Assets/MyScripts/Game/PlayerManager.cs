@@ -149,21 +149,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 GetComponent<AudioSource>().enabled = true;
                 GetComponent<PlayerAnimatorManager>().enabled = true;
                 GetComponent<PlayerManager>().enabled = true;
-                this.transform.parent.GetComponent<CharacterController>().enabled = true;
-                this.transform.parent.GetComponent<FirstPersonController>().enabled = true;
-                this.transform.parent.Find("FirstPersonCharacter").GetComponent<Camera>().enabled = true;
-                this.transform.parent.Find("FirstPersonCharacter").GetComponent<AudioListener>().enabled = true;
-                this.transform.parent.Find("FirstPersonCharacter").GetComponent<FlareLayer>().enabled = true;
+                GetComponent<CharacterController>().enabled = true;
+                GetComponent<FirstPersonController>().enabled = true;
+                this.transform.Find("FirstPersonCharacter").GetComponent<Camera>().enabled = true;
+                this.transform.Find("FirstPersonCharacter").GetComponent<AudioListener>().enabled = true;
+                this.transform.Find("FirstPersonCharacter").GetComponent<FlareLayer>().enabled = true;
 
                 // Set up appropriate combination of rendering for MY view
-                this.transform.Find("Robot2").gameObject.GetComponent<SkinnedMeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
+                this.transform.Find("Model/Robot2").gameObject.GetComponent<SkinnedMeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
 
-                GameObject _fpLegs = this.transform.parent.Find("Model FP LEGS").gameObject;
+                GameObject _fpLegs = this.transform.Find("Model FP LEGS").gameObject;
                 _fpLegs.SetActive(true);
                 _fpLegs.transform.Find("Robot2").GetComponent<SkinnedMeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
 
-                GameObject _fpArms = this.transform.parent.Find("FirstPersonCharacter/Model FP ARMS").gameObject;
+                GameObject _fpArms = this.transform.Find("FirstPersonCharacter/Model FP ARMS").gameObject;
                 _fpArms.SetActive(true);
                 _fpArms.transform.Find("Robot2").GetComponent<SkinnedMeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
@@ -714,14 +714,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Disable all the controlling components for this player 
                 // The prefab has these components disabled so we won't be controlling other players with our input
                 GetComponent<Animator>().enabled = false;
-                this.transform.parent.GetComponent<CharacterController>().enabled = false;
+                GetComponent<CharacterController>().enabled = false;
                 GetComponent<AudioSource>().enabled = false;
                 GetComponent<PlayerAnimatorManager>().enabled = false;
                 // this.transform.Find("Model").GetComponent<PlayerManager>().enabled = true;
-                this.transform.parent.GetComponent<FirstPersonController>().enabled = false;
-                this.transform.parent.Find("FirstPersonCharacter").GetComponent<Camera>().enabled = false;
-                this.transform.parent.Find("FirstPersonCharacter").GetComponent<AudioListener>().enabled = false;
-                this.transform.parent.Find("FirstPersonCharacter").GetComponent<FlareLayer>().enabled = false;
+                GetComponent<FirstPersonController>().enabled = false;
+                this.transform.Find("FirstPersonCharacter").GetComponent<Camera>().enabled = false;
+                this.transform.Find("FirstPersonCharacter").GetComponent<AudioListener>().enabled = false;
+                this.transform.Find("FirstPersonCharacter").GetComponent<FlareLayer>().enabled = false;
             }
 
             // Make player invisible by disabling their model
@@ -741,11 +741,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 // Enable all the controlling components for the local player 
                 GetComponent<Animator>().enabled = true;
-                this.transform.parent.GetComponent<CharacterController>().enabled = true;
+                GetComponent<CharacterController>().enabled = true;
                 GetComponent<AudioSource>().enabled = true;
                 GetComponent<PlayerAnimatorManager>().enabled = true;
                 //this.transform.Find("Model").GetComponent<PlayerManager>().enabled = true;
-                this.transform.parent.GetComponent<FirstPersonController>().enabled = true;
+                GetComponent<FirstPersonController>().enabled = true;
                 this.transform.Find("FirstPersonCharacter").GetComponent<Camera>().enabled = true;
                 this.transform.Find("FirstPersonCharacter").GetComponent<AudioListener>().enabled = true;
                 this.transform.Find("FirstPersonCharacter").GetComponent<FlareLayer>().enabled = true;
@@ -1046,7 +1046,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         // Remove cursor lock to enable the Leave Game UI button to be clicked
                         // I had to create a public SetCursorLock method inside FirstPersonController to access the MouseLook.SetCursorLock method
                         // !! This might not have been the best way to handle this problem!
-                        this.transform.parent.GetComponent<FirstPersonController>().SetCursorLock(false);
+                        GetComponent<FirstPersonController>().SetCursorLock(false);
 
                         // Return so we don't shoot gun
                         return;
@@ -1256,7 +1256,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             //GameManager.Instance.LeaveRoom();
             //PhotonNetwork.Destroy(gameObject);
             //Destroy(gameObject);
-            AudioSource audioSource = this.transform.Find("Model").GetComponent<AudioSource>();
+            AudioSource audioSource = GetComponent<AudioSource>();
             audioSource.enabled = true;
             Debug.LogFormat("PlayerManager: Die() audioSource = {0}, deathSound = {1}", audioSource, deathSound);
 
@@ -1365,7 +1365,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public void OnPhotonInstantiate(PhotonMessageInfo info)
         {
             if (DEBUG && DEBUG_OnPhotonInstantiate) Debug.LogFormat("PlayerManager: OnPhotonInstantiate() info.Sender = {0}, gameObject = {1}", info.Sender, gameObject);
-            instantiationData = this.transform.Find("Model").GetComponent<PhotonView>().InstantiationData;
+            instantiationData = GetComponent<PhotonView>().InstantiationData;
             int actorNumber = (int)instantiationData[0];
             Player thisPlayer = PhotonNetwork.CurrentRoom.GetPlayer(actorNumber);
 

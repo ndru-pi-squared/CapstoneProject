@@ -1172,7 +1172,7 @@ PrefabInstance:
         type: 3}
       propertyPath: PlayerPrefab2
       value: 
-      objectReference: {fileID: 357, guid: d394167afb7c1994ba045343c6f0c33f, type: 3}
+      objectReference: {fileID: 357, guid: 471ef303437b3b94cafe139c76521f7f, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7ac2123401479ef47a6d48780e05ab48, type: 3}
 --- !u!114 &2033645109 stripped
