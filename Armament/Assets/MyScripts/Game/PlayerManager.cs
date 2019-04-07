@@ -843,7 +843,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Protect against double collisions (trying to pick up the same gun twice)
             // *** This check might not be necessary after recent code changes... TODO: look into it
-            if (pickedUpGun.Equals(activeGun))
+            
+            if (pickedUpGun.Equals(activeGun))//sometimes this is null for some reason.
             {
                 return;
             }
@@ -1022,10 +1023,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (DEBUG) Debug.LogFormat("PlayerManager: AddKill() kills = {0}, photonView.Owner.NickName = {1}", kills, photonView.Owner.NickName);
         }
 
-        IEnumerator DestroyCar(GameObject skyCar)
+        IEnumerator DestroyCar(GameObject fragGrenade)
         {
             yield return new WaitForSeconds(3.0f);
-            PhotonNetwork.Destroy(skyCar);
+            PhotonNetwork.Destroy(fragGrenade);
         }
 
         /// <summary>
@@ -1140,10 +1141,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 if (DEBUG && DEBUG_ProcessInputs) Debug.Log("keycode C");
                 if (photonView.IsMine)//network ismasterclient
                 {
-                    GameObject skyCar = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
+                    GameObject fragGrenade = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
+                    fragGrenade.GetComponent<FragGrenade>().playerWhoOwnsThisGrenade = this;//setting this for TakeDamage(int/float,playerwhoowns...)
+                                     
                     //yield return new WaitForSeconds(2.0f);
                     //PhotonNetwork.Destroy(skycar);
-                    StartCoroutine("DestroyCar", skyCar);
+                    //StartCoroutine("DestroyCar", skyCar);
                 }
                 
             }
@@ -1272,6 +1275,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             Debug.LogFormat("PlayerManager: Die() audioSource = {0}, deathSound = {1}", audioSource, deathSound);
 
             // Play death sound
+            audioSource.priority = 10;
             audioSource.PlayOneShot(deathSound); // I read somewhere online that this allows the sounds to overlap
 
             // Register a death for this player on all clients

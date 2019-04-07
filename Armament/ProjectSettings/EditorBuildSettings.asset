@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/MyScenes/Simple Room 2.unity
     guid: 3cac7739f2b13e7468ea9957b25ac893
+  - enabled: 1
+    path: Assets/MyScenes/Space_Arena.unity
+    guid: 21bf88c94b7df384896fc8c8c950e8c3
   m_configObjects: {}
