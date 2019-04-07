@@ -1083,7 +1083,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
 
                 // Transfer ownership of this player's photonview (and GameObject) to the client requesting a player be instantiated them
-                playerGO.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.CurrentRoom.GetPlayer(actorNumber));
+                playerGO.transform.Find("Model").GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.CurrentRoom.GetPlayer(actorNumber));
             }
         }
 
