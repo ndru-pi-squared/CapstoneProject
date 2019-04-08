@@ -278,25 +278,35 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 766274967133379203}
     m_Modifications:
-    - target: {fileID: 6197443874369675202, guid: 9405cf038837b49419ecf0a1f894e082,
+    - target: {fileID: 6197443874369672789, guid: 9405cf038837b49419ecf0a1f894e082,
         type: 3}
-      propertyPath: m_Name
-      value: MuzzleFlash (1)
+      propertyPath: InitialModule.startColor.maxColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6197443874369672789, guid: 9405cf038837b49419ecf0a1f894e082,
+        type: 3}
+      propertyPath: InitialModule.startColor.maxColor.g
+      value: 0.2048912
+      objectReference: {fileID: 0}
+    - target: {fileID: 6197443874369672789, guid: 9405cf038837b49419ecf0a1f894e082,
+        type: 3}
+      propertyPath: InitialModule.startColor.maxColor.b
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6197443874369673893, guid: 9405cf038837b49419ecf0a1f894e082,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.371
+      value: -0.028
       objectReference: {fileID: 0}
     - target: {fileID: 6197443874369673893, guid: 9405cf038837b49419ecf0a1f894e082,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.03
+      value: 0.286
       objectReference: {fileID: 0}
     - target: {fileID: 6197443874369673893, guid: 9405cf038837b49419ecf0a1f894e082,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.158
+      value: 0.017
       objectReference: {fileID: 0}
     - target: {fileID: 6197443874369673893, guid: 9405cf038837b49419ecf0a1f894e082,
         type: 3}
@@ -341,17 +351,22 @@ PrefabInstance:
     - target: {fileID: 6197443874369673893, guid: 9405cf038837b49419ecf0a1f894e082,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.2959563
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 6197443874369673893, guid: 9405cf038837b49419ecf0a1f894e082,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.29595628
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 6197443874369673893, guid: 9405cf038837b49419ecf0a1f894e082,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.2959563
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6197443874369675202, guid: 9405cf038837b49419ecf0a1f894e082,
+        type: 3}
+      propertyPath: m_Name
+      value: MuzzleFlash (1)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9405cf038837b49419ecf0a1f894e082, type: 3}
