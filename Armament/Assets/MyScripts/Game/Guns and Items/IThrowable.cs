@@ -5,4 +5,6 @@
 interface IThrowable
 {
     void Throw();
+    bool IsReadyToThrow();
+    
 }

@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/MyScenes/Space_Arena.unity
     guid: 21bf88c94b7df384896fc8c8c950e8c3
+  - enabled: 1
+    path: Assets/MyScenes/AI Test Room.unity
+    guid: d09e96e19025e4b43908f6e6137d498e
   m_configObjects: {}

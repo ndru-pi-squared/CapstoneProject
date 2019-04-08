@@ -45,5 +45,7 @@ MonoBehaviour:
   - SwapActiveGun
   - SetAvatar
   - PlayNewRoundSound
+  - Explode
+  - spawnExplosion
   DisableAutoOpenWizard: 1
   ShowSettings: 1

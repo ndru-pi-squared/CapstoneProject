@@ -44,7 +44,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
              * features per se. And so with this additional expression, we will allow input to be used if we are not 
              * connected. It's a very simple trick and will greatly improve your workflow during development.
              */
-            if (photonView.IsMine == false && PhotonNetwork.IsConnected == true)
+            if (photonView && photonView.IsMine == false && PhotonNetwork.IsConnected == true)
             {
                 return;
             }
@@ -66,15 +66,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
             float h = Input.GetAxis("Horizontal");
             float v = Input.GetAxis("Vertical");
-            if(v < 0)
-            {
-                v = 0;
-            }
             /** My note:
              *   Without Animator>Apply Root Motion = true, the speed and direction properties of the animation don't affect position of transform
              */
             animator.SetFloat("Speed", h * h + v * v);
-            animator.SetFloat("Direction", h, directionDampTime, Time.deltaTime);
+            animator.SetFloat("Direction_horizontal", h, directionDampTime, Time.deltaTime);
+            animator.SetFloat("Direction_vertical", v, directionDampTime, Time.deltaTime);
         }
         
         #endregion
