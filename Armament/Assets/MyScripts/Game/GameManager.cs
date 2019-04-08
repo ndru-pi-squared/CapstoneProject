@@ -93,19 +93,19 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_ReturnVanishedItems = false;
         private const bool DEBUG_DestroyUnclaimedItems = false;
         private const bool DEBUG_InstantiateLocalPlayer = false;
-        private const bool DEBUG_OnStage1TimerIsExpired = false;
-        private const bool DEBUG_OnStage2TimerIsExpired = false;
+        private const bool DEBUG_OnStage1TimerIsExpired = true;
+        private const bool DEBUG_OnStage2TimerIsExpired = true;
         private const bool DEBUG_BalanceTeams = false;
-        private const bool DEBUG_StartRound = false;
+        private const bool DEBUG_StartRound = true;
         private const bool DEBUG_EndRound = false;
         private const bool DEBUG_LeaveRoom = false;
         private const bool DEBUG_LoadArena = false;
         private const bool DEBUG_RemoveGunOwnerships = false;
         private const bool DEBUG_SpawnNewItems = false;
         private const bool DEBUG_Play = false;
-        private const bool DEBUG_ResetPlayerPosition = true;
-        private const bool DEBUG_SpawnWall = true;
-        private const bool DEBUG_OnPlayerDeath = true;
+        private const bool DEBUG_ResetPlayerPosition = false;
+        private const bool DEBUG_SpawnWall = false;
+        private const bool DEBUG_OnPlayerDeath = false;
 
         // Event codes
         private readonly byte InstantiatePlayer = 0;
@@ -1105,20 +1105,22 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 return;
             }
 
-            // Create a new list to keep track of spawned bots
-            SpawnedBotsList = new ArrayList();
+            if (botPrefabs.Length > 0)
+            {// Create a new list to keep track of spawned bots
+                SpawnedBotsList = new ArrayList();
 
-            // Instantiate our two bots at different spawn points for team A. Add each newly spawned bot to the list
-            SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[0].name, teamAPlayerSpawnPoints[0].position, teamAPlayerSpawnPoints[0].rotation, 0));
-            SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[1].name, teamAPlayerSpawnPoints[1].position, teamAPlayerSpawnPoints[1].rotation, 0));
-            // Instantiate our two bots at different spawn points for team B. Add each newly spawned bot to the list
-            SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[0].name, teamBPlayerSpawnPoints[0].position, teamBPlayerSpawnPoints[0].rotation, 0));
-            SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[1].name, teamBPlayerSpawnPoints[1].position, teamBPlayerSpawnPoints[1].rotation, 0));
+                // Instantiate our two bots at different spawn points for team A. Add each newly spawned bot to the list
+                SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[0].name, teamAPlayerSpawnPoints[0].position, teamAPlayerSpawnPoints[0].rotation, 0));
+                SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[1].name, teamAPlayerSpawnPoints[1].position, teamAPlayerSpawnPoints[1].rotation, 0));
+                // Instantiate our two bots at different spawn points for team B. Add each newly spawned bot to the list
+                SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[0].name, teamBPlayerSpawnPoints[0].position, teamBPlayerSpawnPoints[0].rotation, 0));
+                SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[1].name, teamBPlayerSpawnPoints[1].position, teamBPlayerSpawnPoints[1].rotation, 0));
 
-            ((GameObject)SpawnedBotsList[0]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
-            ((GameObject)SpawnedBotsList[1]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
-            ((GameObject)SpawnedBotsList[2]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
-            ((GameObject)SpawnedBotsList[3]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
+                ((GameObject)SpawnedBotsList[0]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
+                ((GameObject)SpawnedBotsList[1]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
+                ((GameObject)SpawnedBotsList[2]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
+                ((GameObject)SpawnedBotsList[3]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
+            }
         }
     }
 }
