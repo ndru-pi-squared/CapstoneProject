@@ -34,6 +34,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame {
             //StartCoroutine(coroutine);
         }
 
+        void Awake()
+        {
+            Throw();//throw the throwable grenade
+        }
+
         // Update is called once per frame
         void Update()
         {
@@ -96,7 +101,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame {
 
         public void Throw()//called from playermanager. pulling into here makes it more modular in PlayerManager since theres a lot of cod ethere. Similar to shoot. 
         {
-
+            //add up and forward forces to lob it
+            this.gameObject.GetComponent<Rigidbody>().AddForce(transform.forward * 1500.0f);
+            this.gameObject.GetComponent<Rigidbody>().AddForce(0, 400, 0);
         }
 
         public bool IsReadyToThrow()

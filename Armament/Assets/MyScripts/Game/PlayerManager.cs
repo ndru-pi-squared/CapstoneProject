@@ -123,6 +123,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Get the instantiation data set by the master client who instantiated this player game object on the network
             // The master client will have provided the photon player actor number who this player GO was intended for
             // If we are that actor, lets claim ownership of the photonview on the player GO.
+
             instantiationData = GetComponent<PhotonView>().InstantiationData;
             int actorNumber = (int)instantiationData[0];
 

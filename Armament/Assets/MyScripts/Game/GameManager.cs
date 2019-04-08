@@ -11,6 +11,7 @@ using Photon.Realtime;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using ExitGames.Client.Photon;
+using UnityStandardAssets.Characters.ThirdPerson;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
@@ -43,6 +44,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public GameObject PlayerPrefab2; // used to instantiate the player pref on PhotonNetwork
         [Tooltip("List of weapon prefabs for this game")]
         public GameObject[] weaponsPrefabs; // used to instantiate the weapons on PhotonNetwork
+        [Tooltip("List of AIBot prefabs for this game")]
+        public GameObject[] botPrefabs; // used to instantiate the bots on PhotonNetwork
         [Tooltip("Prefab for the team dividing wall")]
         public GameObject dividingWallPrefab; // used to instantiate the player pref on PhotonNetwork
         [Tooltip("The root GameObject in the hierarchy for all our game levels that we call \"Environment\"")]
@@ -90,19 +93,19 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_ReturnVanishedItems = false;
         private const bool DEBUG_DestroyUnclaimedItems = false;
         private const bool DEBUG_InstantiateLocalPlayer = false;
-        private const bool DEBUG_OnStage1TimerIsExpired = false;
-        private const bool DEBUG_OnStage2TimerIsExpired = false;
+        private const bool DEBUG_OnStage1TimerIsExpired = true;
+        private const bool DEBUG_OnStage2TimerIsExpired = true;
         private const bool DEBUG_BalanceTeams = false;
-        private const bool DEBUG_StartRound = false;
+        private const bool DEBUG_StartRound = true;
         private const bool DEBUG_EndRound = false;
         private const bool DEBUG_LeaveRoom = false;
         private const bool DEBUG_LoadArena = false;
         private const bool DEBUG_RemoveGunOwnerships = false;
         private const bool DEBUG_SpawnNewItems = false;
         private const bool DEBUG_Play = false;
-        private const bool DEBUG_ResetPlayerPosition = true;
-        private const bool DEBUG_SpawnWall = true;
-        private const bool DEBUG_OnPlayerDeath = true;
+        private const bool DEBUG_ResetPlayerPosition = false;
+        private const bool DEBUG_SpawnWall = false;
+        private const bool DEBUG_OnPlayerDeath = false;
 
         // Event codes
         private readonly byte InstantiatePlayer = 0;
@@ -112,6 +115,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private ArrayList teamAList;
         private ArrayList teamBList;
         private GameObject dividingWallGO;
+
+        //AICount
+        public int AIBotsToSpawn;
 
         /// <summary>
         /// Keeps track of whether items were destroyed. Synchronized on all clients; 
@@ -142,6 +148,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         public ArrayList SpawnedWeaponsList { get; private set; }
+
+        public ArrayList SpawnedBotsList { get; private set; }
 
         #endregion
 
@@ -646,6 +654,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 dividingWallGO.gameObject.transform.localScale = new Vector3(1f, 40f, 200f);
                 if (DEBUG && DEBUG_SpawnWall) Debug.LogFormat("GameManager: SpawnWall() dividingWallGO.transform.position = {0}", dividingWallGO.transform.position);
             }
+            // If arena is "Space_Arena" unity scene...
+            else if (Launcher.developmentOnly_levelToLoad.Equals("Space_Arena"))
+            {
+                // Instantiate the dividing wall for "Space_Arena" level
+                Vector3 wallPosition = new Vector3(0f, 39.5f, 0f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
+                Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, 0f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
+                dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0, new[] { (object)wallPosition });
+            }
         }
 
         /// <summary>
@@ -778,6 +794,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 {
                     SpawnNewItems();
                     SpawnWall();
+                    SpawnBots(AIBotsToSpawn);
                 }
             }
             else
@@ -1089,5 +1106,29 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         #endregion IOnEventCallback Implementation
+
+        public void SpawnBots(int bots) {
+            if (!PhotonNetwork.IsMasterClient)
+            {
+                return;
+            }
+
+            if (botPrefabs.Length > 0)
+            {// Create a new list to keep track of spawned bots
+                SpawnedBotsList = new ArrayList();
+
+                // Instantiate our two bots at different spawn points for team A. Add each newly spawned bot to the list
+                SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[0].name, teamAPlayerSpawnPoints[0].position, teamAPlayerSpawnPoints[0].rotation, 0));
+                SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[1].name, teamAPlayerSpawnPoints[1].position, teamAPlayerSpawnPoints[1].rotation, 0));
+                // Instantiate our two bots at different spawn points for team B. Add each newly spawned bot to the list
+                SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[0].name, teamBPlayerSpawnPoints[0].position, teamBPlayerSpawnPoints[0].rotation, 0));
+                SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[1].name, teamBPlayerSpawnPoints[1].position, teamBPlayerSpawnPoints[1].rotation, 0));
+
+                ((GameObject)SpawnedBotsList[0]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
+                ((GameObject)SpawnedBotsList[1]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
+                ((GameObject)SpawnedBotsList[2]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
+                ((GameObject)SpawnedBotsList[3]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
+            }
+        }
     }
 }
