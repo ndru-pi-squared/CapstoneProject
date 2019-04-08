@@ -41,6 +41,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [Tooltip("Names of Unity Scenes that will be used as game arenas. Make sure you get the name exactly right!")]
         [SerializeField] private string[] namesOfArenas;
 
+        [SerializeField] private GameObject playFabControl;
+
 
         /// <summary>
         /// The maximum number of players per room. When a room is full, it can't be joined by new players, and so new room will be created.
@@ -115,6 +117,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
             arenaFilterDropdown.AddOptions(arenaOptions);
 
+            playFabControl = GameObject.Find("PlayFabController");
         }
 
 
@@ -402,5 +405,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         #endregion
+
+        //Sets the string for Join Specific Room to be the shared group room name
+        public void OnClickReadyPrivateRoom() {
+            roomNameInputField.text = playFabControl.GetComponent<PlayFabController>().sharedGroupRoom;
+        }
     }
 }
