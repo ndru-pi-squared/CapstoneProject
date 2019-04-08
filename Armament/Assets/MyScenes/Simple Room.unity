@@ -1157,17 +1157,22 @@ PrefabInstance:
         type: 3}
       propertyPath: weaponsPrefabs.Array.data[0]
       value: 
-      objectReference: {fileID: 381, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
+      objectReference: {fileID: 363, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
     - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
         type: 3}
       propertyPath: weaponsPrefabs.Array.data[1]
       value: 
-      objectReference: {fileID: 380, guid: 7f76b63222a574a4ba64ba2451b768ee, type: 3}
+      objectReference: {fileID: 367, guid: 7f76b63222a574a4ba64ba2451b768ee, type: 3}
     - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
         type: 3}
       propertyPath: dividingWallPrefab
       value: 
-      objectReference: {fileID: 385, guid: 133dbba72a6b21745b71d1c4289bf0fe, type: 3}
+      objectReference: {fileID: 378, guid: 133dbba72a6b21745b71d1c4289bf0fe, type: 3}
+    - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
+        type: 3}
+      propertyPath: PlayerPrefab2
+      value: 
+      objectReference: {fileID: 357, guid: 471ef303437b3b94cafe139c76521f7f, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7ac2123401479ef47a6d48780e05ab48, type: 3}
 --- !u!114 &2033645109 stripped
