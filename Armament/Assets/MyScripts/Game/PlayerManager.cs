@@ -146,14 +146,27 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // We need to enable all the controlling components for the local player 
                 // The prefab has these components disabled so we won't be controlling other players with our input
                 GetComponent<Animator>().enabled = true;
-                GetComponent<CharacterController>().enabled = true;
                 GetComponent<AudioSource>().enabled = true;
-                GetComponent<FirstPersonController>().enabled = true;
                 GetComponent<PlayerAnimatorManager>().enabled = true;
                 GetComponent<PlayerManager>().enabled = true;
-                GetComponentInChildren<Camera>().enabled = true;
-                GetComponentInChildren<AudioListener>().enabled = true;
-                GetComponentInChildren<FlareLayer>().enabled = true;
+                GetComponent<CharacterController>().enabled = true;
+                GetComponent<FirstPersonController>().enabled = true;
+                this.transform.Find("FirstPersonCharacter").GetComponent<Camera>().enabled = true;
+                this.transform.Find("FirstPersonCharacter").GetComponent<AudioListener>().enabled = true;
+                this.transform.Find("FirstPersonCharacter").GetComponent<FlareLayer>().enabled = true;
+
+                // Set up appropriate combination of rendering for MY view
+                this.transform.Find("Model/Robot2").gameObject.GetComponent<SkinnedMeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
+
+                GameObject _fpLegs = this.transform.Find("Model FP LEGS").gameObject;
+                _fpLegs.SetActive(true);
+                _fpLegs.transform.Find("Robot2").GetComponent<SkinnedMeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
+
+                GameObject _fpArms = this.transform.Find("FirstPersonCharacter/Model FP ARMS").gameObject;
+                _fpArms.SetActive(true);
+                _fpArms.transform.Find("Robot2").GetComponent<SkinnedMeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
 
                 string avatarChoice = playerData.GetComponent<PlayerData>().GetAvatarChoice();
                 Debug.LogFormat("PlayerManager: Awake() avatarChoice = {0}", avatarChoice);
@@ -643,7 +656,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             */
 
             // Move the player to the target position
-            GetComponent<CharacterController>().Move(t.position - transform.position);
+            this.transform.parent.GetComponent<CharacterController>().Move(t.position - transform.position);
 
             if (DEBUG && DEBUG_MovePlayer) Debug.LogFormat("PlayerManager: MovePlayer() transform.position = {0}", transform.position);
         }
@@ -703,12 +716,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 GetComponent<Animator>().enabled = false;
                 GetComponent<CharacterController>().enabled = false;
                 GetComponent<AudioSource>().enabled = false;
-                GetComponent<FirstPersonController>().enabled = false;
                 GetComponent<PlayerAnimatorManager>().enabled = false;
-                //GetComponent<PlayerManager>().enabled = false;
-                GetComponentInChildren<Camera>().enabled = false;
-                GetComponentInChildren<AudioListener>().enabled = false;
-                GetComponentInChildren<FlareLayer>().enabled = false;
+                // this.transform.Find("Model").GetComponent<PlayerManager>().enabled = true;
+                GetComponent<FirstPersonController>().enabled = false;
+                this.transform.Find("FirstPersonCharacter").GetComponent<Camera>().enabled = false;
+                this.transform.Find("FirstPersonCharacter").GetComponent<AudioListener>().enabled = false;
+                this.transform.Find("FirstPersonCharacter").GetComponent<FlareLayer>().enabled = false;
             }
 
             // Make player invisible by disabling their model
@@ -730,12 +743,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 GetComponent<Animator>().enabled = true;
                 GetComponent<CharacterController>().enabled = true;
                 GetComponent<AudioSource>().enabled = true;
-                GetComponent<FirstPersonController>().enabled = true;
                 GetComponent<PlayerAnimatorManager>().enabled = true;
-                //GetComponent<PlayerManager>().enabled = true;
-                GetComponentInChildren<Camera>().enabled = true;
-                GetComponentInChildren<AudioListener>().enabled = true;
-                GetComponentInChildren<FlareLayer>().enabled = true;
+                //this.transform.Find("Model").GetComponent<PlayerManager>().enabled = true;
+                GetComponent<FirstPersonController>().enabled = true;
+                this.transform.Find("FirstPersonCharacter").GetComponent<Camera>().enabled = true;
+                this.transform.Find("FirstPersonCharacter").GetComponent<AudioListener>().enabled = true;
+                this.transform.Find("FirstPersonCharacter").GetComponent<FlareLayer>().enabled = true;
             }
 
             // Make player visible by enabling their model
@@ -782,7 +795,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Instantiate show Gun based on type of gun
             // *** Will need to change how we instantiate based on type of gun
-            GameObject gunPrefab = activeGunType == 1 ? GameManager.Instance.weaponsPrefabs[0] : GameManager.Instance.weaponsPrefabs[1];
+            GameObject gunPrefab;
+            if(activeGunType == 1)
+            {
+                gunPrefab = GameManager.Instance.weaponsPrefabs[0];
+                transform.Find("FirstPersonCharacter/Show Weapon").transform.localPosition = new Vector3(0, 0, 0.18f);
+            }
+            else
+            {
+                gunPrefab = GameManager.Instance.weaponsPrefabs[1];
+                transform.Find("FirstPersonCharacter/Show Weapon").transform.localPosition = new Vector3(0, 0.05f, 0);
+            }
+            
             GameObject showGunToBeActivatedGO = Instantiate(gunPrefab, transform.Find("FirstPersonCharacter/Show Weapon"));
 
             Gun showGunToBeActivated = showGunToBeActivatedGO.GetComponent<Gun>();
@@ -1356,7 +1380,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public void OnPhotonInstantiate(PhotonMessageInfo info)
         {
             if (DEBUG && DEBUG_OnPhotonInstantiate) Debug.LogFormat("PlayerManager: OnPhotonInstantiate() info.Sender = {0}, gameObject = {1}", info.Sender, gameObject);
-            
             instantiationData = GetComponent<PhotonView>().InstantiationData;
             int actorNumber = (int)instantiationData[0];
             Player thisPlayer = PhotonNetwork.CurrentRoom.GetPlayer(actorNumber);

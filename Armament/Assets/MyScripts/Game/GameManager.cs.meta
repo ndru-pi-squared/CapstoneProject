@@ -3,7 +3,14 @@ guid: d77a52fe1dc331e43a3b28cb013eda24
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - PlayerPrefab1: {fileID: 357, guid: d9ef29bbc70eb814091cf1216dfd1fcd, type: 3}
+  - PlayerPrefab2: {fileID: 357, guid: d394167afb7c1994ba045343c6f0c33f, type: 3}
+  - dividingWallPrefab: {instanceID: 0}
+  - environment: {instanceID: 0}
+  - canvas: {instanceID: 0}
+  - newRoundSound: {instanceID: 0}
+  - playerData: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
