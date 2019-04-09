@@ -260,7 +260,15 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         // Called once every Update() call
         private void RotateView()
         {
+            float maxLocalCameraRotation = 0.5739346f;
+            float setLocalCameraRotation = 70f;
             m_MouseLook.LookRotation(transform, m_Camera.transform);
+            if (m_Camera.transform.localRotation.x >= maxLocalCameraRotation)
+            {
+                float y = m_Camera.transform.localRotation.y;
+                float z = m_Camera.transform.localRotation.z;
+                m_Camera.transform.localRotation = Quaternion.Euler(setLocalCameraRotation, y, z);
+            }
         }
 
 

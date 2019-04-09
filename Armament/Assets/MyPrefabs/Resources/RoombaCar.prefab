@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1019278121}
   - component: {fileID: 1019278119}
   - component: {fileID: 1019278120}
-  - component: {fileID: 1019278117}
+  - component: {fileID: 1857277912149534584}
   - component: {fileID: 398805723129173496}
   - component: {fileID: 2117395974688345347}
   m_Layer: 0
@@ -88,11 +88,11 @@ BoxCollider:
   m_GameObject: {fileID: 1019278116}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Size: {x: 1.4670682, y: 0.9566307, z: 4.077778}
   m_Center: {x: 0.022152185, y: 0.522562, z: -0.13644171}
---- !u!114 &1019278117
+--- !u!114 &1857277912149534584
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
