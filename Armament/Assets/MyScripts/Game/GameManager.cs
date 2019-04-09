@@ -221,6 +221,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient };
             SendOptions sendOptions = new SendOptions { Reliability = true };
             PhotonNetwork.RaiseEvent(InstantiatePlayer, content, raiseEventOptions, sendOptions);
+
+            //Create an AI player
+            //object[] content2 = new object[] { PhotonNetwork.LocalPlayer.ActorNumber };
+            //PhotonNetwork.RaiseEvent(InstantiatePlayer, content2, raiseEventOptions, sendOptions);
         }
 
         #endregion Public Methods
