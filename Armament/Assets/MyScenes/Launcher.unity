@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.73024184, g: 0.78898203, b: 0.8498679, a: 1}
+  m_IndirectSpecularColor: {r: 0.7302334, g: 0.78898656, b: 0.8498491, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -573,6 +573,7 @@ MonoBehaviour:
   - Simple Room
   - Simple Room 2
   - Space_Arena
+  - AI Test Room
   playFabControl: {fileID: 0}
   maxPlayersPerRoom: 4
 --- !u!1 &491538889
@@ -4741,6 +4742,51 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3482559699676181452}
     m_Modifications:
+    - target: {fileID: 8185182602529193466, guid: 5cfbed5334a824bdab3925f8f3fe6680,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8736770160935153777, guid: 5cfbed5334a824bdab3925f8f3fe6680,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6062934315241339492, guid: 5cfbed5334a824bdab3925f8f3fe6680,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 6062934315241339492, guid: 5cfbed5334a824bdab3925f8f3fe6680,
+        type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6062934315241339492, guid: 5cfbed5334a824bdab3925f8f3fe6680,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6062934315241339492, guid: 5cfbed5334a824bdab3925f8f3fe6680,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6062934315241339492, guid: 5cfbed5334a824bdab3925f8f3fe6680,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6062934315241339492, guid: 5cfbed5334a824bdab3925f8f3fe6680,
+        type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6062934315241339492, guid: 5cfbed5334a824bdab3925f8f3fe6680,
+        type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: 74577c4b5bae2e447abc5cc67f8c4588, type: 3}
       propertyPath: m_Name
       value: Robot Kyle 2
@@ -4800,51 +4846,6 @@ PrefabInstance:
     - target: {fileID: 400000, guid: 74577c4b5bae2e447abc5cc67f8c4588, type: 3}
       propertyPath: m_LocalScale.z
       value: 40
-      objectReference: {fileID: 0}
-    - target: {fileID: 6062934315241339492, guid: 5cfbed5334a824bdab3925f8f3fe6680,
-        type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 6062934315241339492, guid: 5cfbed5334a824bdab3925f8f3fe6680,
-        type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6062934315241339492, guid: 5cfbed5334a824bdab3925f8f3fe6680,
-        type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6062934315241339492, guid: 5cfbed5334a824bdab3925f8f3fe6680,
-        type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6062934315241339492, guid: 5cfbed5334a824bdab3925f8f3fe6680,
-        type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6062934315241339492, guid: 5cfbed5334a824bdab3925f8f3fe6680,
-        type: 3}
-      propertyPath: m_Pivot.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6062934315241339492, guid: 5cfbed5334a824bdab3925f8f3fe6680,
-        type: 3}
-      propertyPath: m_Pivot.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8185182602529193466, guid: 5cfbed5334a824bdab3925f8f3fe6680,
-        type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8736770160935153777, guid: 5cfbed5334a824bdab3925f8f3fe6680,
-        type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 74577c4b5bae2e447abc5cc67f8c4588, type: 3}
