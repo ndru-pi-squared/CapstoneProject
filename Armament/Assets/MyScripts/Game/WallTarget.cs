@@ -6,11 +6,15 @@ using UnityEngine;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
-    public class WallTarget : MonoBehaviour, ITarget
+    public class WallTarget : MonoBehaviourPunCallbacks, ITarget
     {
+        // Key references for the Room CustomProperties hash table (so we don't use messy string literals)
+        public const string KEY_WALL_HEALTH = "Wall Health";
+
         [SerializeField] private float health = 100f;
         MeshRenderer meshRenderer;
         private float originalHealth; // keeps track of original health value
+
 
         #region MonoBehaviour CallBacks
 
@@ -18,19 +22,47 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             originalHealth = health;
             meshRenderer = GetComponent<MeshRenderer>();
+            SyncWallHealth();
         }
 
         #endregion MonoBehaviour CallBacks
+
+        #region MonoBehaviourPun Callbacks
+
+        public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
+        {   
+            if (!PhotonNetwork.IsMasterClient)
+            {
+                // Get the current health of the wall from Room CustomProperties
+                if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(KEY_WALL_HEALTH, out object value))
+                {
+                    health = (float)value;
+                    UpdateWallColor();
+
+                    if (health <= 0)
+                        GetComponent<BoxCollider>().enabled = false;
+                    else
+                        GetComponent<BoxCollider>().enabled = true;
+                }
+            }
+        }
+
+        #endregion MonoBehaviourPun Callbacks
 
         #region Public Methods
 
         public void TakeDamage(float amount)
         {
-            health -= amount;
-            UpdateWallColor();
+            if (PhotonNetwork.IsMasterClient)
+            {
+                health -= amount;
+                UpdateWallColor();
 
-            if (health <= 0)
-                GetComponent<BoxCollider>().enabled = false;
+                SyncWallHealth();
+
+                if (health <= 0)
+                    GetComponent<BoxCollider>().enabled = false;
+            }
         }
 
         /// <summary>
@@ -49,6 +81,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             health = originalHealth;
             UpdateWallColor();
 
+            SyncWallHealth();
+
             // Re-enable wall's box collider
             GetComponent<BoxCollider>().enabled = true;
         }
@@ -56,6 +90,16 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #endregion Public Methods
 
         #region Private Methods
+
+        void SyncWallHealth()
+        {
+            // If we are the master client...
+            if (PhotonNetwork.IsMasterClient)
+            {
+                // Sync current wall health in Room CustomProperties
+                PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { {KEY_WALL_HEALTH, health }});
+            }
+        }
 
         void UpdateWallColor()
         {
