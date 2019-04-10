@@ -202,21 +202,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // ***
 
             // If this gun has a registered owner (player) in the room's CustomProperties...
-            if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(gameObject.GetComponent<PhotonView>().ViewID.ToString(), out object gunOwnerNickName))
+            if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(gameObject.GetComponent<PhotonView>().ViewID.ToString(), out object gunOwnerActorNumber))
             {
-                if (DEBUG && DEBUG_MakeOwnerPickupGun) Debug.LogFormat("Gun: MakeOwnerPickupGun() (string)gunOwnerNickNameVal = {0}", (string)gunOwnerNickName);
+                if (DEBUG && DEBUG_MakeOwnerPickupGun) Debug.LogFormat("Gun: MakeOwnerPickupGun() (string)gunOwnerActorNumber = {0}", (string)gunOwnerActorNumber);
 
                 // Go through the list of all the players... (*** This loop would probably be unnecessary if we used actor numbers instead of nicknames for gun ownership)
                 foreach (Player player in PhotonNetwork.PlayerList)
                 {
                     // If we found the player who is the gunOwner...
-                    if (player.NickName.Equals(gunOwnerNickName))
+                    if (player.ActorNumber.ToString().Equals(gunOwnerActorNumber))
                     {
                         // Save a reference to the gun owner and the gun View ID
                         Player gunOwner = player;
                         int gunViewID = gameObject.GetComponent<PhotonView>().ViewID;
 
-                        if (DEBUG && DEBUG_MakeOwnerPickupGun) Debug.LogFormat("Gun: MakeOwnerPickupGun() Making player {0} PICKUP gun {1} with ViewID = {2}", gunOwnerNickName, this.ToString(), gunViewID);
+                        if (DEBUG && DEBUG_MakeOwnerPickupGun) Debug.LogFormat("Gun: MakeOwnerPickupGun() Making player {0} PICKUP gun {1} with ViewID = {2}", gunOwnerActorNumber, this.ToString(), gunViewID);
 
                         bool playerHasBeenInstantiated = ((GameObject)gunOwner.TagObject) != null;
 
@@ -232,7 +232,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                                 // If this gun is the active gun (for the player who owns this gun)...
                                 if (gunViewID == Convert.ToInt32(gunViewIDObject))
                                 {
-                                    if (DEBUG && DEBUG_MakeOwnerPickupGun) Debug.LogFormat("Gun: MakeOwnerPickupGun() Making player {0} SETACTIVE gun {1} with ViewID = {2}", gunOwnerNickName, this.ToString(), gunViewID);
+                                    if (DEBUG && DEBUG_MakeOwnerPickupGun) Debug.LogFormat("Gun: MakeOwnerPickupGun() Making player {0} SETACTIVE gun {1} with ViewID = {2}", gunOwnerActorNumber, this.ToString(), gunViewID);
 
                                     // Make gunOwner set this gun as the active gun
                                     ((GameObject)gunOwner.TagObject).GetComponent<PlayerManager>().SetActiveGun(gunViewID);

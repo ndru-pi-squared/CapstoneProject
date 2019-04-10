@@ -342,7 +342,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     // After SetCustomProperties is called we will wait for OnRoomPropertiesUpdate() photon callback 
                     // to be called to see if we can actually pick up the gun
                     PhotonNetwork.CurrentRoom.SetCustomProperties(
-                        new ExitGames.Client.Photon.Hashtable { { gunViewID, photonView.Owner.NickName } },
+                        new ExitGames.Client.Photon.Hashtable { { gunViewID, photonView.Owner.ActorNumber.ToString() } },
                         new ExitGames.Client.Photon.Hashtable { { gunViewID, value } });
                 }
             }
@@ -438,7 +438,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 string currentOwner = (value != null) ? (string)value : ""; // value should never be null but just in case...
 
                 // If we are the current owner of the gun we want to pick up...
-                if (currentOwner.Equals(photonView.Owner.NickName))
+                if (currentOwner.Equals(photonView.Owner.ActorNumber.ToString()))
                 {
                     if (DEBUG && DEBUG_OnRoomPropertiesUpdate) Debug.LogFormat("PlayerManager: OnRoomPropertiesUpdate() About to pick up gun: gunViewID = {0}", gunViewID);
                     
@@ -1404,26 +1404,47 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     try { gunViewID = Convert.ToInt32(keyString); }
                     catch (Exception) { continue; }
 
-                    if (DEBUG && DEBUG_OnPhotonInstantiate) Debug.LogFormat("PlayerManager: OnPhotonInstantiate() gunViewID = {0} ", gunViewID);
+                    if (DEBUG && DEBUG_OnPhotonInstantiate) Debug.LogFormat("PlayerManager: OnPhotonInstantiate() LOOKING FOR OWNER OF GUN: gunViewID = {0} ", gunViewID);
                                         
                     Gun gun = PhotonView.Find(gunViewID).GetComponent<Gun>();
                     
                     // If this gun has a registered owner (player) in the room's CustomProperties...
-                    if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(gunViewID.ToString(), out object gunOwnerNickName))
+                    if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(gunViewID.ToString(), out object gunOwnerActorNumber))
                     {
+                        if (DEBUG && DEBUG_OnPhotonInstantiate) Debug.LogFormat("PlayerManager: OnPhotonInstantiate() FOUND A GUN " +
+                            "thisPlayer.ActorNumber = {0}, gunOwnerActorNumber = {1}", thisPlayer.ActorNumber, (string)gunOwnerActorNumber);
+
                         // If this player is the gun owner...
-                        if (thisPlayer.NickName.Equals((string)gunOwnerNickName))
+                        if (thisPlayer.ActorNumber.ToString().Equals((string)gunOwnerActorNumber))
                         {
+                            if (DEBUG && DEBUG_OnPhotonInstantiate) Debug.LogFormat("PlayerManager: OnPhotonInstantiate() " +
+                                "MAKING player with ActorNumber=[{0}] PICKUP GUN gun with ViewID=[{1}]", gunOwnerActorNumber, gunViewID);
+
                             // Make gunOwner pick up this gun 
                             PickUpGun(gunViewID);
+
+                            if (DEBUG && DEBUG_OnPhotonInstantiate)
+                            {
+                                string output = "";
+                                foreach (object propertyKey in thisPlayer.CustomProperties.Keys)
+                                {
+                                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(propertyKey, out object propertyValue);
+                                    output += "{" + propertyKey + "," + (string)propertyValue + "} ";
+                                }
+                                Debug.LogFormat("PlayerManager: OnPhotonInstantiate() output = [{0}]", output);
+                            }
 
                             // If this player has registered an active gun in the player's CustomProperties...
                             if (thisPlayer.CustomProperties.TryGetValue(KEY_ACTIVE_GUN, out object gunViewIDObject))
                             {
+                                if (DEBUG && DEBUG_OnPhotonInstantiate) Debug.LogFormat("PlayerManager: OnPhotonInstantiate() " + 
+                                    "CHECKING ACTIVE GUN for player with ActorNumber=[{0}] | Gun with ViewID=[{1}] and gunViewIDObject=[{2}]", actorNumber, gunViewID, gunViewIDObject);
+
                                 // If this gun is the active gun (for the player who owns this gun)...
                                 if (gunViewID == Convert.ToInt32(gunViewIDObject))
                                 {
-                                    if (DEBUG && DEBUG_OnPhotonInstantiate) Debug.LogFormat("PlayerManager: OnPhotonInstantiate() Making player {0} SETACTIVE gun {1} with ViewID = {2}", gunOwnerNickName, this.ToString(), gunViewID);
+                                    if (DEBUG && DEBUG_OnPhotonInstantiate) Debug.LogFormat("PlayerManager: OnPhotonInstantiate() " +
+                                    "SETTING ACTIVE GUN for player with ActorNumber=[{0}] | Gun with ViewID=[{1}] and gunViewIDObject=[{2}]", actorNumber, gunViewID, gunViewIDObject);
 
                                     // Make gunOwner set this gun as the active gun
                                     SetActiveGun(gunViewID);

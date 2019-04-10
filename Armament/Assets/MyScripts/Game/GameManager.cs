@@ -318,7 +318,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Get the player using the playerKey
                 players.TryGetValue(playerKey, out Player player);
                 // Add the player's nickname to the display
-                playerInfoTextComponent.text += player.NickName + ":\n";
+                playerInfoTextComponent.text += "NickName = [" + player.NickName + "], ActorNumber = [ " + player.ActorNumber + "], UserId = [" + player.UserId + "]:\n";
 
                 // Go through list of player properties (information about player)
                 foreach (object propertyKey in player.CustomProperties.Keys)
