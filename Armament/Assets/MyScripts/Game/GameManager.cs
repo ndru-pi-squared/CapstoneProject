@@ -12,6 +12,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using ExitGames.Client.Photon;
 using UnityStandardAssets.Characters.ThirdPerson;
+using UnityEngine.AI;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
@@ -52,8 +53,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public GameObject environment; // used to give us a way to find GameObjects that are children of Environment
         [Tooltip("The root GameObject in the hierarchy for all our game levels that we call \"Canvas\"")]
         public GameObject canvas; // used to give us a way to find GameObjects that are children of Canvas
+        [Tooltip("NavMesh")]
+        public NavMeshSurface navMesh;
         [Tooltip("List of Scene Cameras")]
         public Camera[] sceneCameras; // used to disable scene cameras when local player is created
+
 
         #endregion Public Fields
 
@@ -106,6 +110,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_ResetPlayerPosition = false;
         private const bool DEBUG_SpawnWall = false;
         private const bool DEBUG_OnPlayerDeath = false;
+        private const bool DEBUG_OnWallReachedDropPosition = true;
 
         // Event codes
         private readonly byte InstantiatePlayer = 0;
@@ -192,6 +197,27 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (DEBUG && DEBUG_OnStage2TimerIsExpired) Debug.LogFormat("GameManager: OnStage2TimerIsExpired() PhotonNetwork.IsMasterClient = {0}", PhotonNetwork.IsMasterClient);
             // End the round
             EndRound();
+        }
+
+        /// <summary>
+        /// Event Handler. Called in the event that the wall has reached its drop position.
+        /// If this event is called, the nav mesh needs to be udated
+        /// </summary>
+        public void OnWallReachedDropPosition()
+        {
+            if (DEBUG && DEBUG_OnWallReachedDropPosition) Debug.LogFormat("GameManger: OnWallReachedDropPosition()");
+            UpdateNavMesh();
+        }
+
+        /// <summary>
+        /// Updates the navmesh
+        /// </summary>
+        private void UpdateNavMesh()
+        {
+            if (navMesh != null)
+            {
+                navMesh.BuildNavMesh();
+            }
         }
 
         /// <Summary> 
@@ -688,6 +714,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, 0f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
                 dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0, new[] { (object)wallPosition });
             }
+
+            UpdateNavMesh();
         }
 
         /// <summary>
@@ -844,6 +872,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Setup event callbacks for the ending of the two stages of the game
             CountdownTimer.OnCountdownTimer1HasExpired += OnStage1TimerIsExpired;
             CountdownTimer.OnCountdownTimer2HasExpired += OnStage2TimerIsExpired;
+            WallDropAnimator.OnWallReachedDropPosition += OnWallReachedDropPosition;
         }
 
         public override void OnDisable()

@@ -12,21 +12,23 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
     [RequireComponent(typeof(Camera))]
     public class AICharacterControl : MonoBehaviour
     {
+        #region Public Fields
+
         public NavMeshAgent Agent { get; private set; }             // the navmesh agent required for the path finding
         public ThirdPersonCharacter Character { get; private set; } // the character we are controlling
-        public Transform target;                                    // target to aim for
-        [Tooltip("Explosion time")]
-        public float timer = 0.2f;//spawn a grenad every 5 seconds
-        [Tooltip("Keeps track of the countdown")]
-        public float countdown;
-        bool hasSpawnedGrenade;
-        GameObject spawnedGrenade;
-        //public float Health = 250f; //trying health
+        public Transform target;                                    // target to navigate to
+
+        #endregion Public Fields
+
+        #region Private Fields
+
+        private const bool DEBUG = true;
+        private const bool DEBUG_EnemyIsInCrosshairs = true;
 
         PlayerManager pm; // keeps a reference of the player manager attached to the player GM
         Camera fpsCam;
-        private bool DEBUG = true;
-        private bool DEBUG_EnemyIsInCrosshairs = true;
+
+        #endregion Private Fields
 
         private void Start()
         {
@@ -35,70 +37,51 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             Character = GetComponent<ThirdPersonCharacter>();
             pm = GetComponent<PlayerManager>();
             fpsCam = GetComponentInChildren<Camera>();
-            countdown = timer;
-            Agent.updateRotation = false;
+
+            Agent.updateRotation = false; // Alex's note to self: look into why this is set to false
 	        Agent.updatePosition = true;
-            hasSpawnedGrenade = false; 
         }
-
-
+        
         private void Update()
         {
-            if (target != null)
-                Agent.SetDestination(target.position);
-            else { //not sure what this empty else is
-                
-            }
-
-            /*if (countdown <= 0)
-            {
-                hasSpawnedGrenade = false;//ready to spawn new grenade   
-                countdown = timer;
-            }*/
-
-            if (Agent.remainingDistance > Agent.stoppingDistance)
-            {
-                //countdown -= Time.deltaTime;
-                Character.Move(Agent.desiredVelocity, false, false);
-            }
-            /*else if (agent.remainingDistance < (agent.stoppingDistance + 10f))//ai is within throwing range
-            {
-                countdown -= Time.deltaTime;
-                if (hasSpawnedGrenade == false)
-                {
-                    spawnedGrenade = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
-                    //spawnedGrenade.GetComponent<FragGrenade>().playerWhoOwnsThisGrenade = this;
-                    hasSpawnedGrenade = true;
-                }
-            }*/
-            else//ai is within stopping range
-            {
-                //countdown -= Time.deltaTime;//continue counting down
-                Character.Move(Vector3.zero, false, false);
-            }
-
-            /*if (hasSpawnedGrenade == false)
-            {//periodically spawn a grenade based on timer/lock
-                spawnedGrenade = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
-                //spawnedGrenade.GetComponent<FragGrenade>().playerWhoOwnsThisGrenade = this;
-                hasSpawnedGrenade = true;
-            }*/
-
+            // If enemy player is in AI player's crosshairs...
             if (EnemyIsInCrosshairs(out PlayerManager enemy))
             {
                 // If we found an enemy in our cross hairs...
-                if (enemy!= null)
-                {
-                    SetTarget(enemy.transform);
-                }
-
+                SetTarget(enemy.transform);
+                // Shoot the gun (if we have a gun to shoot)
                 ShootGun();
+            }
+
+            // If we have a target for the AI
+            if (target != null)
+            {
+                // Set the destination based on the target's current position
+                Agent.SetDestination(target.position);
+            }
+
+            // If AI player is outside of stopping distance from target
+            if (Agent.remainingDistance > Agent.stoppingDistance)
+            {
+                Character.Move(Agent.desiredVelocity, false, false);
+            }
+            // If AI player is within stopping distance of target
+            else
+            {
+                // Stop moving
+                // *** Alex: Not sure if this is needed.
+                Character.Move(Vector3.zero, false, false);
             }
         }
 
+        /// <summary>
+        /// Raycasts from player's camera to check if enemy (player on a different team) is in this player's crosshairs.
+        /// </summary>
+        /// <param name="enemy">Returns true if we have an enemy in our crosshairs. Also returns that (non-null) enemy.
+        /// Returns false if we do not have an enemy in our crosshairs. Also returns enemy = null.</param>
+        /// <returns></returns>
         private bool EnemyIsInCrosshairs(out PlayerManager enemy)
         {
-            
             // Create a raycast from fps camera position in the direction it is facing (limit raycast to 'range' distance away)
             // Get back the 'hit' value (what got hit)
             // If ray cast hit something...
@@ -120,19 +103,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         return true;
                     }
                 }
-
             }
+
             // We did not find enemy in our crosshairs
             enemy = null;
             return false;
         }
 
+        /// <summary>
+        /// Shoots active gun if player has an active gun to shoot.
+        /// </summary>
         private void ShootGun()
         {
             // If player has an active gun...
             if (pm.ActiveGun != null)
             {
-
                 // Shoot the gun
                 pm.CallShootRPC();
             }

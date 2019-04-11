@@ -37,7 +37,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #region Public Fields
 
         /// <summary>
-        /// OnCountdownTimer2HasExpired delegate.
+        /// OnCountdownTimer1HasExpired delegate.
         /// </summary>
         public delegate void CountdownTimer1HasExpired();
         /// <summary>

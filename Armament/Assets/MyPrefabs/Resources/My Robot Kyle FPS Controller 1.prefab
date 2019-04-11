@@ -1479,8 +1479,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  timer: 5
-  countdown: 0
 --- !u!1 &358
 GameObject:
   m_ObjectHideFlags: 0
