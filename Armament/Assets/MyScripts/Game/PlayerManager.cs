@@ -6,6 +6,8 @@ using Photon.Pun;
 using System;
 using Photon.Realtime;
 using System.Collections.Generic;
+using UnityEngine.AI;
+using UnityStandardAssets.Characters.ThirdPerson;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
@@ -102,12 +104,15 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private Gun activeShowGun; // keeps track of the active "show" gun: a gun that is not synced on network (instantiated locally) and used to visually and functionally represent activeGun
         private object[] instantiationData; // information that was linked with this Gun's GO when it was instantiated by the master client
         private bool selectingWeapon; // flag to keep track of whether user is trying to select a weapon
-        private int weaponSelectionIndex; 
-        
+        private int weaponSelectionIndex;
+        private bool controlledByAI; // flag to keep track of whether this player is controlled by AI
+
         private GameObject playerGO;
         private GameObject unityChanPrefab;
         private GameObject kyleRobotPrefab;
         private Animator animator;
+        private bool DEBUG_ToggleAIControl;
+
         #endregion
 
         #region MonoBehaviour CallBacks
@@ -532,6 +537,44 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #endregion MonobehaviourPun (Photon) Callbacks
 
         #region Public Methods
+
+        public void ToggleAIControl()
+        {
+            if (DEBUG && DEBUG_ToggleAIControl) Debug.LogFormat("PlayerManager: ToggleAIControl() controlledByAI = {0}", controlledByAI);
+
+            // If player is not currently controlled by AI...
+            if (!controlledByAI)
+            {
+                // Flip flag
+                controlledByAI = true;
+
+                // Turn off FPS controls
+                GetComponent<FirstPersonController>().enabled = false;
+
+                // Turn on AI controls
+                GetComponent<NavMeshAgent>().enabled = true;
+                GetComponent<ThirdPersonCharacter>().enabled = true;
+                GetComponent<AICharacterControl>().enabled = true;
+
+                // Set AI target 
+                //GetComponent<AICharacterControl>().target = GameManager.Instance.DividingWallGO.transform;
+                GetComponent<AICharacterControl>().target = ((GameObject)GameManager.Instance.SpawnedWeaponsList[0]).transform;                
+            }
+            // If player is currently controlled by AI...
+            else
+            {
+                // Flip flag
+                controlledByAI = false;
+               
+                // Turn off AI controls
+                GetComponent<NavMeshAgent>().enabled = false;
+                GetComponent<ThirdPersonCharacter>().enabled = false;
+                GetComponent<AICharacterControl>().enabled = false;
+
+                // Turn on FPS controls
+                GetComponent<FirstPersonController>().enabled = true;
+            }
+        }
 
         /// <summary>
         /// Set what team this player is on. 
@@ -1140,7 +1183,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 //var TimeToKeepAlive = 5;
                 if (DEBUG && DEBUG_ProcessInputs) Debug.Log("keycode C");
-                if (photonView.IsMine)//network ismasterclient
+                if (photonView.IsMine)
                 {
                     GameObject fragGrenade = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
                     fragGrenade.GetComponent<FragGrenade>().playerWhoOwnsThisGrenade = this;//setting this for TakeDamage(int/float,playerwhoowns...)
@@ -1154,13 +1197,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             if (Input.GetKeyUp(KeyCode.K))
             {
-                if (photonView.IsMine)//network ismasterclient
+                if (photonView.IsMine)
                 {
                     //Add Kill to player's db stats
                     var addKillScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
                     addKillScript.IncrementKillCount();
                 }
 
+            }
+
+            if (Input.GetKeyUp(KeyCode.T))
+            {
+                if (DEBUG && DEBUG_ProcessInputs) Debug.Log("PlayerManager: ProcessInputs() KeyCode T");
+
+                if (photonView.IsMine)
+                    ToggleAIControl();
             }
 
             if (Input.GetKeyUp(KeyCode.Alpha1))

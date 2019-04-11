@@ -151,6 +151,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public ArrayList SpawnedBotsList { get; private set; }
 
+        public GameObject DividingWallGO
+        {
+            get { return dividingWallGO; }
+            private set { dividingWallGO = value; }
+        }
+
         #endregion
 
         #region Public Methods
@@ -225,6 +231,22 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             //Create an AI player
             //object[] content2 = new object[] { PhotonNetwork.LocalPlayer.ActorNumber };
             //PhotonNetwork.RaiseEvent(InstantiatePlayer, content2, raiseEventOptions, sendOptions);
+        }
+
+        /// <summary>
+        /// Event Handler for Toggle AI 
+        /// </summary>
+        public void OnToggleAIControlButtonClicked()
+        {
+            if (PlayerManager.LocalPlayerInstance == null)
+            {
+                Debug.LogError("GameManger: OnToggleAIControlButtonClicked() Toggle AI Control Button was clicked but " +
+                    "PlayerManager.LocalPlayerInstance = null! You done screwed something up!");
+                return;
+            }
+
+            // Toggle AI Control
+            PlayerManager.LocalPlayerInstance.GetComponent<PlayerManager>().ToggleAIControl();
         }
 
         #endregion Public Methods
