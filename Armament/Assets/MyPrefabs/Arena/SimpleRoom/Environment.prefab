@@ -826,8 +826,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6519157859768307595}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 200, y: 1, z: 200}
+  m_LocalPosition: {x: 0, y: -1, z: 0}
+  m_LocalScale: {x: 200, y: 2, z: 200}
   m_Children: []
   m_Father: {fileID: 6519157859794868010}
   m_RootOrder: 3
@@ -1040,7 +1040,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6519157859843692709}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -75, y: 0.5, z: 0}
+  m_LocalPosition: {x: -75, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 6519157859600638220}
@@ -1665,7 +1665,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6519157860954032322}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 75, y: 0.5, z: 0}
+  m_LocalPosition: {x: 75, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 6519157860993088825}
@@ -2381,26 +2381,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: JumboTron
       objectReference: {fileID: 0}
-    - target: {fileID: 6605000491654919249, guid: a4d296b5c2701f94eaa38258ed5bb00b,
-        type: 3}
-      propertyPath: m_Mesh
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 7477042304513635666, guid: a4d296b5c2701f94eaa38258ed5bb00b,
-        type: 3}
-      propertyPath: m_Mesh
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 2108101119381686072, guid: a4d296b5c2701f94eaa38258ed5bb00b,
-        type: 3}
-      propertyPath: m_Mesh
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 2390035239551108667, guid: a4d296b5c2701f94eaa38258ed5bb00b,
-        type: 3}
-      propertyPath: m_Mesh
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 2316100598891354752, guid: a4d296b5c2701f94eaa38258ed5bb00b,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2456,6 +2436,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6605000491654919249, guid: a4d296b5c2701f94eaa38258ed5bb00b,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882445179645003328, guid: a4d296b5c2701f94eaa38258ed5bb00b,
+        type: 3}
+      propertyPath: m_havePropertiesChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5882445179645003328, guid: a4d296b5c2701f94eaa38258ed5bb00b,
+        type: 3}
+      propertyPath: m_isInputParsingRequired
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8769142419005700329, guid: a4d296b5c2701f94eaa38258ed5bb00b,
         type: 3}
       propertyPath: m_havePropertiesChanged
@@ -2465,6 +2460,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_isInputParsingRequired
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7477042304513635666, guid: a4d296b5c2701f94eaa38258ed5bb00b,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2108101119381686072, guid: a4d296b5c2701f94eaa38258ed5bb00b,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 1678279731578238249, guid: a4d296b5c2701f94eaa38258ed5bb00b,
         type: 3}
@@ -2486,15 +2491,10 @@ PrefabInstance:
       propertyPath: m_isInputParsingRequired
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5882445179645003328, guid: a4d296b5c2701f94eaa38258ed5bb00b,
+    - target: {fileID: 2390035239551108667, guid: a4d296b5c2701f94eaa38258ed5bb00b,
         type: 3}
-      propertyPath: m_havePropertiesChanged
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5882445179645003328, guid: a4d296b5c2701f94eaa38258ed5bb00b,
-        type: 3}
-      propertyPath: m_isInputParsingRequired
-      value: 0
+      propertyPath: m_Mesh
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a4d296b5c2701f94eaa38258ed5bb00b, type: 3}
