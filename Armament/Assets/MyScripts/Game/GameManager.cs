@@ -336,6 +336,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void UpdatePlayerPropertiesDisplay()
         {
+            // Don't try to update the display if we're not in a room
+            if (!PhotonNetwork.InRoom)
+                return;
+
             // Get the text component where we want to display all players' properties
             Transform playerInfoText = canvas.transform.Find("Player Info Panel/Player Info List Scroll View/Viewport/Content/Player Info Text");
             Text playerInfoTextComponent = playerInfoText.GetComponent<Text>();
