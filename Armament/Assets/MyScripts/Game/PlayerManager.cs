@@ -729,7 +729,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             */
 
             // Move the player to the target position
-            this.transform.parent.GetComponent<CharacterController>().Move(t.position - transform.position);
+            GetComponent<CharacterController>().Move(t.position - transform.position);
 
             if (DEBUG && DEBUG_MovePlayer) Debug.LogFormat("PlayerManager: MovePlayer() transform.position = {0}", transform.position);
         }
