@@ -1,15 +1,19 @@
 using Photon.Pun;
 using System;
 using UnityEngine;
+using UnityEngine.AI;
+using UnityStandardAssets.Characters.ThirdPerson;
 
-namespace UnityStandardAssets.Characters.ThirdPerson
+namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
-    [RequireComponent(typeof (UnityEngine.AI.NavMeshAgent))]
-    [RequireComponent(typeof (ThirdPersonCharacter))]
+    [RequireComponent(typeof (NavMeshAgent))]
+    [RequireComponent(typeof(ThirdPersonCharacter))]
+    [RequireComponent(typeof(PlayerManager))]
+    [RequireComponent(typeof(Camera))]
     public class AICharacterControl : MonoBehaviour
     {
-        public UnityEngine.AI.NavMeshAgent agent { get; private set; }             // the navmesh agent required for the path finding
-        public ThirdPersonCharacter character { get; private set; } // the character we are controlling
+        public NavMeshAgent Agent { get; private set; }             // the navmesh agent required for the path finding
+        public ThirdPersonCharacter Character { get; private set; } // the character we are controlling
         public Transform target;                                    // target to aim for
         [Tooltip("Explosion time")]
         public float timer = 0.2f;//spawn a grenad every 5 seconds
@@ -19,23 +23,29 @@ namespace UnityStandardAssets.Characters.ThirdPerson
         GameObject spawnedGrenade;
         //public float Health = 250f; //trying health
 
+        PlayerManager pm; // keeps a reference of the player manager attached to the player GM
+        Camera fpsCam;
+        private bool DEBUG = true;
+        private bool DEBUG_EnemyIsInCrosshairs = true;
 
         private void Start()
         {
             // get the components on the object we need ( should not be null due to require component so no need to check )
-            agent = GetComponentInChildren<UnityEngine.AI.NavMeshAgent>();
-            character = GetComponent<ThirdPersonCharacter>();
+            Agent = GetComponentInChildren<NavMeshAgent>();
+            Character = GetComponent<ThirdPersonCharacter>();
+            pm = GetComponent<PlayerManager>();
+            fpsCam = GetComponentInChildren<Camera>();
             countdown = timer;
-            agent.updateRotation = false;
-	        agent.updatePosition = true;
-            hasSpawnedGrenade = false;
+            Agent.updateRotation = false;
+	        Agent.updatePosition = true;
+            hasSpawnedGrenade = false; 
         }
 
 
         private void Update()
         {
             if (target != null)
-                agent.SetDestination(target.position);
+                Agent.SetDestination(target.position);
             else { //not sure what this empty else is
                 
             }
@@ -46,10 +56,10 @@ namespace UnityStandardAssets.Characters.ThirdPerson
                 countdown = timer;
             }*/
 
-            if (agent.remainingDistance > agent.stoppingDistance)
+            if (Agent.remainingDistance > Agent.stoppingDistance)
             {
                 //countdown -= Time.deltaTime;
-                character.Move(agent.desiredVelocity, false, false);
+                Character.Move(Agent.desiredVelocity, false, false);
             }
             /*else if (agent.remainingDistance < (agent.stoppingDistance + 10f))//ai is within throwing range
             {
@@ -64,7 +74,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
             else//ai is within stopping range
             {
                 //countdown -= Time.deltaTime;//continue counting down
-                character.Move(Vector3.zero, false, false);
+                Character.Move(Vector3.zero, false, false);
             }
 
             /*if (hasSpawnedGrenade == false)
@@ -74,8 +84,59 @@ namespace UnityStandardAssets.Characters.ThirdPerson
                 hasSpawnedGrenade = true;
             }*/
 
+            if (EnemyIsInCrosshairs(out PlayerManager enemy))
+            {
+                // If we found an enemy in our cross hairs...
+                if (enemy!= null)
+                {
+                    SetTarget(enemy.transform);
+                }
+
+                ShootGun();
+            }
         }
 
+        private bool EnemyIsInCrosshairs(out PlayerManager enemy)
+        {
+            
+            // Create a raycast from fps camera position in the direction it is facing (limit raycast to 'range' distance away)
+            // Get back the 'hit' value (what got hit)
+            // If ray cast hit something...
+            if (Physics.Raycast(fpsCam.transform.position, fpsCam.transform.forward, out RaycastHit hit, 200f))
+            {
+                if (DEBUG && DEBUG_EnemyIsInCrosshairs) Debug.LogFormat("AICharacterControl: EnemyIsInCrosshairs() RAYCAST HIT");
+
+                PlayerManager possibleEnemy = hit.transform.GetComponent<PlayerManager>();
+
+                // If we have a possible enemy in our cross hairs...
+                if (possibleEnemy != null)
+                {
+                    if (DEBUG && DEBUG_EnemyIsInCrosshairs) Debug.LogFormat("AICharacterControl: EnemyIsInCrosshairs() POSSIBLE ENEMY FOUND");
+                    // If player we are aiming at is on a different team...
+                    if (!pm.GetTeam().Equals(possibleEnemy.GetTeam()))
+                    {
+                        // We found an enemy in our crosshairs
+                        enemy = possibleEnemy;
+                        return true;
+                    }
+                }
+
+            }
+            // We did not find enemy in our crosshairs
+            enemy = null;
+            return false;
+        }
+
+        private void ShootGun()
+        {
+            // If player has an active gun...
+            if (pm.ActiveGun != null)
+            {
+
+                // Shoot the gun
+                pm.CallShootRPC();
+            }
+        }
 
         public void SetTarget(Transform target)
         {

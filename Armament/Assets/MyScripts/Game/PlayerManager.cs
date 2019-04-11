@@ -100,7 +100,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         
         private int activeGunType; // keeps track of currently active gun's type 
         private int previousActiveGunType; // keeps track of previously active gun's type
-        private Gun activeGun; // keeps track of active gun the active gun: a gun that is synced on network
+        
         private Gun activeShowGun; // keeps track of the active "show" gun: a gun that is not synced on network (instantiated locally) and used to visually and functionally represent activeGun
         private object[] instantiationData; // information that was linked with this Gun's GO when it was instantiated by the master client
         private bool selectingWeapon; // flag to keep track of whether user is trying to select a weapon
@@ -114,6 +114,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private bool DEBUG_ToggleAIControl;
 
         #endregion
+
+        #region Properties
+
+        public Gun ActiveGun { get; private set; } // keeps track of active gun the active gun: a gun that is synced on network
+
+        #endregion Properties
 
         #region MonoBehaviour CallBacks
 
@@ -538,6 +544,22 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region Public Methods
 
+        /// <summary>
+        /// This method exists to allow other scripts to initiate an RPC call of the Shoot() method on this script.
+        /// This method checks if the gun is ready to shoot so it can be called in an Update() method as many times
+        /// as we want without overloading the network with wasted calls to shoot the gun (before the gun is ready to
+        /// be shot).
+        /// </summary>
+        public void CallShootRPC()
+        {
+            // Check if gun is ready to shoot before sending the RPC to avoid overloading network
+            if (ActiveGun != null && ActiveGun.IsReadyToShoot())
+            {
+                // Call the [PunRPC] Shoot method over photon network
+                photonView.RPC("Shoot", RpcTarget.All);
+            }
+        }
+
         public void ToggleAIControl()
         {
             if (DEBUG && DEBUG_ToggleAIControl) Debug.LogFormat("PlayerManager: ToggleAIControl() controlledByAI = {0}", controlledByAI);
@@ -558,7 +580,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 // Set AI target 
                 //GetComponent<AICharacterControl>().target = GameManager.Instance.DividingWallGO.transform;
-                GetComponent<AICharacterControl>().target = ((GameObject)GameManager.Instance.SpawnedWeaponsList[0]).transform;                
+                //GetComponent<AICharacterControl>().target = ((GameObject)GameManager.Instance.SpawnedWeaponsList[0]).transform;                
             }
             // If player is currently controlled by AI...
             else
@@ -666,6 +688,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 {
                     // Play pain sound
                     audioSource.PlayOneShot(painSound); // I read somewhere online that this allows the sounds to overlap
+
+                    // If this player is currently controlled by AI
+                    if (controlledByAI)
+                    {
+                        // Set the target to the player who shot us
+                        GetComponent<AICharacterControl>().SetTarget(playerWhoCausedDamage.transform);
+                    }
                 }
             }
         }
@@ -804,11 +833,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (DEBUG && DEBUG_SetActiveGun) Debug.LogFormat("PlayerManager: SetActiveGun() gunViewID = {0}", gunViewID);
 
             // If there is a currently an active gun...
-            if (activeGun != null)
+            if (ActiveGun != null)
             {
                 // Inactivate activeGun
-                activeGun.gameObject.SetActive(false);
-                activeGun.transform.parent = transform.Find("FirstPersonCharacter/Inactive Weapons");
+                ActiveGun.gameObject.SetActive(false);
+                ActiveGun.transform.parent = transform.Find("FirstPersonCharacter/Inactive Weapons");
             }
 
             // Find Gun to be activated using Photon viewID
@@ -818,7 +847,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             gunToBeActivated.transform.parent = transform.Find("FirstPersonCharacter/Active Weapon");
 
             // Set activeGun so we can make use of it other places (like shooting it)
-            activeGun = gunToBeActivated;
+            ActiveGun = gunToBeActivated;
 
             // If there is a currently an active "show" gun...
             if (activeShowGun != null)
@@ -888,7 +917,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Protect against double collisions (trying to pick up the same gun twice)
             // *** This check might not be necessary after recent code changes... TODO: look into it
             
-            if (pickedUpGun.Equals(activeGun))//sometimes this is null for some reason.
+            if (pickedUpGun.Equals(ActiveGun))//sometimes this is null for some reason.
             {
                 return;
             }
@@ -982,9 +1011,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
 
             // If we just dropped our active gun...
-            if (gun == activeGun)
+            if (gun == ActiveGun)
             {
-                activeGun = null;
+                ActiveGun = null;
 
                 // If there is a currently an active "show" gun...
                 if (activeShowGun != null)
@@ -1023,12 +1052,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void DisableActiveGunCollider()
         {
-            if (activeGun == null)
+            if (ActiveGun == null)
             {
                 return;
             }
 
-            activeGun.GetComponentInChildren<BoxCollider>().enabled = false;
+            ActiveGun.GetComponentInChildren<BoxCollider>().enabled = false;
         }
 
         /// <summary>
@@ -1118,7 +1147,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 if (Input.GetButton("Fire1"))
                 {
                     // Check if gun is ready to shoot before sending the RPC to avoid overloading network
-                    if (activeGun != null && activeGun.IsReadyToShoot())
+                    if (ActiveGun != null && ActiveGun.IsReadyToShoot())
                     {
                         // Call the [PunRPC] Shoot method over photon network
                         photonView.RPC("Shoot", RpcTarget.All);
@@ -1165,7 +1194,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // If has pressed and released the G key...
             if (Input.GetKeyUp(KeyCode.G))
             {
-                if (activeGun == null) {
+                if (ActiveGun == null) {
                     if (DEBUG && DEBUG_ProcessInputs) Debug.Log("PlayerManager: ProcessInputs() Trying to drop active gun but this.activeGun == null");
                     return;
                 }
@@ -1279,14 +1308,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [PunRPC]
         void DropActiveGun()
         {
-            if (activeGun == null)
+            if (ActiveGun == null)
             {
                 Debug.Log("PlayerManager: DropActiveGun() Trying to drop active gun but this.activeGun == null");
                 return;
             }
 
             // Make player on this client drop the gun
-            DropGun(activeGun);
+            DropGun(ActiveGun);
         }
         
         /// <summary>
@@ -1297,7 +1326,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         void Shoot(PhotonMessageInfo info)
         {
             //Debug.LogFormat("PlayerManager: [PunRPC] Shoot() {0}, {1}, {2}.", info.Sender, info.photonView, info.SentServerTime);
-            if (activeGun == null)
+            if (ActiveGun == null)
             {
                 if (DEBUG) Debug.LogFormat("PlayerManager: [PunRPC] Shoot() Trying to shoot gun but activeGun = null");
                 return; 
