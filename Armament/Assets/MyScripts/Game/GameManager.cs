@@ -227,6 +227,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             if (DEBUG && DEBUG_LeaveRoom) Debug.Log("GameManger: LeaveRoom() called.");
 
+            // Turn on scene cameras
+            // Make sure they're on for the brief moment between destruction of their player's camera
+            // and the new scene being loaded
+            sceneCameras[0].enabled = true;
+            sceneCameras[1].enabled = true;
+
             // Leave the photon game room
             PhotonNetwork.LeaveRoom();
 
