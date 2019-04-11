@@ -7,6 +7,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
     public class WallDropAnimator : MonoBehaviour
     {
+
+        #region Public Fields
+
+        /// <summary>
+        /// OnWallReachedDropPosition delegate.
+        /// </summary>
+        public delegate void WallReachedDropPosition();
+
+        /// <summary>
+        /// Called when the wall has reached dropped position
+        /// </summary>
+        public static event WallReachedDropPosition OnWallReachedDropPosition;
+
+        #endregion Public Fields
+
         #region Private Serializable Fields
 
         [Tooltip("Related to the time it takes for wall to drop the distance equal to its height")]
@@ -24,6 +39,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private Vector3 originalWallPosition; // keeps track of the original wall position for ResetWallPosition()
         private float originalY;
         private object[] instantiationData;
+        private bool wallReachedDropPosition; // keeps track of whether the navmesh is ready to update
+
         #endregion Private Fields
 
         #region MonoBehaviour Callbacks
@@ -47,24 +64,28 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (PhotonNetwork.IsMasterClient)
             {
                 // If it is time to drop the wall...
-                if (GameManager.Instance.gameObject.GetComponent<CountdownTimer>().Timer1TimeIsUp && transform.position.y > originalWallPosition.y-transform.localScale.y)
+                if (GameManager.Instance.gameObject.GetComponent<CountdownTimer>().Timer1TimeIsUp)
                 {
-                    // This code doesn't move the wall as I expected but I kind of like how the wall slows down as it drops...
-                    // (In other words, the drop is exponential instead of linear)
-                    // Drop the position of where we want the wall to be
-                    transform.position = Vector3.Lerp(transform.position, dropPosition, Time.fixedDeltaTime / dropTime);
+                    // If wall has not yet reached its dropped position...
+                    if (transform.position.y > originalWallPosition.y - transform.localScale.y)
+                    {
+                        // This code doesn't move the wall as I expected but I kind of like how the wall slows down as it drops...
+                        // (In other words, the drop is exponential instead of linear)
+                        // Drop the position of where we want the wall to be
+                        transform.position = Vector3.Lerp(transform.position, dropPosition, Time.fixedDeltaTime / dropTime);
+                    }
+                    // If wall has reached its dropped position AND navmesh has not been updated yet
+                    else if (!wallReachedDropPosition)
+                    {
+                        wallReachedDropPosition = true;
+                        OnWallReachedDropPosition?.Invoke();
+                    }
                 }
             }
         }
 
         public void ResetWallPosition()
         {
-            /*if (DEBUG && DEBUG_ResetWallPosition) Debug.LogFormat("WallDropAnimator: ResetWallPosition() transform.position = {0}, originalY = {1}", transform.position, originalY);
-            Vector3 pos = transform.position;
-            pos.y = originalY;
-            transform.position = pos;
-            if (DEBUG && DEBUG_ResetWallPosition) Debug.LogFormat("WallDropAnimator: ResetWallPosition() transform.position = {0}, pos = {1}", transform.position, pos);
-            */
             transform.position = originalWallPosition;
         }
 
