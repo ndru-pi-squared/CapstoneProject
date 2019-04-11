@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CameraAnimationHandler : MonoBehaviour
 {
@@ -28,6 +29,8 @@ public class CameraAnimationHandler : MonoBehaviour
     }
 
     public void MoveRight() {
+        Text text = GameObject.Find("/Canvas/Login and Register (Front Panel)/Status Panel/Progress Label").GetComponent<Text>();///Login and Register(Front Panel)/Status Panel/Progress Label")
+        text.text = "Waiting for user to do something...";
         anim.SetTrigger("MoveRight");
     }
 
