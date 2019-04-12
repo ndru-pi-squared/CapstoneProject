@@ -97,13 +97,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         // Debug flags
         private const bool DEBUG = true;
         private const bool DEBUG_ReturnVanishedItems = false;
-        private const bool DEBUG_DestroyUnclaimedItems = false;
+        private const bool DEBUG_RemoveUnclaimedItems = false;
+        private const bool DEBUG_DestroyAllItems = true;
         private const bool DEBUG_InstantiateLocalPlayer = false;
         private const bool DEBUG_OnStage1TimerIsExpired = true;
         private const bool DEBUG_OnStage2TimerIsExpired = true;
         private const bool DEBUG_BalanceTeams = false;
-        private const bool DEBUG_StartRound = true;
-        private const bool DEBUG_EndRound = false;
+        private const bool DEBUG_StartRound = false;
+        private const bool DEBUG_EndRound = true;
         private const bool DEBUG_LeaveRoom = false;
         private const bool DEBUG_LoadArena = false;
         private const bool DEBUG_RemoveGunOwnerships = false;
@@ -112,7 +113,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_ResetPlayerPosition = false;
         private const bool DEBUG_SpawnWall = false;
         private const bool DEBUG_OnPlayerDeath = false;
-        private const bool DEBUG_OnWallReachedDropPosition = true;
+        private const bool DEBUG_OnWallReachedDropPosition = false;
 
         // Event codes
         private readonly byte InstantiatePlayer = 0;
@@ -399,23 +400,23 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void RemoveUnclaimedItems()
         {
-            if (DEBUG && DEBUG_DestroyUnclaimedItems) Debug.LogFormat("GameManger: DestroyUnclaimedItems()");
+            if (DEBUG && DEBUG_RemoveUnclaimedItems) Debug.LogFormat("GameManger: RemoveUnclaimedItems()");
             // Get through all PhotonViews
             foreach (PhotonView photonView in PhotonNetwork.PhotonViews)
             {
-                if (DEBUG && DEBUG_DestroyUnclaimedItems) Debug.LogFormat("GameManger: DestroyUnclaimedItems() photonView = {0}", photonView.ToString());
+                if (DEBUG && DEBUG_RemoveUnclaimedItems) Debug.LogFormat("GameManger: RemoveUnclaimedItems() photonView = {0}", photonView.ToString());
                 //  If this photonView is on a Gun...
                 Gun gun = photonView.gameObject.GetComponent<Gun>();
                 if (gun != null)
                 {
-                    if (DEBUG && DEBUG_DestroyUnclaimedItems) Debug.LogFormat("GameManger: DestroyUnclaimedItems() gun = {0}", gun.ToString());
+                    if (DEBUG && DEBUG_RemoveUnclaimedItems) Debug.LogFormat("GameManger: RemoveUnclaimedItems() gun = {0}", gun.ToString());
                     // Get the owner of the gun
                     PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(photonView.ViewID.ToString(), out object owner);
 
                     // If the gun is not owned by a player
                     if (VALUE_UNCLAIMED_ITEM.Equals((string)owner))
                     {
-                        if (DEBUG && DEBUG_DestroyUnclaimedItems) Debug.LogFormat("GameManger: DestroyUnclaimedItems() owner = {0}", owner.ToString());
+                        if (DEBUG && DEBUG_RemoveUnclaimedItems) Debug.LogFormat("GameManger: RemoveUnclaimedItems() owner = {0}", owner.ToString());
 
                         // The code I've commented out causes a fatal error that I haven't been able to figure out.
                         // Situation that causes the bug:
@@ -537,11 +538,53 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Remove all players' items
             // Maybe TODO
 
+            // Destroy all items in map (unclaimed and owned by players)
+            DestroyAllItems();
+
             // Balance teams 
             BalanceTeams();
 
             // Start new round
             StartRound();
+        }
+
+        /// <summary>
+        /// Network-Destroys all items in the room. Should only be called by MasterClient
+        /// </summary>
+        void DestroyAllItems()
+        {
+            if (DEBUG && DEBUG_DestroyAllItems) Debug.LogFormat("GameManger: DestroyAllItems()");
+
+            // Make all players drop all their items
+            foreach (Player player in PhotonNetwork.PlayerList)
+                ((GameObject)player.TagObject).GetComponent<PlayerManager>().DropAllItems();
+
+            // Go through all PhotonViews
+            foreach (PhotonView photonView in PhotonNetwork.PhotonViews)
+            {
+                if (DEBUG && DEBUG_DestroyAllItems) Debug.LogFormat("GameManger: DestroyAllItems() photonView = {0}", photonView.ToString());
+
+                //  If this photonView is on a Gun...
+                Gun gun = photonView.gameObject.GetComponent<Gun>();
+                if (gun != null)
+                {
+                    if (DEBUG && DEBUG_DestroyAllItems) Debug.LogFormat("GameManger: DestroyAllItems() gun = {0}", gun.ToString());
+
+                    // Get the owner of the gun
+                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(photonView.ViewID.ToString(), out object owner);
+
+                    if (owner != null)
+                    {
+                        if (DEBUG && DEBUG_DestroyAllItems) Debug.LogFormat("GameManger: DestroyAllItems() owner = {0}", owner.ToString());
+                    }
+
+                    // Remove room custom property for the gun ownership
+                    PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { photonView.ViewID.ToString(), null } });
+                    
+                    // Network-Destroy the GameObject associated with photonView
+                    PhotonNetwork.Destroy(photonView);
+                }
+            }
         }
 
         /// <summary>
@@ -657,22 +700,22 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             photonView.RPC("PlayNewRoundSound", RpcTarget.All);
 
             // Spawn new items
-            //SpawnNewItems();
+            SpawnNewItems();
 
             // Make items return 
-            ReturnVanishedItems();
+            //ReturnVanishedItems();
         }
 
         [PunRPC]
         void PlayNewRoundSound()
         {
-           /* GameObject announcer = new GameObject("Announcer");
+            GameObject announcer = new GameObject("Announcer");
             AudioSource audioSource = announcer.AddComponent<AudioSource>();
             Debug.LogFormat("PlayerManager: Die() audioSource = {0}, newRoundSound = {1}", audioSource, newRoundSound);
 
             // Play death sound
             audioSource.PlayOneShot(newRoundSound); // I read somewhere online that this allows the sounds to overlap
-            Destroy(announcer, 5f);*/
+            Destroy(announcer, 5f);
         }
 
         /// <summary>
@@ -881,7 +924,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Go on... Guess what this does
                 if (PhotonNetwork.IsMasterClient) // this check is redundant but kept for clarity
                 {
-                    SpawnNewItems();
+                    //SpawnNewItems();
                     SpawnWall();
                     SpawnBots(AIBotsToSpawn);
                 }

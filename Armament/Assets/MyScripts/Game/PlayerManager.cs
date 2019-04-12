@@ -81,8 +81,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_OnTriggerEnter = false;
         private const bool DEBUG_OnRoomPropertiesUpdate = false;
         private const bool DEBUG_OnPlayerPropertiesUpdate = true;
-        private const bool DEBUG_MovePlayer = true;
-        private const bool DEBUG_Respawn = true;
+        private const bool DEBUG_MovePlayer = false;
+        private const bool DEBUG_Respawn = false;
         private const bool DEBUG_SetActiveGun = false;
         private const bool DEBUG_DropGun = false;
         private const bool DEBUG_SwapGun = false;
@@ -90,7 +90,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_ProcessInputs = false;
         private const bool DEBUG_SetAvatar = false;
         private const bool DEBUG_TakeDamage = false;
-        private const bool DEBUG_SetMode = true; 
+        private const bool DEBUG_SetMode = false;
+        private const bool DEBUG_DropAllItems = true; 
 
         private AudioSource audioSource;
 
@@ -948,6 +949,19 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             UpdateWeaponsMenu();
 
+        }
+
+        /// <summary>
+        /// Continues to drop active gun until there are no more guns to be dropped
+        /// </summary>
+        public void DropAllItems()
+        {
+            if (DEBUG && DEBUG_DropAllItems) Debug.LogFormat("PlayerManager: DropAllItems()");
+            while (ActiveGun != null)
+            {
+                if (DEBUG && DEBUG_DropAllItems) Debug.LogFormat("PlayerManager: DropAllItems() Found gun to drop -> ActiveGun = [{0}]", ActiveGun);
+                DropGun(ActiveGun);
+            }
         }
 
         #endregion Public Methods
