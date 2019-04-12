@@ -114,7 +114,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_SpawnWall = false;
         private const bool DEBUG_OnPlayerDeath = false;
         private const bool DEBUG_OnWallReachedDropPosition = false;
-        private const bool DEBUG_OnPlayerPickedUpGun = true; 
+        private const bool DEBUG_OnPlayerPickedUpGun = true;
+        private const bool DEBUG_OnWallIsDead = true; 
 
         // Event codes
         private readonly byte InstantiatePlayer = 0;
@@ -175,8 +176,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #endregion
 
         #region Public Methods
-
-
+        
         public void ExtendStage1Time()
         {
             if (!PhotonNetwork.IsMasterClient)
@@ -224,7 +224,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         /// <summary>
-        /// Event Handler. Called in the event that the game's stage 2 timer is expired
+        /// Event Handler. Called in the event that the game's stage 2 timer is expired.
         /// If this event is called, the round has to be ended.
         /// </summary>
         public void OnStage2TimerIsExpired()
@@ -232,6 +232,19 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (DEBUG && DEBUG_OnStage2TimerIsExpired) Debug.LogFormat("GameManager: OnStage2TimerIsExpired() PhotonNetwork.IsMasterClient = {0}", PhotonNetwork.IsMasterClient);
             // End the round
             EndRound(null);
+        }
+
+        /// <summary>
+        /// Event Handler. Called in the event that the wall is dead.
+        /// If this event is called, Stage 1 needs to end (and Stage 2 needs to begin)
+        /// </summary>
+        public void OnWallIsDead()
+        {
+            if (DEBUG && DEBUG_OnWallIsDead) Debug.LogFormat("GameManager: OnWallIsDead() PhotonNetwork.IsMasterClient = {0}", PhotonNetwork.IsMasterClient);
+            
+            // Set the Stage 1 start time to Stage1Time seconds ago so CountdownTimer thinks it's time to end stage 1
+            // *** Kind of a hacky way to accomplish this, but that fastest way to implement an "end of stage 1" action.
+            PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_STAGE_1_COUNTDOWN_START_TIME, (float)PhotonNetwork.Time-Stage1Time } });
         }
 
         /// <summary>
@@ -243,18 +256,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (DEBUG && DEBUG_OnWallReachedDropPosition) Debug.LogFormat("GameManger: OnWallReachedDropPosition()");
             UpdateNavMesh();
         }
-
-        /// <summary>
-        /// Updates the navmesh
-        /// </summary>
-        private void UpdateNavMesh()
-        {
-            if (navMesh != null)
-            {
-                navMesh.BuildNavMesh();
-            }
-        }
-
+        
         /// <Summary> 
         /// Event Handler for Leave Room button being clicked
         /// </Summary>
@@ -316,9 +318,45 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             PlayerManager.LocalPlayerInstance.GetComponent<PlayerManager>().ToggleAIControl();
         }
 
+        public void SpawnBots(int bots)
+        {
+            if (!PhotonNetwork.IsMasterClient)
+            {
+                return;
+            }
+
+            if (botPrefabs.Length > 0)
+            {// Create a new list to keep track of spawned bots
+                SpawnedBotsList = new ArrayList();
+
+                // Instantiate our two bots at different spawn points for team A. Add each newly spawned bot to the list
+                SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[0].name, teamAPlayerSpawnPoints[0].position, teamAPlayerSpawnPoints[0].rotation, 0));
+                SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[1].name, teamAPlayerSpawnPoints[1].position, teamAPlayerSpawnPoints[1].rotation, 0));
+                // Instantiate our two bots at different spawn points for team B. Add each newly spawned bot to the list
+                SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[0].name, teamBPlayerSpawnPoints[0].position, teamBPlayerSpawnPoints[0].rotation, 0));
+                SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[1].name, teamBPlayerSpawnPoints[1].position, teamBPlayerSpawnPoints[1].rotation, 0));
+
+                ((GameObject)SpawnedBotsList[0]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
+                ((GameObject)SpawnedBotsList[1]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
+                ((GameObject)SpawnedBotsList[2]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
+                ((GameObject)SpawnedBotsList[3]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
+            }
+        }
+
         #endregion Public Methods
 
         #region Private Methods
+
+        /// <summary>
+        /// Updates the navmesh
+        /// </summary>
+        private void UpdateNavMesh()
+        {
+            if (navMesh != null)
+            {
+                navMesh.BuildNavMesh();
+            }
+        }
 
         /// <summary>
         /// Used to load a Unity scene (probably representing the game room) on the PhotonNetwork
@@ -983,6 +1021,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             CountdownTimer.OnCountdownTimer1HasExpired += OnStage1TimerIsExpired;
             CountdownTimer.OnCountdownTimer2HasExpired += OnStage2TimerIsExpired;
             WallDropAnimator.OnWallReachedDropPosition += OnWallReachedDropPosition;
+            WallTarget.OnWallIsDead += OnWallIsDead;
         }
 
         public override void OnDisable()
@@ -1276,28 +1315,5 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #endregion IOnEventCallback Implementation
 
-        public void SpawnBots(int bots) {
-            if (!PhotonNetwork.IsMasterClient)
-            {
-                return;
-            }
-
-            if (botPrefabs.Length > 0)
-            {// Create a new list to keep track of spawned bots
-                SpawnedBotsList = new ArrayList();
-
-                // Instantiate our two bots at different spawn points for team A. Add each newly spawned bot to the list
-                SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[0].name, teamAPlayerSpawnPoints[0].position, teamAPlayerSpawnPoints[0].rotation, 0));
-                SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[1].name, teamAPlayerSpawnPoints[1].position, teamAPlayerSpawnPoints[1].rotation, 0));
-                // Instantiate our two bots at different spawn points for team B. Add each newly spawned bot to the list
-                SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[0].name, teamBPlayerSpawnPoints[0].position, teamBPlayerSpawnPoints[0].rotation, 0));
-                SpawnedBotsList.Add(PhotonNetwork.InstantiateSceneObject(this.botPrefabs[1].name, teamBPlayerSpawnPoints[1].position, teamBPlayerSpawnPoints[1].rotation, 0));
-
-                ((GameObject)SpawnedBotsList[0]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
-                ((GameObject)SpawnedBotsList[1]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
-                ((GameObject)SpawnedBotsList[2]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
-                ((GameObject)SpawnedBotsList[3]).GetComponent<AICharacterControl>().target = ((GameObject)SpawnedWeaponsList[0]).transform;
-            }
-        }
     }
 }

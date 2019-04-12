@@ -8,13 +8,30 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
     public class WallTarget : MonoBehaviourPunCallbacks, ITarget
     {
+
+        #region Public Fields
+        /// <summary>
+        /// OnWallIsDead delegate.
+        /// </summary>
+        public delegate void WallIsDead();
+
+        /// <summary>
+        /// Called when the timer has expired.
+        /// </summary>
+        public static event WallIsDead OnWallIsDead;
+
         // Key references for the Room CustomProperties hash table (so we don't use messy string literals)
         public const string KEY_WALL_HEALTH = "Wall Health";
+
+        #endregion PublicFields
+
+        #region Private Fields
 
         [SerializeField] private float health = 100f;
         MeshRenderer meshRenderer;
         private float originalHealth; // keeps track of original health value
 
+        #endregion Private Fields
 
         #region MonoBehaviour CallBacks
 
@@ -61,7 +78,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 SyncWallHealth();
 
                 if (health <= 0)
+                {
                     GetComponent<BoxCollider>().enabled = false;
+                    OnWallIsDead?.Invoke();
+                }
             }
         }
 
