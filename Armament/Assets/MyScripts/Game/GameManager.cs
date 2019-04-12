@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using ExitGames.Client.Photon;
 using UnityStandardAssets.Characters.ThirdPerson;
 using UnityEngine.AI;
+using System.Threading;
+using TMPro;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
@@ -196,7 +198,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             if (DEBUG && DEBUG_OnStage2TimerIsExpired) Debug.LogFormat("GameManager: OnStage2TimerIsExpired() PhotonNetwork.IsMasterClient = {0}", PhotonNetwork.IsMasterClient);
             // End the round
-            EndRound();
+            EndRound(null);
         }
 
         /// <summary>
@@ -488,12 +490,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // *** Make sure madeItemsReturn is reliably synchronized on network.
             madeItemsReturn = true;
         }
+        
+        void DisableWinningTeamBannerPanel()
+        {
+            // Disable Winning Team Banner Panel 
+            canvas.transform.Find("Winning Team Banner Panel").gameObject.SetActive(false);
+        }
 
         /// <summary>
         /// Ends the current game round. 
         /// Is called when the stage 2 timer has expired or when all players on one team are dead 
         /// </summary>
-        void EndRound()
+        void EndRound(string winningTeamName)
         {
             if (DEBUG && DEBUG_EndRound) Debug.Log("GameManager: EndRound()");
 
@@ -505,6 +513,23 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 if (DEBUG && DEBUG_EndRound) Debug.Log("GameManager: EndRound() NOT MASTER CLIENT: Not responsible for ending rounds");
                 return;
             }
+
+            // If a team won
+            if (winningTeamName != null)
+            {
+                // Set Winning Team Banner Panel Text to "Team [Team name]\nWins!"
+                GameObject winningTeamBannerPanel = canvas.transform.Find("Winning Team Banner Panel").gameObject;
+                winningTeamBannerPanel.GetComponentInChildren<TextMeshProUGUI>().text = "Team " + winningTeamName + "\nWins!";
+
+                // Enable Winning Team Banner Panel 
+                winningTeamBannerPanel.SetActive(true);
+                Update();
+
+                Invoke("DisableWinningTeamBannerPanel", 5f); // invoke after some number of seconds
+
+                //Thread.Sleep(4000);
+            }
+
 
             // Remove old unclaimed items
             // TODO
@@ -945,8 +970,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 if (DEBUG && DEBUG_OnPlayerDeath) Debug.Log("GameManager: OnPlayerDeath() CLIENT IS MasterClient: " +
                     "morePlayersOnTeamStillAlive = false, so Ending this round...");
                 
+                string winningTeamName = (!PlayerManager.VALUE_TEAM_NAME_A.Equals(deadPlayer.GetTeam())
+                    ? PlayerManager.VALUE_TEAM_NAME_A
+                    : PlayerManager.VALUE_TEAM_NAME_B);
+                
                 // End this round (which will start a new round)
-                EndRound();
+                EndRound(winningTeamName);
             }
 
         }
