@@ -114,6 +114,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_SpawnWall = false;
         private const bool DEBUG_OnPlayerDeath = false;
         private const bool DEBUG_OnWallReachedDropPosition = false;
+        private const bool DEBUG_OnPlayerPickedUpGun = true; 
 
         // Event codes
         private readonly byte InstantiatePlayer = 0;
@@ -165,9 +166,40 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             private set { dividingWallGO = value; }
         }
 
+        public Transform[] WeaponSpawnPoints
+        {
+            get { return weaponSpawnPoints; }
+            private set { weaponSpawnPoints = value; }
+        }
+
         #endregion
 
         #region Public Methods
+
+
+        public void ExtendStage1Time()
+        {
+            if (!PhotonNetwork.IsMasterClient)
+            {
+                if (DEBUG && DEBUG_OnPlayerPickedUpGun) Debug.Log("GameManager: OnPlayerPickedUpGun() NOT MasterClient: not responsible for extending stage 1 time");
+                return;
+            }
+
+            // If in stage 1
+            if (!PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey(KEY_STAGE_2_COUNTDOWN_START_TIME) &&
+                PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(KEY_STAGE_1_COUNTDOWN_START_TIME, out object stage1Time))
+            {
+                float timeExtension = 5f; // Alex: I hard-coded 5 seconds until we figure out a more reasonable calculation for time extension
+
+                // Extend the stage 1 timer on the network
+                // *** This is actually kind of a hacky way to accomplish a stage time extension.
+                // *** Instead of extending the Stage 1 end time we're pretending the stage 1 start time was started timeExtension seconds after it actually did
+                // *** because we currently don't have an explicit reference to the stage 1 end time. 
+                // *** This was just a faster implementation than restructuring code in CountdownTimer script
+                PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_STAGE_1_COUNTDOWN_START_TIME, (float)stage1Time + timeExtension } });
+            }
+
+        }
 
         /// <summary>
         /// Event Handler. Called in the event that the game's stage 1 timer is expired

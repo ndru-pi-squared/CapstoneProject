@@ -464,6 +464,19 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     // If this client owns this player...
                     if (photonView.IsMine)
                     {
+                        // For each weapon spawn point
+                        foreach (Transform spawnPointTransform in GameManager.Instance.WeaponSpawnPoints)
+                        {
+                            // If the gun is at a spawn point...
+                            if (spawnPointTransform.position.Equals(PhotonView.Find(Convert.ToInt32(gunViewID)).gameObject.transform.position))
+                            {
+                                // Notify GameManager that the Stage 1 timer should be extended
+                                // because we picked up a gun
+                                GameManager.Instance.ExtendStage1Time();
+                                break;
+                            }
+                        }
+
                         // Set local player's active gun property (synced on the network)
                         PhotonNetwork.LocalPlayer.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_ACTIVE_GUN, gunViewID } });
                     }
