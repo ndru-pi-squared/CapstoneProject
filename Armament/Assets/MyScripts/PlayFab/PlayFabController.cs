@@ -55,7 +55,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     Destroy(this.gameObject);
                 }
             }
-            DontDestroyOnLoad(this.gameObject);
+           //DontDestroyOnLoad(this.gameObject);
         }
 
         public void Start()
