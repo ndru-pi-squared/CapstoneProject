@@ -378,9 +378,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // #Critical: We only load if we are the first player, else we rely on 'PhotonNetwork.AutomaticallySyncScene' to sync our instance scene.
             if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
             {
-                Debug.Log("We load the '"+ developmentOnly_levelToLoad + "'");
-
-
                 // Get the arena filter information
                 int arenaFilterIndex = arenaFilterDropdown.value;
                 string selectedArenaFilter = arenaFilterDropdown.options[arenaFilterIndex].text;

@@ -139,6 +139,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 }
                 else Debug.Log("next nagivation element not found");
             }
+            else if (Input.GetKeyDown(KeyCode.Return))
+            {
+                OnClickLogin();
+            }
         }
 
         #region Login
