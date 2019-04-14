@@ -80,7 +80,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_Start = false;
         private const bool DEBUG_OnTriggerEnter = false;
         private const bool DEBUG_OnRoomPropertiesUpdate = false;
-        private const bool DEBUG_OnPlayerPropertiesUpdate = true;
+        private const bool DEBUG_OnPlayerPropertiesUpdate = false;
         private const bool DEBUG_MovePlayer = false;
         private const bool DEBUG_Respawn = false;
         private const bool DEBUG_SetActiveGun = false;
@@ -91,7 +91,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_SetAvatar = false;
         private const bool DEBUG_TakeDamage = false;
         private const bool DEBUG_SetMode = false;
-        private const bool DEBUG_DropAllItems = true; 
+        private const bool DEBUG_DropAllItems = false;
+        private const bool DEBUG_ToggleAIControl = false;
+        private const bool DEBUG_OnBecameVisible = true;
+        private const bool DEBUG_OnBecameInvisible = true;
+        
 
         private AudioSource audioSource;
 
@@ -107,18 +111,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private bool selectingWeapon; // flag to keep track of whether user is trying to select a weapon
         private int weaponSelectionIndex;
         private bool controlledByAI; // flag to keep track of whether this player is controlled by AI
-
+        
         private GameObject playerGO;
         private GameObject unityChanPrefab;
         private GameObject kyleRobotPrefab;
         private Animator animator;
-        private bool DEBUG_ToggleAIControl;
 
         #endregion
 
         #region Properties
 
         public Gun ActiveGun { get; private set; } // keeps track of active gun the active gun: a gun that is synced on network
+        public ArrayList EnemiesInView { get; private set; } 
 
         #endregion Properties
 
@@ -131,6 +135,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             if (DEBUG && DEBUG_Awake) Debug.LogFormat("PlayerManager: Awake()");
             playerWeapons = new ArrayList();
+            EnemiesInView = new ArrayList();
 
             // Get the instantiation data set by the master client who instantiated this player game object on the network
             // The master client will have provided the photon player actor number who this player GO was intended for
@@ -313,8 +318,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Regenerate Shield
             if (Shield < MAX_SHIELD)
             {
-
-                //Shield = Mathf.Lerp(Shield, MAX_SHIELD, ShieldRegenerationRate/MAX_SHIELD * Time.deltaTime);
                 Shield += ShieldRegenerationRate * Time.deltaTime;
             }
         }
@@ -332,7 +335,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 {
                     if (DEBUG && DEBUG_OnTriggerEnter) Debug.LogFormat("PlayerManager: OnTriggerEnter() Collided with WEAPON with name \"{0}\"," +
                         " photonView.Owner.NickName = {1}", other.GetComponentInParent<Gun>().name, photonView.Owner.NickName);
-                    Debug.Log("Player collideed with something");
 
                     // Save a reference to the gun we want to pick up. We will need it later in OnRoomPropertiesUpdate() 
                     // to actually pick up the gun if we were successful in claiming ownership of the gun in this method
@@ -373,6 +375,58 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 #endif
         }
 
+        /*
+        /// <summary>
+        /// OnBecameVisible is called when the object became visible by any camera.
+        /// 
+        /// This message is sent to all scripts attached to the renderer. OnBecameVisible and 
+        /// OnBecameInvisible are useful to avoid computations that are only necessary when the object is visible.
+        /// 
+        /// Note that object is considered visible when it needs to be rendered in the Scene. 
+        /// It might not be actually visible by any camera, but still need to be rendered for shadows for example. 
+        /// Also, when running in the editor, the Scene view cameras will also cause this function to be called.
+        /// </summary>
+        private void OnBecameVisible()
+        {
+            // *** Note: We expect local player to be the only one with an active camera
+
+            PlayerManager localPlayerPM = PlayerManager.LocalPlayerInstance.GetComponent<PlayerManager>();
+
+            if (DEBUG && DEBUG_OnBecameVisible) Debug.LogFormat("PlayerManager: OnBecameVisible() this = [{0}]", this);
+
+            // If this player is not on the same team as the local player (the player with the camera)...
+            if (!GetTeam().Equals(localPlayerPM.GetTeam())) {
+                if (DEBUG && DEBUG_OnBecameVisible) Debug.LogFormat("PlayerManager: OnBecameVisible() ADDED this = [{0}]", this);
+                localPlayerPM.EnemiesInView.Add(this);
+            }
+        }
+
+        /// <summary>
+        /// OnBecameVisible is called when the object became visible by any camera.
+        /// 
+        /// This message is sent to all scripts attached to the renderer. OnBecameVisible and 
+        /// OnBecameInvisible are useful to avoid computations that are only necessary when the object is visible.
+        /// 
+        /// Note that object is considered visible when it needs to be rendered in the Scene. 
+        /// It might not be actually visible by any camera, but still need to be rendered for shadows for example. 
+        /// Also, when running in the editor, the Scene view cameras will also cause this function to be called.
+        /// </summary>
+        private void OnBecameInvisible()
+        {
+            // *** Note: We expect local player to be the only one with an active camera
+
+            PlayerManager localPlayerPM = PlayerManager.LocalPlayerInstance.GetComponent<PlayerManager>();
+
+            if (DEBUG && DEBUG_OnBecameVisible) Debug.LogFormat("PlayerManager: OnBecameVisible() this = [{0}]", this);
+            
+            // If this player is not on the same team as the local player (the player with the camera)...
+            if (!GetTeam().Equals(localPlayerPM.GetTeam()))
+            {
+                if (DEBUG && DEBUG_OnBecameVisible) Debug.LogFormat("PlayerManager: OnBecameVisible() REMOVED this = [{0}]", this);
+                localPlayerPM.EnemiesInView.Remove(this);
+            }
+        }
+        */
 #if !UNITY_5_4_OR_NEWER
         /// <summary>
         /// See CalledOnLevelWasLoaded. Outdated in Unity 5.4.

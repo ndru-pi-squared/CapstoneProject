@@ -1479,8 +1479,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  timer: 0.2
-  countdown: 0
 --- !u!1 &358
 GameObject:
   m_ObjectHideFlags: 0
@@ -1582,6 +1580,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1013}
   - component: {fileID: 2242}
+  - component: {fileID: 6667464908295423159}
   m_Layer: 0
   m_Name: Robot2
   m_TagString: Untagged
@@ -1700,6 +1699,18 @@ SkinnedMeshRenderer:
     m_Center: {x: 0.27024603, y: -0.041899905, z: -0.000000059604645}
     m_Extent: {x: 0.95254505, y: 0.23127724, z: 0.6514181}
   m_DirtyAABB: 0
+--- !u!114 &6667464908295423159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9308a56e97cafb439f0024b4e29fb90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &362
 GameObject:
   m_ObjectHideFlags: 0
@@ -2157,6 +2168,7 @@ GameObject:
   - component: {fileID: 2227}
   - component: {fileID: 2240}
   - component: {fileID: 2032}
+  - component: {fileID: 4378546570006697143}
   m_Layer: 0
   m_Name: FirstPersonCharacter
   m_TagString: MainCamera
@@ -2249,6 +2261,18 @@ Skybox:
   m_GameObject: {fileID: 376}
   m_Enabled: 1
   m_CustomSkybox: {fileID: 2100000, guid: 4067de1a02072244798361060c5e7325, type: 2}
+--- !u!114 &4378546570006697143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9308a56e97cafb439f0024b4e29fb90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &377
 GameObject:
   m_ObjectHideFlags: 0
