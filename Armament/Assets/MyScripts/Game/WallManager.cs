@@ -8,7 +8,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
     public class WallManager : MonoBehaviour
     {
-
         #region MonoBehaviour CallBacks
 
         // Start is called before the first frame update
