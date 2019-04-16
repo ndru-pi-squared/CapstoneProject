@@ -287,10 +287,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // If the target's position has changed...
                 if (Agent.destination != target.position)
                 {
-                    Debug.LogFormat("AICharacterControl: AccomplishStageBasedGoals() Agent.SetDestination");
+                    Debug.LogFormat("AICharacterControl: AccomplishStageBasedGoals() ABOUT TO CALL Agent.SetDestination()");
                     // Update the destination based on the target's current position
                     Agent.SetDestination(target.position);
-                    Debug.LogFormat("AICharacterControl: AccomplishStageBasedGoals() Agent.SetDestination Agent.remainingDistance = {0}, Agent.pathPending = {1}", Agent.remainingDistance, Agent.pathPending);
+                    Debug.LogFormat("AICharacterControl: AccomplishStageBasedGoals() JUST CALLED Agent.SetDestination() Agent.remainingDistance = {0}, Agent.pathPending = {1}", Agent.remainingDistance, Agent.pathPending);
                 }
 
                 /*// If the path to the destination is not complete

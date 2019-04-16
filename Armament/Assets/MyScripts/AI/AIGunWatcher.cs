@@ -22,11 +22,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private void OnBecameVisible()
         {
             // *** Note: We expect local player to be the only one with an active camera
-
-            Debug.Log("---------A");
+            
             if (PlayerManager.LocalPlayerInstance == null)
             {
-                Debug.Log("---------B");
                 return;
             }
 
@@ -42,14 +40,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             if (DEBUG && DEBUG_OnBecameVisible) Debug.LogFormat("AIGunWatcher: OnBecameVisible() thisGun = [{0}]", thisGun);
 
+
+
             // Gets a vector that points from the player's position to the target's.
             var heading = thisGun.transform.position - localPlayerPM.gameObject.GetComponentInChildren<Camera>().transform.position;
             //heading.y = 0;  // This is the overground heading.
             var distance = heading.magnitude;
             var direction = heading / distance; // This is now a normalized direction
-
             bool objectIsInSightOfPlayer = false;
-
             // If cast hit something...
             if (Physics.Raycast(localPlayerPM.gameObject.GetComponentInChildren<Camera>().transform.position, direction, out RaycastHit hit, 1000))
             {
@@ -70,7 +68,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 Debug.LogFormat("AIGunWatcher: OnBecameVisible() ADDED thisGun = [{0}] localPlayerPM.UnclaimedGunsInView.Count = [{1}]", thisGun, localPlayerPM.UnclaimedGunsInView.Count);
             }
             else
+            {
                 Debug.LogFormat("AIGunWatcher: OnBecameVisible() GUN ALREADY OWNED OR IS SHOWGUN thisGun = [{0}] OR objectIsInSightOfPlayer = [{1}]", thisGun, objectIsInSightOfPlayer);
+            }
         }
 
         /// <summary>
