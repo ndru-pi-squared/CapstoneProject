@@ -6,22 +6,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
     public class AIEnemyWatcher : MonoBehaviour
     {
-        private const bool DEBUG = true;
+        private const bool DEBUG = false;
         private const bool DEBUG_OnBecameVisible = true;
         private const bool DEBUG_OnBecameInvisible = true;
-
-        // Start is called before the first frame update
-        void Start()
-        {
-
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
-
+        
         /// <summary>
         /// OnBecameVisible is called when the object became visible by any camera.
         /// This message is sent to all scripts attached to the renderer.OnBecameVisible and 

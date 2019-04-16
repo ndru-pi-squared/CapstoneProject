@@ -78,7 +78,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG = true; // indicates whether we are debugging this class
         private const bool DEBUG_Awake = false;
         private const bool DEBUG_Start = false;
-        private const bool DEBUG_OnTriggerEnter = false;
+        private const bool DEBUG_OnTriggerEnter = true;
         private const bool DEBUG_OnRoomPropertiesUpdate = false;
         private const bool DEBUG_OnPlayerPropertiesUpdate = false;
         private const bool DEBUG_MovePlayer = false;
@@ -122,7 +122,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #region Properties
 
         public Gun ActiveGun { get; private set; } // keeps track of active gun the active gun: a gun that is synced on network
-        public ArrayList EnemiesInView { get; private set; } 
+        public ArrayList EnemiesInView { get; private set; }
+        public ArrayList UnclaimedGunsInView { get; private set; }
 
         #endregion Properties
 
@@ -136,6 +137,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (DEBUG && DEBUG_Awake) Debug.LogFormat("PlayerManager: Awake()");
             playerWeapons = new ArrayList();
             EnemiesInView = new ArrayList();
+            UnclaimedGunsInView = new ArrayList();
 
             // Get the instantiation data set by the master client who instantiated this player game object on the network
             // The master client will have provided the photon player actor number who this player GO was intended for
@@ -956,6 +958,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Set Gun's FPS Cam and Player who owns this gun
             showGunToBeActivated.fpsCam = photonView.gameObject.transform.Find("FirstPersonCharacter").GetComponent<Camera>();
             showGunToBeActivated.playerWhoOwnsThisGun = photonView.gameObject.GetComponent<MonoBehaviourPun>();
+
+            // Turn off show gun's AIGunWatcher (so AIs don't chase show guns)
+            AIGunWatcher aiGunWatcher = showGunToBeActivated.gameObject.GetComponentInChildren<AIGunWatcher>();
+            aiGunWatcher.enabled = false;
+            Debug.LogFormat("PlayerManager: SetActiveGun() AIGunWatcher.enabled = {0}", aiGunWatcher.enabled);
+
+            showGunToBeActivated.IsShowGun = true;
 
             // Activate gunToBeActivated
             showGunToBeActivated.gameObject.SetActive(true);
