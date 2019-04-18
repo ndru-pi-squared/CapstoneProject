@@ -1,13 +1,9 @@
-﻿using System.Collections;
-
+﻿
 using UnityEngine;
 
 using Photon.Pun;
-using Photon.Realtime;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using ExitGames.Client.Photon;
-
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
@@ -28,9 +24,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public Color playerMessage, info;
 
-        public Toggle chatToggle;
+        //public PlayerManager PM;
 
-        private Transform chatToggleStartPosition;
 
         [SerializeField]
         List<Message> messageList = new List<Message>();
@@ -52,7 +47,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         void Start()
         {
             PV = GetComponent<PhotonView>();
-            //chatToggleStartPosition = chatToggle.transform.position;
         }
 
         // Update is called once per frame
@@ -67,6 +61,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     var type = Message.MessageType.playerMessage;
                     PV.RPC("RPC_SendMessageToChat", RpcTarget.All, test, type);
                     chatBox.text = "";
+                    chatBox.DeactivateInputField();
                 }
             }
 
@@ -76,15 +71,43 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 {
                     chatBox.ActivateInputField();
                 }
+
+                else if (chatBox.isFocused && Input.GetKeyDown(KeyCode.Return))
+                {
+                    chatBox.DeactivateInputField();
+                }
             }
 
             if (!chatBox.isFocused)
             {
+                //PM.chatting = false;
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    string test = "That's a spicy meat-a-ball";
+                    string test = "This is a system message. " + GPFC.username + " just jumped!";
                     var type = Message.MessageType.info;
                     PV.RPC("RPC_SendMessageToChat", RpcTarget.All, test, type);
+                    chatBox.DeactivateInputField();
+                }
+            }
+
+            if (!CB.activeSelf)
+            {
+                if (Input.GetKeyDown(KeyCode.Return))
+                {
+                    CB.SetActive(true);
+                    //PM.chatting = true;
+                }
+            }
+
+            else if (CB.activeSelf)
+            {
+                if (!chatBox.isFocused)
+                {
+                    if (Input.GetKeyDown(KeyCode.Quote))
+                    {
+                        CB.SetActive(false);
+                        //PM.chatting = false;
+                    }
                 }
             }
         }
@@ -102,22 +125,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             return color;
         }
 
-        public void ToggleChatBox()
-        {
-            if (chatToggle.isOn)
-            {
-                Debug.Log("Chat turned on");
-                //chatToggle.transform.position.y = chatToggleStartPosition.up;
-                CB.SetActive(true);
-            }
 
-            else
-            {
-                Debug.Log("Chat turned off");
-                //chatToggle.transform.position;
-                CB.SetActive(false);
-            }
-        }
+
 
         [PunRPC]
         public void RPC_SendMessageToChat(string text, Message.MessageType messageType)
