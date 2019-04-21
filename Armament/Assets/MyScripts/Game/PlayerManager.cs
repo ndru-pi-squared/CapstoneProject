@@ -8,6 +8,7 @@ using Photon.Realtime;
 using System.Collections.Generic;
 using UnityEngine.AI;
 using UnityStandardAssets.Characters.ThirdPerson;
+using UnityEngine.UI;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
@@ -78,7 +79,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG = true; // indicates whether we are debugging this class
         private const bool DEBUG_Awake = false;
         private const bool DEBUG_Start = false;
-        private const bool DEBUG_OnTriggerEnter = false;
+        private const bool DEBUG_OnTriggerEnter = true;
         private const bool DEBUG_OnRoomPropertiesUpdate = false;
         private const bool DEBUG_OnPlayerPropertiesUpdate = false;
         private const bool DEBUG_MovePlayer = false;
@@ -116,13 +117,15 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private GameObject unityChanPrefab;
         private GameObject kyleRobotPrefab;
         private Animator animator;
+        private Color originalTopPanelColor;
 
         #endregion
 
         #region Properties
 
         public Gun ActiveGun { get; private set; } // keeps track of active gun the active gun: a gun that is synced on network
-        public ArrayList EnemiesInView { get; private set; } 
+        public ArrayList EnemiesInView { get; private set; }
+        public ArrayList UnclaimedGunsInView { get; private set; }
 
         #endregion Properties
 
@@ -136,6 +139,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (DEBUG && DEBUG_Awake) Debug.LogFormat("PlayerManager: Awake()");
             playerWeapons = new ArrayList();
             EnemiesInView = new ArrayList();
+            UnclaimedGunsInView = new ArrayList();
 
             // Get the instantiation data set by the master client who instantiated this player game object on the network
             // The master client will have provided the photon player actor number who this player GO was intended for
@@ -632,23 +636,36 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             if (DEBUG && DEBUG_ToggleAIControl) Debug.LogFormat("PlayerManager: ToggleAIControl() controlledByAI = {0}", controlledByAI);
 
+            GameObject topPanel = GameManager.Instance.canvas.gameObject.transform.Find("Top Panel").gameObject;
+
             // If player is not currently controlled by AI...
             if (!controlledByAI)
             {
-                // Flip flag
-                controlledByAI = true;
+                NavMeshAgent agent = GetComponent<NavMeshAgent>();
 
-                // Turn off FPS controls
-                GetComponent<FirstPersonController>().enabled = false;
+                // Turn on NavMeshAgent (at least temporarily)
+                agent.enabled = true; 
 
-                // Turn on AI controls
-                GetComponent<NavMeshAgent>().enabled = true;
-                GetComponent<ThirdPersonCharacter>().enabled = true;
-                GetComponent<AICharacterControl>().enabled = true;
+                // If agent is on the nav mesh
+                if (agent.isOnNavMesh)
+                {
+                    // Flip flag
+                    controlledByAI = true;
 
-                // Set AI target 
-                //GetComponent<AICharacterControl>().target = GameManager.Instance.DividingWallGO.transform;
-                //GetComponent<AICharacterControl>().target = ((GameObject)GameManager.Instance.SpawnedWeaponsList[0]).transform;                
+                    // Turn off FPS controls
+                    GetComponent<FirstPersonController>().enabled = false;
+
+                    // Turn on AI controls
+                    GetComponent<ThirdPersonCharacter>().enabled = true;
+                    GetComponent<AICharacterControl>().enabled = true;
+
+                    originalTopPanelColor = topPanel.GetComponent<Image>().color;
+                    topPanel.GetComponent<Image>().color = new Color(0f, 0f, 1f, .4f);
+                }
+                // If agent is not on the nav mesh
+                else
+                    // turn off the agent
+                    agent.enabled = false;
             }
             // If player is currently controlled by AI...
             else
@@ -663,6 +680,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 // Turn on FPS controls
                 GetComponent<FirstPersonController>().enabled = true;
+
+                topPanel.GetComponent<Image>().color = originalTopPanelColor;
             }
         }
 
@@ -956,6 +975,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Set Gun's FPS Cam and Player who owns this gun
             showGunToBeActivated.fpsCam = photonView.gameObject.transform.Find("FirstPersonCharacter").GetComponent<Camera>();
             showGunToBeActivated.playerWhoOwnsThisGun = photonView.gameObject.GetComponent<MonoBehaviourPun>();
+
+            // Turn off show gun's AIGunWatcher (so AIs don't chase show guns)
+            AIGunWatcher aiGunWatcher = showGunToBeActivated.gameObject.GetComponentInChildren<AIGunWatcher>();
+            aiGunWatcher.enabled = false;
+            Debug.LogFormat("PlayerManager: SetActiveGun() AIGunWatcher.enabled = {0}", aiGunWatcher.enabled);
+
+            showGunToBeActivated.IsShowGun = true;
 
             // Activate gunToBeActivated
             showGunToBeActivated.gameObject.SetActive(true);

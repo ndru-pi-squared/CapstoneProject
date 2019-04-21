@@ -12,6 +12,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
     /// <para>This definitely needs a better summary</para>
     /// </summary>
     [RequireComponent(typeof(AudioSource))]
+    [RequireComponent(typeof(PhotonView))]
     public class Gun : MonoBehaviour, IPunInstantiateMagicCallback, IShootable
     {
         
@@ -59,7 +60,26 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region Public Properties
 
-        
+        public bool IsOwned
+        {
+            get 
+            {
+                PhotonView photonView = GetComponent<PhotonView>();
+                // If the Gun's photon ViewID is set in the room's custom properties...
+                if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(photonView.ViewID.ToString(),out object owner))
+                {
+                    // If the Gun is not owned by a player...
+                    if (GameManager.VALUE_UNCLAIMED_ITEM.Equals((string)owner) || GameManager.VALUE_VANISHED_ITEM.Equals((string)owner))
+                        return false;
+                    // If the Gun is owned by a player...
+                    else
+                        return true;
+                }
+                return false;
+            }
+        }
+
+        public bool IsShowGun { get; set; } = false;
 
         #endregion Public Properties
 
@@ -105,6 +125,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #endregion MonoBehaviour Callbacks 
 
         #region Public Methods
+
         public bool IsReadyToShoot()
         {
             return Time.time >= nextTimeToFire; 
@@ -115,6 +136,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             return name.Contains("Gun 1") ? 1 : 2;//todo: change this
         }
+
         /// <summary>
         /// Called by PlayerManager every time the gun needs to be shot.
         /// Protects against shooting faster than firerate allows
@@ -246,6 +268,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 }
             }
         }
+
         #endregion IPunInstantiateMagicCallback implementation
     }
 }
