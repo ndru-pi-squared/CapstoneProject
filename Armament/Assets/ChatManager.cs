@@ -19,11 +19,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public int maxMessages = 25;
 
+        public bool setToDisable = false;
+
         public GameObject chatPanel, textObject;
         public InputField chatBox;
 
         public Color playerMessage, info;
 
+        //Use of PM is to disable movement when chatting. This is a later feature.
         //public PlayerManager PM;
 
 
@@ -52,6 +55,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         // Update is called once per frame
         void Update()
         {
+            if (!CB.activeSelf) {
+                if (Input.GetKeyDown(KeyCode.Return))
+                {
+                    CB.SetActive(true);
+                    chatBox.ActivateInputField();
+                    //PM.chatting = true;
+                }
+            }
             if (chatBox.text != "")
             {
                 if (Input.GetKeyDown(KeyCode.Return))
@@ -62,19 +73,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     PV.RPC("RPC_SendMessageToChat", RpcTarget.All, test, type);
                     chatBox.text = "";
                     chatBox.DeactivateInputField();
+                    setToDisable = false;
                 }
             }
-
             else
             {
-                if (!chatBox.isFocused && Input.GetKeyDown(KeyCode.Return))
+                if (Input.GetKeyDown(KeyCode.Return) && !setToDisable)
                 {
                     chatBox.ActivateInputField();
+                    setToDisable = true;
                 }
 
-                else if (chatBox.isFocused && Input.GetKeyDown(KeyCode.Return))
+                else if (Input.GetKeyDown(KeyCode.Return) && setToDisable)
                 {
-                    chatBox.DeactivateInputField();
+                    setToDisable = false;
+                    CB.SetActive(false);
                 }
             }
 
@@ -87,27 +100,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     var type = Message.MessageType.info;
                     PV.RPC("RPC_SendMessageToChat", RpcTarget.All, test, type);
                     chatBox.DeactivateInputField();
-                }
-            }
-
-            if (!CB.activeSelf)
-            {
-                if (Input.GetKeyDown(KeyCode.Return))
-                {
-                    CB.SetActive(true);
-                    //PM.chatting = true;
-                }
-            }
-
-            else if (CB.activeSelf)
-            {
-                if (!chatBox.isFocused)
-                {
-                    if (Input.GetKeyDown(KeyCode.Quote))
-                    {
-                        CB.SetActive(false);
-                        //PM.chatting = false;
-                    }
                 }
             }
         }
