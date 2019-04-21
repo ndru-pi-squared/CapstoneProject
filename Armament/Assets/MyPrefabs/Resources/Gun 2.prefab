@@ -309,6 +309,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1097}
     m_Modifications:
+    - target: {fileID: 6197443874369675202, guid: 9405cf038837b49419ecf0a1f894e082,
+        type: 3}
+      propertyPath: m_Name
+      value: MuzzleFlash
+      objectReference: {fileID: 0}
     - target: {fileID: 6197443874369673893, guid: 9405cf038837b49419ecf0a1f894e082,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -364,11 +369,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6197443874369675202, guid: 9405cf038837b49419ecf0a1f894e082,
-        type: 3}
-      propertyPath: m_Name
-      value: MuzzleFlash
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9405cf038837b49419ecf0a1f894e082, type: 3}
 --- !u!4 &1053 stripped
@@ -390,6 +390,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1097}
     m_Modifications:
+    - target: {fileID: 103036, guid: c656de207260bf54883c10f990df79db, type: 3}
+      propertyPath: m_Name
+      value: EW-M4
+      objectReference: {fileID: 0}
     - target: {fileID: 403036, guid: c656de207260bf54883c10f990df79db, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.23337401
@@ -433,10 +437,6 @@ PrefabInstance:
     - target: {fileID: 403036, guid: c656de207260bf54883c10f990df79db, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 103036, guid: c656de207260bf54883c10f990df79db, type: 3}
-      propertyPath: m_Name
-      value: EW-M4
       objectReference: {fileID: 0}
     - target: {fileID: 5692295722684939100, guid: c656de207260bf54883c10f990df79db,
         type: 3}
