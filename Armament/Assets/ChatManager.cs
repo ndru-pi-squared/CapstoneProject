@@ -1,18 +1,19 @@
-﻿using System.Collections;
-
+﻿
 using UnityEngine;
 
 using Photon.Pun;
-using Photon.Realtime;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using ExitGames.Client.Photon;
-
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
     public class ChatManager : MonoBehaviourPunCallbacks
     {
+        private PhotonView PV;
+
+        public GamePlayFabController GPFC;
+
+        public GameObject CB;
 
         public string username;
 
@@ -23,13 +24,29 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public Color playerMessage, info;
 
+        //public PlayerManager PM;
+
+
         [SerializeField]
         List<Message> messageList = new List<Message>();
+
+
+        public override void OnEnable()
+        {
+            base.OnEnable();
+            PhotonNetwork.AddCallbackTarget(this);
+        }
+
+        public override void OnDisable()
+        {
+            base.OnDisable();
+            PhotonNetwork.RemoveCallbackTarget(this);
+        }
 
         // Start is called before the first frame update
         void Start()
         {
-
+            PV = GetComponent<PhotonView>();
         }
 
         // Update is called once per frame
@@ -39,8 +56,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 if (Input.GetKeyDown(KeyCode.Return))
                 {
-                    sendMessageToChat(username + ": " + chatBox.text, Message.MessageType.playerMessage);
+                    username = GPFC.username;
+                    string test = username + ": " + chatBox.text;
+                    var type = Message.MessageType.playerMessage;
+                    PV.RPC("RPC_SendMessageToChat", RpcTarget.All, test, type);
                     chatBox.text = "";
+                    chatBox.DeactivateInputField();
                 }
             }
 
@@ -50,18 +71,65 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 {
                     chatBox.ActivateInputField();
                 }
+
+                else if (chatBox.isFocused && Input.GetKeyDown(KeyCode.Return))
+                {
+                    chatBox.DeactivateInputField();
+                }
             }
 
             if (!chatBox.isFocused)
             {
+                //PM.chatting = false;
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    sendMessageToChat("That's a spicy meat-a-ball", Message.MessageType.info);
+                    string test = "This is a system message. " + GPFC.username + " just jumped!";
+                    var type = Message.MessageType.info;
+                    PV.RPC("RPC_SendMessageToChat", RpcTarget.All, test, type);
+                    chatBox.DeactivateInputField();
+                }
+            }
+
+            if (!CB.activeSelf)
+            {
+                if (Input.GetKeyDown(KeyCode.Return))
+                {
+                    CB.SetActive(true);
+                    //PM.chatting = true;
+                }
+            }
+
+            else if (CB.activeSelf)
+            {
+                if (!chatBox.isFocused)
+                {
+                    if (Input.GetKeyDown(KeyCode.Quote))
+                    {
+                        CB.SetActive(false);
+                        //PM.chatting = false;
+                    }
                 }
             }
         }
 
-        public void sendMessageToChat(string text, Message.MessageType messageType)
+
+        Color MessageTypeColor(Message.MessageType messageType)
+        {
+            Color color = info;
+            switch (messageType)
+            {
+                case Message.MessageType.playerMessage:
+                    color = playerMessage;
+                    break;
+            }
+            return color;
+        }
+
+
+
+
+        [PunRPC]
+        public void RPC_SendMessageToChat(string text, Message.MessageType messageType)
         {
             if (messageList.Count > maxMessages)
             {
@@ -80,28 +148,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             messageList.Add(newMessage);
         }
 
-        Color MessageTypeColor(Message.MessageType messageType)
-        {
-            Color color = info;
-            switch (messageType)
-            {
-                case Message.MessageType.playerMessage:
-                    color = playerMessage;
-                    break;
-            }
-            return color;
-        }
-
     }
 
     [System.Serializable]
     public class Message
     {
-
         public string text;
         public Text textObject;
         public MessageType messageType;
 
         public enum MessageType { playerMessage, info }
     }
+
 }
+
