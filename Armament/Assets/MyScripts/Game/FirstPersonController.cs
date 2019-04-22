@@ -244,7 +244,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             leftJoystickInput = leftJoystick.GetInputDirection();
 
             horizontal = leftJoystickInput.x; // The horizontal movement from joystick 01
-            vertical = leftJoystickInput.y; // The vertical movement from joystick 01	
+            vertical = leftJoystickInput.y; // The vertical movement from joystick 01
 #endif
 
 #if !MOBILE_INPUT

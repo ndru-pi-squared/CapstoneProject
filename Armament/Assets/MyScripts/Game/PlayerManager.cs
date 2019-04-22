@@ -210,6 +210,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 GameObject leftStick = GameManager.Instance.canvas.transform.Find("Dual-Joystick Canvas/Left Joystick").gameObject;
                 GameObject rightStick = GameManager.Instance.canvas.transform.Find("Dual-Joystick Canvas/Right Joystick").gameObject;
                 GetComponent<FirstPersonController>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
+                GetComponent<PlayerAnimatorManager>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
+                _fpLegs.GetComponent<PlayerAnimatorManager>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
                 GetComponent<FirstPersonController>().rightJoystick = rightStick.GetComponent<RightJoystick>();
                 #endif
 
