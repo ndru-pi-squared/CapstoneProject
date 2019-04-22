@@ -48,5 +48,6 @@ MonoBehaviour:
   - Explode
   - spawnExplosion
   - RPC_SendMessageToChat
+  - PlaySound
   DisableAutoOpenWizard: 1
   ShowSettings: 1

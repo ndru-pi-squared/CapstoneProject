@@ -1297,7 +1297,8 @@ MonoBehaviour:
   Shield: 100
   ShieldRegenerationRate: 5
   medkitPrefab: {fileID: 496, guid: 4cdcc6c16809ba5439c8798d9bb925f4, type: 3}
-  deathSound: {fileID: 8300000, guid: c12757a7619bd864c80aef7d059208f7, type: 3}
+  deathSound1: {fileID: 8300000, guid: 9b630e6c1d8084261b5d3d27f7aeb620, type: 3}
+  deathSound2: {fileID: 8300000, guid: f93e978a5b02f47629ae1881412a2113, type: 3}
   painSound: {fileID: 8300000, guid: 0e6b76160e87ae44a9afb100dba8aeaf, type: 3}
   playerUiPrefab: {fileID: 8596841759220518085, guid: 92ef125f36ae2e743b0604aebd8382dd,
     type: 3}

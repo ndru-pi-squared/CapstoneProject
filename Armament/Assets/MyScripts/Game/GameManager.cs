@@ -79,13 +79,29 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] private Transform[] weaponSpawnPoints;
         [Tooltip("Whether players can damage players on same team")]
         [SerializeField] private bool friendlyFire;
+
+        [Tooltip("")]
+        [SerializeField] private GameObject playerData;
+
         [Tooltip("Whether round ends when last opponent dies")]
         [SerializeField] private bool roundEndsWhenLastOpponentDies = true;
         [Tooltip("Audio Clip to play when a round starts.")]
         [SerializeField] private AudioClip newRoundSound;
+         [Tooltip("True if this is the first round")]
+        [SerializeField] private bool firstRound = true;
+        [Tooltip("Audio Clip to play when game begins.")]
+        [SerializeField] private AudioClip armamentSound;
+        [Tooltip("Audio Clip to play when stage one begins.")]
+        [SerializeField] private AudioClip stageOneSound;
+        [Tooltip("Audio Clip to play when stage two begins.")]
+        [SerializeField] private AudioClip stageTwoSound;
+        [Tooltip("Audio Clip to play when wall is destroyed.")]
+        [SerializeField] private AudioClip wallDownSound;
+        [Tooltip("Audio Clip to play when red team wins.")]
+        [SerializeField] private AudioClip redWinSound;
+        [Tooltip("Audio Clip to play when blue team wins.")]
+        [SerializeField] private AudioClip blueWinSound;
 
-        [Tooltip("")]
-        [SerializeField] private GameObject playerData;
 
         #endregion Private Serialized Fields
 
@@ -220,7 +236,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     RemoveUnclaimedItems();
                 }
             }
-
+            photonView.RPC("PlaySound", RpcTarget.All, "stageTwoSound");
         }
 
         /// <summary>
@@ -240,6 +256,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         public void OnWallIsDead()
         {
+            //play wall is down sound
+            photonView.RPC("PlaySound", RpcTarget.All, "wallDownSound");
             if (DEBUG && DEBUG_OnWallIsDead) Debug.LogFormat("GameManager: OnWallIsDead() PhotonNetwork.IsMasterClient = {0}", PhotonNetwork.IsMasterClient);
 
             // Set the Stage 1 start time to Stage1Time seconds ago so CountdownTimer thinks it's time to end stage 1
@@ -296,7 +314,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient };
             SendOptions sendOptions = new SendOptions { Reliability = true };
             PhotonNetwork.RaiseEvent(InstantiatePlayer, content, raiseEventOptions, sendOptions);
-
+            photonView.RPC("PlaySound", RpcTarget.All, "stageOneSound");
             //Create an AI player
             //object[] content2 = new object[] { PhotonNetwork.LocalPlayer.ActorNumber };
             //PhotonNetwork.RaiseEvent(InstantiatePlayer, content2, raiseEventOptions, sendOptions);
@@ -594,6 +612,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 // Enable Winning Team Banner Panel 
                 winningTeamBannerPanel.SetActive(true);
+                //Play win audio for appropriate team
+                if (winningTeamName == "A")
+                {
+                    // Play blue team win sound
+                    photonView.RPC("PlaySound", RpcTarget.All, "blueWinSound");
+                }
+                else
+                {
+                    // Play red team win sound
+                    photonView.RPC("PlaySound", RpcTarget.All, "redWinSound");
+                }
                 Update();
 
                 Invoke("DisableWinningTeamBannerPanel", 5f); // invoke after some number of seconds
@@ -767,7 +796,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             photonView.RPC("ResetPlayerPosition", RpcTarget.All);
 
             // Make all clients reset their local player's position
-            photonView.RPC("PlayNewRoundSound", RpcTarget.All);
+            // If this is the first round of gameplay...
+            if (firstRound)
+            {
+                // Play first round sound
+                photonView.RPC("PlaySound", RpcTarget.All, "armamentSound");
+                firstRound = false;
+            }
+            else
+            {
+                // Play new round sound
+                photonView.RPC("PlaySound", RpcTarget.All, "newRoundSound");
+            }
 
             // Spawn new items
             SpawnNewItems();
@@ -777,14 +817,46 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         [PunRPC]
-        void PlayNewRoundSound()
+        void PlaySound(String audioClipName)
         {
+            AudioClip audioClip;
+
+            //Switch statement instead of simple parameter passing because Photon requires serialization for stream objects such as AudioClips
+            switch (audioClipName)
+            {
+                case "armamentSound":
+                    audioClip = armamentSound;
+                    break;
+                case "newRoundSound":
+                    audioClip = newRoundSound;
+                    break;
+                case "stageOneSound":
+                    audioClip = stageOneSound;
+                    break;
+                case "stageTwoSound":
+                    audioClip = stageTwoSound;
+                    break;
+                case "wallDownSound":
+                    audioClip = wallDownSound;
+                    break;
+                case "redWinSound":
+                    audioClip = redWinSound;
+                    break;
+                case "blueWinSound":
+                    audioClip = blueWinSound;
+                    break;
+                default:
+                    audioClip = null;
+                    break;
+
+            }
             GameObject announcer = new GameObject("Announcer");
             AudioSource audioSource = announcer.AddComponent<AudioSource>();
-            Debug.LogFormat("PlayerManager: Die() audioSource = {0}, newRoundSound = {1}", audioSource, newRoundSound);
+            Debug.LogFormat("PlayerManager: Die() audioSource = {0}, " + audioClip.name + "= {1}", audioSource, audioClip);
+
 
             // Play death sound
-            audioSource.PlayOneShot(newRoundSound); // I read somewhere online that this allows the sounds to overlap
+            audioSource.PlayOneShot(audioClip); // I read somewhere online that this allows the sounds to overlap
             Destroy(announcer, 5f);
         }
 

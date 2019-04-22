@@ -68,8 +68,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region Private Serializable Fields
 
+        [SerializeField] private AudioClip deathSound1;
         [Tooltip("Audio Clip to play when a player dies.")]
-        [SerializeField] private AudioClip deathSound;
+        [SerializeField] private AudioClip deathSound2;
         [Tooltip("Audio Clip to play when a player takes.")]
         [SerializeField] private AudioClip painSound;
         [Tooltip("The Player's UI GameObject Prefab")]
@@ -773,6 +774,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
         }
 
+        //Plays passed audio clip
+        void PlaySound(AudioClip audioClip)
+        {
+            GameObject announcer = new GameObject("Announcer");
+            AudioSource audioSource = announcer.AddComponent<AudioSource>();
+            Debug.LogFormat("PlayerManager: Die() audioSource = {0}, " + audioClip.name + "= {1}", audioSource, audioClip);
+
+            audioSource.PlayOneShot(audioClip);
+            Destroy(announcer, 5f);
+        }
+
         /// <summary>
         /// Set what team this player is on. 
         /// This method will first be called by GameManager after player is instantiated on PhotonNetwork.
@@ -871,8 +883,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 else
                 {
                     // Play pain sound
-                    audioSource.PlayOneShot(painSound); // I read somewhere online that this allows the sounds to overlap
-
+                    // audioSource.PlayOneShot(painSound); // I read somewhere online that this allows the sounds to overlap
+                    PlaySound(painSound);
                     // If this player is currently controlled by AI
                     if (controlledByAI)
                     {
@@ -1595,12 +1607,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             //Destroy(gameObject);
             AudioSource audioSource = GetComponent<AudioSource>();
             audioSource.enabled = true;
-            Debug.LogFormat("PlayerManager: Die() audioSource = {0}, deathSound = {1}", audioSource, deathSound);
+            //Debug.LogFormat("PlayerManager: Die() audioSource = {0}, deathSound = {1}", audioSource, deathSound);
 
             // Play death sound
             audioSource.priority = 10;
-            audioSource.PlayOneShot(deathSound); // I read somewhere online that this allows the sounds to overlap
-
+            // Play one of two death sounds with a random int from 1 to 2
+            System.Random rand = new System.Random();
+            int r = rand.Next(1, 2);
+            if (r == 1)
+            {
+                PlaySound(deathSound1);
+            }
+            else
+            {
+                PlaySound(deathSound2);
+            }
             // Register a death for this player on all clients
             AddDeath();
 

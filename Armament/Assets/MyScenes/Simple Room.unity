@@ -4889,6 +4889,41 @@ PrefabInstance:
       propertyPath: weaponSpawnPoints.Array.data[7]
       value: 
       objectReference: {fileID: 1518920567}
+    - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
+        type: 3}
+      propertyPath: armamentSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 3b4ae2c2b3b9c487b866d13e9ea0b9d2, type: 3}
+    - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
+        type: 3}
+      propertyPath: stageOneSound
+      value: 
+      objectReference: {fileID: 8300000, guid: bec151fd9adbf4490bec5fd14c284429, type: 3}
+    - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
+        type: 3}
+      propertyPath: stageTwoSound
+      value: 
+      objectReference: {fileID: 8300000, guid: dbc9229276d994c9dbe998e164029b39, type: 3}
+    - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
+        type: 3}
+      propertyPath: wallDownSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 96c6a44fd444e44d5b5d908980216cac, type: 3}
+    - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
+        type: 3}
+      propertyPath: newRoundSound
+      value: 
+      objectReference: {fileID: 8300000, guid: e614e50611df64fc0b2954cb6acf5587, type: 3}
+    - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
+        type: 3}
+      propertyPath: redWinSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 35e04d787343747fcaae1cc8c457f19f, type: 3}
+    - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
+        type: 3}
+      propertyPath: blueWinSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 9a177d33f5eaf452291a8aa66d10485e, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7ac2123401479ef47a6d48780e05ab48, type: 3}
 --- !u!114 &2033645109 stripped
