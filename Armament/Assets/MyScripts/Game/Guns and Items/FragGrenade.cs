@@ -5,10 +5,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace Com.Kabaj.TestPhotonMultiplayerFPSGame {
+namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
+{
 
     [RequireComponent(typeof(AudioSource))]
-    public class FragGrenade : MonoBehaviour, IThrowable
+    public class FragGrenade : MonoBehaviourPun, IThrowable
     {
         [Tooltip("Explosion time")]
         public float timer = 3.0f;
@@ -19,40 +20,64 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame {
         public float baseDamage = 100f;
         private float distanceFromGrenade;
         private float damageCaused;
+        public bool thrown;
         public bool hasExploded;
+        public bool grenadeWasPickedUp;
         [SerializeField] GameObject explosionParticle;
         [Tooltip("The player who is holding the grenade. **This implementation might need revision**")]
         public MonoBehaviourPun playerWhoOwnsThisGrenade;
- 
+
 
         void Start()
         {
+            grenadeWasPickedUp = false;
             hasExploded = false;
             countdown = timer;
-            
+
             //coroutine = TimedExplosion(explosiveDelay);
             //StartCoroutine(coroutine);
         }
 
         void Awake()
         {
-            Throw();//throw the throwable grenade
+            thrown = false;
+            hasExploded = false;
+            countdown = timer;
         }
 
         // Update is called once per frame
         void Update()
         {
-            countdown -= Time.deltaTime;
-            if (countdown <= 0 && !hasExploded)
+            if (grenadeWasPickedUp == true)
             {
-                Explode();
+                if (PhotonNetwork.IsMasterClient)
+                    PhotonNetwork.Destroy(this.gameObject);
             }
+            if (playerWhoOwnsThisGrenade != null && thrown == false)
+            {
+                GetComponent<BoxCollider>().isTrigger = false;
+                GetComponent<Rigidbody>().isKinematic = false;
+                Debug.Log("Calling Throw()");
+                Throw();
+            }
+
+            if (thrown == true)
+            {
+                //Debug.Log("Thrown set to true");
+                countdown -= Time.deltaTime;
+                if (countdown <= 0 && !hasExploded)
+                {
+                    photonView.RPC("Explode", RpcTarget.All);
+                }
+            }
+
         }
 
-        void Explode()
-        {  
-            GameObject spawnedParticle = Instantiate(explosionParticle, transform.position, transform.rotation);
-            
+        [PunRPC]
+        void Explode()//this might need to be an rpc function
+        {
+            //GameObject spawnedParticle = Instantiate(explosionParticle, transform.position, transform.rotation);
+            GameObject spawnedParticle = PhotonNetwork.Instantiate("Explosion", gameObject.transform.position, gameObject.transform.rotation);
             //Debug.Log("Explosion");
             hasExploded = true;
             PhotonNetwork.Destroy(this.gameObject);
@@ -101,7 +126,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame {
 
         public void Throw()//called from playermanager. pulling into here makes it more modular in PlayerManager since theres a lot of cod ethere. Similar to shoot. 
         {
+            //GetComponent<BoxCollider>().isTrigger = false;
             //add up and forward forces to lob it
+            thrown = true;
             this.gameObject.GetComponent<Rigidbody>().AddForce(transform.forward * 1500.0f);
             this.gameObject.GetComponent<Rigidbody>().AddForce(0, 400, 0);
         }
@@ -111,6 +138,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame {
             return false; //how often can he throw?
         }
 
-       
+
     }
 }
