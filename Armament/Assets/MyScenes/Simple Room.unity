@@ -1596,8 +1596,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8120b5df05d42eb47991cb4aedffa863, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  leftJoystickBackgroundImage: {fileID: 0}
-  rightJoystickBackgroundImage: {fileID: 0}
+  leftJoystickBackgroundImage: {fileID: 1161825307}
+  rightJoystickBackgroundImage: {fileID: 756224842}
   leftJoystickAlwaysVisible: 1
   rightJoystickAlwaysVisible: 1
 --- !u!1 &1062342012
