@@ -162,7 +162,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             ProgressStepCycle(speed);
             UpdateCameraPosition(speed);
 
+#if !MOBILE_INPUT
             m_MouseLook.UpdateCursorLock();
+#endif
         }
 
 
