@@ -1193,7 +1193,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c19f73178f3cec94787c9bbd3100bcb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  joystickStaysInFixedPosition: 0
+  joystickStaysInFixedPosition: 1
   joystickHandleDistance: 4
 --- !u!114 &756224842
 MonoBehaviour:
@@ -1763,7 +1763,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84cbec91a469874478de89ece3947d79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  joystickStaysInFixedPosition: 0
+  joystickStaysInFixedPosition: 1
   joystickHandleDistance: 4
 --- !u!114 &1161825307
 MonoBehaviour:
