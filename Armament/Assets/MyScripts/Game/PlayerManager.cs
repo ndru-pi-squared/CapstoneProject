@@ -210,10 +210,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 leftStick.SetActive(true);
                 rightStick.SetActive(true);
                 GameManager.Instance.canvas.transform.Find("Dual-Joystick Touch Controller").gameObject.SetActive(true);
+                GameManager.Instance.canvas.transform.Find("Mobile Jump Button").gameObject.SetActive(true);
                 GetComponent<FirstPersonController>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
                 GetComponent<PlayerAnimatorManager>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
                 _fpLegs.GetComponent<PlayerAnimatorManager>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
                 GetComponent<FirstPersonController>().rightJoystick = rightStick.GetComponent<RightJoystick>();
+                GameManager.Instance.canvas.transform.Find("Weapon Inventory Menu").GetComponent<WeaponsMenuManager>().OpenMenu();
                 #endif
 
 
@@ -1290,7 +1292,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         if (myTouches[i].position.x > Screen.width / 3 && myTouches[i].position.x < ((Screen.width / 3) * 2))
                         {
                             // Check if gun is ready to shoot before sending the RPC to avoid overloading network
-                            if (ActiveGun != null && ActiveGun.IsReadyToShoot())
+                            if (myTouches[i].position.y > Screen.height / 4 && ActiveGun != null && ActiveGun.IsReadyToShoot())
                             {
                                 // Call the [PunRPC] Shoot method over photon network
                                 photonView.RPC("Shoot", RpcTarget.All);
@@ -1327,7 +1329,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         selectingWeapon = false;
 
                         WeaponsMenuManager weaponsMenuManager = weaponInventoryMenuGO.GetComponent<WeaponsMenuManager>();
+#if !MOBILE_INPUT
                         weaponsMenuManager.CloseMenu();
+#endif
                         int gunViewID = weaponsMenuManager.GetHighlightedGunViewID();
                         if (gunViewID != -1)
                         {
