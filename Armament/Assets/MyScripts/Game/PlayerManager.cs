@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 using System.Collections;
@@ -205,10 +205,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 // If it's a mobile game, initialize the thumbsticks
                 #if MOBILE_INPUT
-                GameManager.Instance.canvas.transform.Find("Dual-Joystick Canvas").gameObject.SetActive(true);
+                GameObject leftStick = GameManager.Instance.canvas.transform.Find("Left Joystick").gameObject;
+                GameObject rightStick = GameManager.Instance.canvas.transform.Find("Right Joystick").gameObject;
+                leftStick.SetActive(true);
+                rightStick.SetActive(true);
                 GameManager.Instance.canvas.transform.Find("Dual-Joystick Touch Controller").gameObject.SetActive(true);
-                GameObject leftStick = GameManager.Instance.canvas.transform.Find("Dual-Joystick Canvas/Left Joystick").gameObject;
-                GameObject rightStick = GameManager.Instance.canvas.transform.Find("Dual-Joystick Canvas/Right Joystick").gameObject;
                 GetComponent<FirstPersonController>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
                 GetComponent<PlayerAnimatorManager>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
                 _fpLegs.GetComponent<PlayerAnimatorManager>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
