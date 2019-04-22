@@ -202,6 +202,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 GameObject playerInfoUIGO = GameManager.Instance.canvas.GetComponentInChildren<PlayerInfoUI>().gameObject;
                 // Call SetTarget() on PlayerInfoUI component so the PlayerInfoUI will follow be linked to this player 
                 playerInfoUIGO.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
+
+                // If it's a mobile game, initialize the thumbsticks
+                #if MOBILE_INPUT
+                GameManager.Instance.canvas.transform.Find("Dual-Joystick Canvas").gameObject.SetActive(true);
+                GameManager.Instance.canvas.transform.Find("Dual-Joystick Touch Controller").gameObject.SetActive(true);
+                GameObject leftStick = GameManager.Instance.canvas.transform.Find("Dual-Joystick Canvas/Left Joystick").gameObject;
+                GameObject rightStick = GameManager.Instance.canvas.transform.Find("Dual-Joystick Canvas/Right Joystick").gameObject;
+                GetComponent<FirstPersonController>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
+                GetComponent<FirstPersonController>().rightJoystick = rightStick.GetComponent<RightJoystick>();
+                #endif
+
+
             }
             
             // #Critical
@@ -1251,7 +1263,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 //or without a dict we could just have 1 input class with lots of commands. nah we should really divide them up based on input type (mobile, pc, UI for each, etc)
                 //inputsDict.get(name).execute(input); //where input is "Fire1" or "Weapon1" and map.get(name) returns a class that can execute that input.
                 //we set the state in another place in the code. this type of code is easier to maintain than the long if statements
-                if (Input.GetButton("Fire1"))
+                if (Input.GetButton("Fire1") && !EventSystem.current.IsPointerOverGameObject())
                 {
                     // Check if gun is ready to shoot before sending the RPC to avoid overloading network
                     if (ActiveGun != null && ActiveGun.IsReadyToShoot())
