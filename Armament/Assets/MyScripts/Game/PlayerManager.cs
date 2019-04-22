@@ -367,10 +367,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
            
             //Debug.Log(PhotonNetwork.GetPing());
             // Figure out what should be done if this is the player I'm controlling
-            if (photonView.IsMine)
+            if (PhotonNetwork.IsMasterClient)
             {
                 frameCount++;
-                if(frameCount >= 10)
+                if(frameCount >= 7)
                 {
                     fps = 1.0f / Time.deltaTime;
                     Debug.Log(fps);
@@ -378,9 +378,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     PingText.GetComponent<Text>().text = "Ping: " + PhotonNetwork.GetPing() + " MS";
                     frameCount = 0;
                 }
-               
-                ProcessInputs();
+                
             }
+            if (photonView.IsMine)
+                ProcessInputs();
 
             // Regenerate Shield
             if (Shield < MAX_SHIELD)
@@ -1403,7 +1404,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 {
                     GameObject fragGrenade = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
                     fragGrenade.GetComponent<FragGrenade>().playerWhoOwnsThisGrenade = this;//setting this for TakeDamage(int/float,playerwhoowns...)
-                    
+                   
                     //Debug.Log("Keycode f playerGrenadeCount pre decrement: " + playerGrenadeCount);
                     playerGrenadeCount--;
                     //Debug.Log("Keycode f playerGrenadeCount post decrement: " + playerGrenadeCount);

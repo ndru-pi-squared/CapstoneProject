@@ -50,7 +50,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             if (grenadeWasPickedUp == true)
             {
-                if (PhotonNetwork.IsMasterClient)
+                if (photonView.IsMine)//previously was checking for master client
                     PhotonNetwork.Destroy(this.gameObject);
             }
             if (playerWhoOwnsThisGrenade != null && thrown == false)
