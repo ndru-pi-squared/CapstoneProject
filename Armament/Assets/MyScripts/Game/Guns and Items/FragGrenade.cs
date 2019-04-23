@@ -50,8 +50,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             if (grenadeWasPickedUp == true)
             {
-                if (photonView.IsMine)//previously was checking for master client
-                    PhotonNetwork.Destroy(this.gameObject);
+                photonView.RPC("DestroyRPC", RpcTarget.All);
             }
             if (playerWhoOwnsThisGrenade != null && thrown == false)
             {
@@ -74,13 +73,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         [PunRPC]
+        void DestroyRPC()
+        {
+            if(PhotonNetwork.IsMasterClient)
+                PhotonNetwork.Destroy(this.gameObject);
+        }
+
+        [PunRPC]
         void Explode()//this might need to be an rpc function
         {
             //GameObject spawnedParticle = Instantiate(explosionParticle, transform.position, transform.rotation);
             GameObject spawnedParticle = PhotonNetwork.Instantiate("Explosion", gameObject.transform.position, gameObject.transform.rotation);
             //Debug.Log("Explosion");
             hasExploded = true;
-            PhotonNetwork.Destroy(this.gameObject);
+            if(PhotonNetwork.IsMasterClient)
+                PhotonNetwork.Destroy(this.gameObject);
             //StartCoroutine("DestroyGrenade", this.gameObject);
 
             Collider[] colliders = Physics.OverlapSphere(transform.position, explosionRadius);

@@ -59,6 +59,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private GameObject medkitIcon;
         private GameObject[] grenadeIcons;
 
+        float deltaTime = 0.0f;
         GameObject FPStext, PingText;
         private float fps = 0.0f;
         private int frameCount = 0;
@@ -109,6 +110,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_OnBecameVisible = true;
         private const bool DEBUG_OnBecameInvisible = true;
 
+        GameObject _fpLegs;
 
         private AudioSource audioSource;
 
@@ -200,7 +202,15 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 grenadeIcons = GameObject.FindGameObjectsWithTag("GrenadeIcon");
                 ZeroOutGrenadesAndIcons();
                 medkitIcon = GameObject.FindGameObjectWithTag("MedkitIcon");
-                DropMedkitAndIcon();
+                medkitIcon.SetActive(false);
+                playerOwnsMedkit = false;
+               /* if (medkitIcon = null)
+                    Debug.Log("Can I get a heeeeeyo");
+                else
+                {
+                    Debug.Log(medkitIcon.name);
+                }*/
+                //DropMedkitAndIcon();
 
 
                 // We need to enable all the controlling components for the local player 
@@ -218,7 +228,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Set up appropriate combination of rendering for MY view
                 this.transform.Find("Model/Robot2").gameObject.GetComponent<SkinnedMeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
 
-                GameObject _fpLegs = this.transform.Find("Model FP LEGS").gameObject;
+                _fpLegs = this.transform.Find("Model FP LEGS").gameObject;
                 _fpLegs.SetActive(true);
                 _fpLegs.transform.Find("Robot2").GetComponent<SkinnedMeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
@@ -242,6 +252,20 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 playerInfoUIGO.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
 
             }
+
+#if MOBILE_INPUT
+            GameObject leftStick = GameManager.Instance.canvas.transform.Find("Left Joystick").gameObject;
+            GameObject rightStick = GameManager.Instance.canvas.transform.Find("Right Joystick").gameObject;
+            leftStick.SetActive(true);
+            rightStick.SetActive(true);
+            GameManager.Instance.canvas.transform.Find("Dual-Joystick Touch Controller").gameObject.SetActive(true);
+            GameManager.Instance.canvas.transform.Find("Mobile Jump Button").gameObject.SetActive(true);
+            GetComponent<FirstPersonController>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
+            GetComponent<PlayerAnimatorManager>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
+            _fpLegs.GetComponent<PlayerAnimatorManager>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
+            GetComponent<FirstPersonController>().rightJoystick = rightStick.GetComponent<RightJoystick>();
+            GameManager.Instance.canvas.transform.Find("Weapon Inventory Menu").GetComponent<WeaponsMenuManager>().OpenMenu();
+#endif
 
             // #Critical
             // we flag as don't destroy on load so that instance survives level synchronization, thus giving a seamless experience when levels load.
@@ -365,7 +389,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         void Update()
         {
-           
+            deltaTime += (Time.unscaledDeltaTime - deltaTime) * 0.1f;
             //Debug.Log(PhotonNetwork.GetPing());
             // Figure out what should be done if this is the player I'm controlling
             if (PhotonNetwork.IsMasterClient)
@@ -374,6 +398,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 if(frameCount >= 7)
                 {
                     fps = 1.0f / Time.deltaTime;
+                    //float msec = deltaTime * 1000.0f;
+                    fps = 1.0f / deltaTime;
                     Debug.Log(fps);
                     FPStext.GetComponent<Text>().text = "FPS: " + fps;
                     PingText.GetComponent<Text>().text = "Ping: " + PhotonNetwork.GetPing() + " MS";
@@ -779,7 +805,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             GameObject announcer = new GameObject("Announcer");
             AudioSource audioSource = announcer.AddComponent<AudioSource>();
-            Debug.LogFormat("PlayerManager: Die() audioSource = {0}, " + audioClip.name + "= {1}", audioSource, audioClip);
+            //Debug.LogFormat("PlayerManager: Die() audioSource = {0}, " + audioClip.name + "= {1}", audioSource, audioClip);
 
             audioSource.PlayOneShot(audioClip);
             Destroy(announcer, 5f);
@@ -1362,7 +1388,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 //or without a dict we could just have 1 input class with lots of commands. nah we should really divide them up based on input type (mobile, pc, UI for each, etc)
                 //inputsDict.get(name).execute(input); //where input is "Fire1" or "Weapon1" and map.get(name) returns a class that can execute that input.
                 //we set the state in another place in the code. this type of code is easier to maintain than the long if statements
-                if (Input.GetButton("Fire1"))
+#if !MOBILE_INPUT
+                if (Input.GetButton("Fire1") && !EventSystem.current.IsPointerOverGameObject())
                 {
                     // Check if gun is ready to shoot before sending the RPC to avoid overloading network
                     if (ActiveGun != null && ActiveGun.IsReadyToShoot())
@@ -1371,163 +1398,187 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         photonView.RPC("Shoot", RpcTarget.All);
                     }
                 }
-            }
-            // If user is selecting weapon
-            else
-            {
-                GameObject weaponInventoryMenuGO = GameManager.Instance.canvas.transform.Find("Weapon Inventory Menu").gameObject;
-
-                // If user wants to highlight previous weapon
-                if (Input.mouseScrollDelta.y > 0)
+#endif
+#if MOBILE_INPUT
+                if (Input.touchCount > 0)
                 {
-                    if (DEBUG && DEBUG_ProcessInputs) Debug.LogFormat("PlayerManager: ProcessInputs() User wants to highlight PREVIOUS weapon");
-                    WeaponsMenuManager weaponsMenuManager = weaponInventoryMenuGO.GetComponent<WeaponsMenuManager>();
-                    weaponsMenuManager.MoveHighlightIndexBackward();
-                }
+                    Touch[] myTouches = Input.touches; // gets all the touches and stores them in an array
 
-                // If user wants to highlight next weapon
-                if (Input.mouseScrollDelta.y < 0)
-                {
-                    if (DEBUG && DEBUG_ProcessInputs) Debug.LogFormat("PlayerManager: ProcessInputs() User wants to highlight NEXT weapon");
-                    WeaponsMenuManager weaponsMenuManager = weaponInventoryMenuGO.GetComponent<WeaponsMenuManager>();
-                    weaponsMenuManager.MoveHighlightIndexForward();
-                }
-
-                // If user wants to select highlighted
-                if (Input.GetButtonUp("Fire1"))
-                {
-                    selectingWeapon = false;
-
-                    WeaponsMenuManager weaponsMenuManager = weaponInventoryMenuGO.GetComponent<WeaponsMenuManager>();
-                    weaponsMenuManager.CloseMenu();
-                    int gunViewID = weaponsMenuManager.GetHighlightedGunViewID();
-                    if (gunViewID != -1)
+                    // loops through all the current touches
+                    for (int i = 0; i < Input.touchCount; i++)
                     {
-                        SetActiveGun(gunViewID);
+                        // if this touch is on the middle third of screen horizontally
+                        if (myTouches[i].position.x > Screen.width / 3 && myTouches[i].position.x < ((Screen.width / 3) * 2))
+                        {
+                            // Check if gun is ready to shoot before sending the RPC to avoid overloading network
+                            if (myTouches[i].position.y > Screen.height / 4 && ActiveGun != null && ActiveGun.IsReadyToShoot())
+                            {
+                                // Call the [PunRPC] Shoot method over photon network
+                                photonView.RPC("Shoot", RpcTarget.All);
+                            }
+                        }
                     }
                 }
-            }
-
-            if (Input.GetKeyUp(KeyCode.F) && playerGrenadeCount > 0)
-            {
-                //var TimeToKeepAlive = 5;
-                if (DEBUG && DEBUG_ProcessInputs) Debug.Log("keycode F");
-                if (photonView.IsMine)
+#endif
+                // If user is selecting weapon
+                else
                 {
-                    GameObject fragGrenade = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
-                    fragGrenade.GetComponent<FragGrenade>().playerWhoOwnsThisGrenade = this;//setting this for TakeDamage(int/float,playerwhoowns...)
-                   
-                    //Debug.Log("Keycode f playerGrenadeCount pre decrement: " + playerGrenadeCount);
-                    playerGrenadeCount--;
-                    //Debug.Log("Keycode f playerGrenadeCount post decrement: " + playerGrenadeCount);
-                    grenadeIcons[playerGrenadeCount].SetActive(false);
+                    GameObject weaponInventoryMenuGO = GameManager.Instance.canvas.transform.Find("Weapon Inventory Menu").gameObject;
+
+                    // If user wants to highlight previous weapon
+                    if (Input.mouseScrollDelta.y > 0)
+                    {
+                        if (DEBUG && DEBUG_ProcessInputs) Debug.LogFormat("PlayerManager: ProcessInputs() User wants to highlight PREVIOUS weapon");
+                        WeaponsMenuManager weaponsMenuManager = weaponInventoryMenuGO.GetComponent<WeaponsMenuManager>();
+                        weaponsMenuManager.MoveHighlightIndexBackward();
+                    }
+
+                    // If user wants to highlight next weapon
+                    if (Input.mouseScrollDelta.y < 0)
+                    {
+                        if (DEBUG && DEBUG_ProcessInputs) Debug.LogFormat("PlayerManager: ProcessInputs() User wants to highlight NEXT weapon");
+                        WeaponsMenuManager weaponsMenuManager = weaponInventoryMenuGO.GetComponent<WeaponsMenuManager>();
+                        weaponsMenuManager.MoveHighlightIndexForward();
+                    }
+
+                    // If user wants to select highlighted
+                    if (Input.GetButtonUp("Fire1"))
+                    {
+                        selectingWeapon = false;
+
+                        WeaponsMenuManager weaponsMenuManager = weaponInventoryMenuGO.GetComponent<WeaponsMenuManager>();
+#if !MOBILE_INPUT
+                        weaponsMenuManager.CloseMenu();
+#endif
+                        int gunViewID = weaponsMenuManager.GetHighlightedGunViewID();
+                        if (gunViewID != -1)
+                        {
+                            SetActiveGun(gunViewID);
+                        }
+                    }
+                }
+
+                if (Input.GetKeyUp(KeyCode.F) && playerGrenadeCount > 0)
+                {
+                    //var TimeToKeepAlive = 5;
+                    if (DEBUG && DEBUG_ProcessInputs) Debug.Log("keycode F");
+                    if (photonView.IsMine)
+                    {
+                        GameObject fragGrenade = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
+                        fragGrenade.GetComponent<FragGrenade>().playerWhoOwnsThisGrenade = this;//setting this for TakeDamage(int/float,playerwhoowns...)
+
+                        //Debug.Log("Keycode f playerGrenadeCount pre decrement: " + playerGrenadeCount);
+                        playerGrenadeCount--;
+                        //Debug.Log("Keycode f playerGrenadeCount post decrement: " + playerGrenadeCount);
+                        grenadeIcons[playerGrenadeCount].SetActive(false);
+                    }
+
+                }
+
+                // Check if user is trying to active weapon
+                // If has pressed and released the G key...
+                if (Input.GetKeyUp(KeyCode.G))
+                {
+                    if (ActiveGun == null)
+                    {
+                        if (DEBUG && DEBUG_ProcessInputs) Debug.Log("PlayerManager: ProcessInputs() Trying to drop active gun but this.activeGun == null");
+                        return;
+                    }
+
+                    if (photonView.IsMine)
+                    {
+                        // Set local player's active gun property (synced on the network)
+                        PhotonNetwork.LocalPlayer.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_ACTIVE_GUN, null } });
+                    }
+                    // Drop this player's active gun (synchronized on network)
+                    //photonView.RPC("DropActiveGun", RpcTarget.All);
+                }
+
+                if (Input.GetKeyUp(KeyCode.H))
+                {
+                    //var TimeToKeepAlive = 5;
+                    if (DEBUG && DEBUG_ProcessInputs) Debug.Log("keycode H");
+                    if (photonView.IsMine && playerOwnsMedkit && Health != MAX_HEALTH)
+                    {
+                        GameObject medkit = Instantiate(medkitPrefab, transform.position, transform.rotation);
+                        //GameObject medkit = PhotonNetwork.Instantiate("Medkit", gameObject.transform.position, gameObject.transform.rotation);//maybe just regular instantiate? not sure how this will play out being instantiated on the network and then setactive(false) on hte client
+                        medkit.SetActive(false);
+                        medkit.GetComponent<Medkit>().playerWhoOwnsThisMedkit = this;//setting this for TakeDamage(int/float,playerwhoowns...)
+                                                                                     //Health += medkit.GetComponent<Medkit>().healthThisMedkitWillRestore;
+                        RestoreHealth(medkit.GetComponent<Medkit>().healthThisMedkitWillRestore);
+                        playerOwnsMedkit = false;
+                        medkitIcon.SetActive(false);
+                    }
+
+                }
+
+                if (Input.GetKeyUp(KeyCode.P))
+                {
+                    //var TimeToKeepAlive = 5;
+                    if (DEBUG && DEBUG_ProcessInputs) Debug.Log("keycode P");
+                    if (photonView.IsMine)
+                    {
+                        //GameObject fragGrenade = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
+                        //fragGrenade.GetComponent<FragGrenade>().playerWhoOwnsThisGrenade = this;//setting this for TakeDamage(int/float,playerwhoowns...)
+                        playerGrenadeCount++;
+                        //yield return new WaitForSeconds(2.0f);
+                        //PhotonNetwork.Destroy(skycar);
+                        //StartCoroutine("DestroyCar", skyCar);
+                    }
+
+                }
+
+                if (Input.GetKeyUp(KeyCode.K))
+                {
+                    if (photonView.IsMine)
+                    {
+                        //Add Kill to player's db stats
+                        var addKillScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
+                        addKillScript.IncrementKillCount();
+                    }
+
+                }
+
+                if (Input.GetKeyUp(KeyCode.T))
+                {
+                    if (DEBUG && DEBUG_ProcessInputs) Debug.Log("PlayerManager: ProcessInputs() KeyCode T");
+
+                    if (photonView.IsMine)
+                        ToggleAIControl();
+                }
+
+                if (Input.GetKeyUp(KeyCode.Alpha1))
+                {
+                    // Call the [PunRPC] Shoot method over photon network
+                    photonView.RPC("SwapActiveGun", RpcTarget.All, 1);
+                }
+
+                if (Input.GetKeyUp(KeyCode.Alpha2))
+                {
+                    // Call the [PunRPC] Shoot method over photon network
+                    photonView.RPC("SwapActiveGun", RpcTarget.All, 2);
+                }
+
+                if (Input.GetKeyUp(KeyCode.Q))
+                {
+                    // Call the [PunRPC] Shoot method over photon network
+                    photonView.RPC("SwapActiveGun", RpcTarget.All, previousActiveGunType);
                 }
 
             }
-
-            // Check if user is trying to active weapon
-            // If has pressed and released the G key...
-            if (Input.GetKeyUp(KeyCode.G))
-            {
-                if (ActiveGun == null)
-                {
-                    if (DEBUG && DEBUG_ProcessInputs) Debug.Log("PlayerManager: ProcessInputs() Trying to drop active gun but this.activeGun == null");
-                    return;
-                }
-
-                if (photonView.IsMine)
-                {
-                    // Set local player's active gun property (synced on the network)
-                    PhotonNetwork.LocalPlayer.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_ACTIVE_GUN, null } });
-                }
-                // Drop this player's active gun (synchronized on network)
-                //photonView.RPC("DropActiveGun", RpcTarget.All);
-            }
-
-            if (Input.GetKeyUp(KeyCode.H))
-            {
-                //var TimeToKeepAlive = 5;
-                if (DEBUG && DEBUG_ProcessInputs) Debug.Log("keycode H");
-                if (photonView.IsMine && playerOwnsMedkit && Health != MAX_HEALTH)
-                {
-                    GameObject medkit = Instantiate(medkitPrefab, transform.position, transform.rotation);
-                    //GameObject medkit = PhotonNetwork.Instantiate("Medkit", gameObject.transform.position, gameObject.transform.rotation);//maybe just regular instantiate? not sure how this will play out being instantiated on the network and then setactive(false) on hte client
-                    medkit.SetActive(false);
-                    medkit.GetComponent<Medkit>().playerWhoOwnsThisMedkit = this;//setting this for TakeDamage(int/float,playerwhoowns...)
-                    //Health += medkit.GetComponent<Medkit>().healthThisMedkitWillRestore;
-                    RestoreHealth(medkit.GetComponent<Medkit>().healthThisMedkitWillRestore);
-                    playerOwnsMedkit = false;
-                    medkitIcon.SetActive(false);
-                }
-
-            }
-
-            if (Input.GetKeyUp(KeyCode.P))
-            {
-                //var TimeToKeepAlive = 5;
-                if (DEBUG && DEBUG_ProcessInputs) Debug.Log("keycode P");
-                if (photonView.IsMine)
-                {
-                    //GameObject fragGrenade = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
-                    //fragGrenade.GetComponent<FragGrenade>().playerWhoOwnsThisGrenade = this;//setting this for TakeDamage(int/float,playerwhoowns...)
-                    playerGrenadeCount++;
-                    //yield return new WaitForSeconds(2.0f);
-                    //PhotonNetwork.Destroy(skycar);
-                    //StartCoroutine("DestroyCar", skyCar);
-                }
-
-            }
-
-            if (Input.GetKeyUp(KeyCode.K))
-            {
-                if (photonView.IsMine)
-                {
-                    //Add Kill to player's db stats
-                    var addKillScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
-                    addKillScript.IncrementKillCount();
-                }
-
-            }
-
-            if (Input.GetKeyUp(KeyCode.T))
-            {
-                if (DEBUG && DEBUG_ProcessInputs) Debug.Log("PlayerManager: ProcessInputs() KeyCode T");
-
-                if (photonView.IsMine)
-                    ToggleAIControl();
-            }
-
-            if (Input.GetKeyUp(KeyCode.Alpha1))
-            {
-                // Call the [PunRPC] Shoot method over photon network
-                photonView.RPC("SwapActiveGun", RpcTarget.All, 1);
-            }
-
-            if (Input.GetKeyUp(KeyCode.Alpha2))
-            {
-                // Call the [PunRPC] Shoot method over photon network
-                photonView.RPC("SwapActiveGun", RpcTarget.All, 2);
-            }
-
-            if (Input.GetKeyUp(KeyCode.Q))
-            {
-                // Call the [PunRPC] Shoot method over photon network
-                photonView.RPC("SwapActiveGun", RpcTarget.All, previousActiveGunType);
-            }
-
         }
 
         void SetMode(string modeValue)
-        {
-            if (DEBUG && DEBUG_SetMode) Debug.LogFormat("PlayerManger: SetMode() modeValue = {0}", modeValue);
-            // If we don't control this player...
-            if (!photonView.IsMine)
             {
-                return;
-            }
+                if (DEBUG && DEBUG_SetMode) Debug.LogFormat("PlayerManger: SetMode() modeValue = {0}", modeValue);
+                // If we don't control this player...
+                if (!photonView.IsMine)
+                {
+                    return;
+                }
 
-            photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_MODE, modeValue } });
-        }
+                photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_MODE, modeValue } });
+            }
 
         #endregion Private Methods
 

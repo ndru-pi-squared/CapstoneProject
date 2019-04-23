@@ -35,9 +35,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             if (medkitWasPickedUp)
             {
-                Debug.Log("player picked up medkit");
-                if (PhotonNetwork.IsMasterClient)
-                    PhotonNetwork.Destroy(this.gameObject);
+               
+                photonView.RPC("DestroyRPC", RpcTarget.All);
+                
             }
             if (playerWhoOwnsThisMedkit != null && playerUsedMedkit == false)
             {
@@ -55,6 +55,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     //PhotonNetwork.Destroy(this);
                 }
             }
+        }
+
+        [PunRPC]
+        void DestroyRPC()
+        {
+            if (PhotonNetwork.IsMasterClient)
+                PhotonNetwork.Destroy(this.gameObject);
         }
 
         void RestoreHealth()

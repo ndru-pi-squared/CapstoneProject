@@ -233,7 +233,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         "TARGETING gun = {0}", gun);
 
                         // Target the gun's transform
-                        SetTarget(gun.transform);
+                        if(gun != null)
+                            SetTarget(gun.transform);
                     }
                     else
                     {
