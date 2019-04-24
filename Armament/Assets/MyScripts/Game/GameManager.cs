@@ -113,7 +113,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         // Debug flags
         private const bool DEBUG = true;
         private const bool DEBUG_ReturnVanishedItems = false;
-        private const bool DEBUG_RemoveUnclaimedItems = false;
+        private const bool DEBUG_RemoveUnclaimedItems = true;
         private const bool DEBUG_DestroyAllItems = true;
         private const bool DEBUG_InstantiateLocalPlayer = false;
         private const bool DEBUG_OnStage1TimerIsExpired = true;
@@ -530,6 +530,49 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { photonView.ViewID.ToString(), VALUE_VANISHED_ITEM } });
                     }
                 }
+
+                Medkit medkit = photonView.gameObject.GetComponent<Medkit>();
+                if (medkit != null)
+                {
+                    if (DEBUG && DEBUG_RemoveUnclaimedItems) Debug.LogFormat("GameManger: RemoveUnclaimedItems() medkit = {0}", medkit.ToString());
+                    // Get the owner of the medkit
+                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(photonView.ViewID.ToString(), out object owner);
+
+                    // If the medkit is not owned by a player
+                    if (VALUE_UNCLAIMED_ITEM.Equals((string)owner))
+                    {
+                        if (DEBUG && DEBUG_RemoveUnclaimedItems) Debug.LogFormat("GameManger: RemoveUnclaimedItems() owner = {0}", owner.ToString());
+
+                        Vector3 medkitPosition = photonView.gameObject.transform.position;
+                        medkitPosition.y += 1000f;
+                        photonView.gameObject.transform.position = medkitPosition;
+
+                        // Set the gun's owner to VALUE_VANISHED_ITEM
+                        PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { photonView.ViewID.ToString(), VALUE_VANISHED_ITEM } });
+                    }
+                }
+
+                FragGrenade grenade = photonView.gameObject.GetComponent<FragGrenade>();
+                if (grenade != null)
+                {
+                    if (DEBUG && DEBUG_RemoveUnclaimedItems) Debug.LogFormat("GameManger: RemoveUnclaimedItems() grenade = {0}", grenade.ToString());
+                    // Get the owner of the medkit
+                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(photonView.ViewID.ToString(), out object owner);
+
+                    // If the medkit is not owned by a player
+                    if (VALUE_UNCLAIMED_ITEM.Equals((string)owner))
+                    {
+                        if (DEBUG && DEBUG_RemoveUnclaimedItems) Debug.LogFormat("GameManger: RemoveUnclaimedItems() owner = {0}", owner.ToString());
+
+                        Vector3 grenadePosition = photonView.gameObject.transform.position;
+                        grenadePosition.y += 1000f;
+                        photonView.gameObject.transform.position = grenadePosition;
+
+                        // Set the gun's owner to VALUE_VANISHED_ITEM
+                        PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { photonView.ViewID.ToString(), VALUE_VANISHED_ITEM } });
+                    }
+                }
+
             }
 
             // Make it clear to all clients that items were made to vanish
