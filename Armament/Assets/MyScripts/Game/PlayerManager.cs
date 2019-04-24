@@ -101,7 +101,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_DropGun = false;
         private const bool DEBUG_SwapGun = false;
         private const bool DEBUG_OnPhotonInstantiate = false;
-        private const bool DEBUG_ProcessInputs = false;
+        private const bool DEBUG_ProcessInputs = true;
         private const bool DEBUG_SetAvatar = false;
         private const bool DEBUG_TakeDamage = false;
         private const bool DEBUG_SetMode = false;
@@ -400,7 +400,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     fps = 1.0f / Time.deltaTime;
                     //float msec = deltaTime * 1000.0f;
                     fps = 1.0f / deltaTime;
-                    Debug.Log(fps);
+                    //Debug.Log(fps);
                     FPStext.GetComponent<Text>().text = "FPS: " + fps;
                     PingText.GetComponent<Text>().text = "Ping: " + PhotonNetwork.GetPing() + " MS";
                     frameCount = 0;
@@ -1420,43 +1420,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     }
                 }
 #endif
-                // If user is selecting weapon
-                else
-                {
-                    GameObject weaponInventoryMenuGO = GameManager.Instance.canvas.transform.Find("Weapon Inventory Menu").gameObject;
 
-                    // If user wants to highlight previous weapon
-                    if (Input.mouseScrollDelta.y > 0)
-                    {
-                        if (DEBUG && DEBUG_ProcessInputs) Debug.LogFormat("PlayerManager: ProcessInputs() User wants to highlight PREVIOUS weapon");
-                        WeaponsMenuManager weaponsMenuManager = weaponInventoryMenuGO.GetComponent<WeaponsMenuManager>();
-                        weaponsMenuManager.MoveHighlightIndexBackward();
-                    }
 
-                    // If user wants to highlight next weapon
-                    if (Input.mouseScrollDelta.y < 0)
-                    {
-                        if (DEBUG && DEBUG_ProcessInputs) Debug.LogFormat("PlayerManager: ProcessInputs() User wants to highlight NEXT weapon");
-                        WeaponsMenuManager weaponsMenuManager = weaponInventoryMenuGO.GetComponent<WeaponsMenuManager>();
-                        weaponsMenuManager.MoveHighlightIndexForward();
-                    }
 
-                    // If user wants to select highlighted
-                    if (Input.GetButtonUp("Fire1"))
-                    {
-                        selectingWeapon = false;
 
-                        WeaponsMenuManager weaponsMenuManager = weaponInventoryMenuGO.GetComponent<WeaponsMenuManager>();
-#if !MOBILE_INPUT
-                        weaponsMenuManager.CloseMenu();
-#endif
-                        int gunViewID = weaponsMenuManager.GetHighlightedGunViewID();
-                        if (gunViewID != -1)
-                        {
-                            SetActiveGun(gunViewID);
-                        }
-                    }
-                }
+
+
+
 
                 if (Input.GetKeyUp(KeyCode.F) && playerGrenadeCount > 0)
                 {
@@ -1479,6 +1449,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // If has pressed and released the G key...
                 if (Input.GetKeyUp(KeyCode.G))
                 {
+                    if (DEBUG && DEBUG_ProcessInputs) Debug.Log("PlayerManager: ProcessInputs() Trying to drop active gun");
+
                     if (ActiveGun == null)
                     {
                         if (DEBUG && DEBUG_ProcessInputs) Debug.Log("PlayerManager: ProcessInputs() Trying to drop active gun but this.activeGun == null");
@@ -1564,6 +1536,52 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     // Call the [PunRPC] Shoot method over photon network
                     photonView.RPC("SwapActiveGun", RpcTarget.All, previousActiveGunType);
                 }
+
+
+
+
+
+
+
+            }
+            // If user is selecting weapon
+            else
+            {
+                GameObject weaponInventoryMenuGO = GameManager.Instance.canvas.transform.Find("Weapon Inventory Menu").gameObject;
+
+                // If user wants to highlight previous weapon
+                if (Input.mouseScrollDelta.y > 0)
+                {
+                    if (DEBUG && DEBUG_ProcessInputs) Debug.LogFormat("PlayerManager: ProcessInputs() User wants to highlight PREVIOUS weapon");
+                    WeaponsMenuManager weaponsMenuManager = weaponInventoryMenuGO.GetComponent<WeaponsMenuManager>();
+                    weaponsMenuManager.MoveHighlightIndexBackward();
+                }
+
+                // If user wants to highlight next weapon
+                if (Input.mouseScrollDelta.y < 0)
+                {
+                    if (DEBUG && DEBUG_ProcessInputs) Debug.LogFormat("PlayerManager: ProcessInputs() User wants to highlight NEXT weapon");
+                    WeaponsMenuManager weaponsMenuManager = weaponInventoryMenuGO.GetComponent<WeaponsMenuManager>();
+                    weaponsMenuManager.MoveHighlightIndexForward();
+                }
+
+                // If user wants to select highlighted
+                if (Input.GetButtonUp("Fire1"))
+                {
+                    selectingWeapon = false;
+
+                    WeaponsMenuManager weaponsMenuManager = weaponInventoryMenuGO.GetComponent<WeaponsMenuManager>();
+#if !MOBILE_INPUT
+                    weaponsMenuManager.CloseMenu();
+#endif
+                    int gunViewID = weaponsMenuManager.GetHighlightedGunViewID();
+                    if (gunViewID != -1)
+                    {
+                        SetActiveGun(gunViewID);
+                    }
+                }
+
+                
 
             }
         }
