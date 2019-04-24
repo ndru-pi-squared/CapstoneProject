@@ -82,7 +82,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_OnTriggerEnter = true;
         private const bool DEBUG_OnRoomPropertiesUpdate = false;
         private const bool DEBUG_OnPlayerPropertiesUpdate = false;
-        private const bool DEBUG_MovePlayer = false;
+        private const bool DEBUG_MovePlayer = true;
         private const bool DEBUG_Respawn = false;
         private const bool DEBUG_SetActiveGun = false;
         private const bool DEBUG_DropGun = false;
@@ -118,6 +118,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private GameObject kyleRobotPrefab;
         private Animator animator;
         private Color originalTopPanelColor;
+
+        private int firstPersonControllerReenablerCounter = -1;
 
         #endregion
 
@@ -334,6 +336,19 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (photonView.IsMine)
             {
                 ProcessInputs();
+
+                // If we're counting the number of frames since the FirstPersonController was turned off...
+                if (firstPersonControllerReenablerCounter >= 0 && firstPersonControllerReenablerCounter < 5)
+                {
+                    //Debug.LogFormat("PlayerManager: Update() ***** transform.position = {0}", transform.position);
+
+                    // Increment frame counter
+                    firstPersonControllerReenablerCounter++;
+
+                    // Make sure that the Update method is called a couple times before turning the FirstPersonController back on.
+                    if (firstPersonControllerReenablerCounter == 2)
+                        GetComponent<FirstPersonController>().enabled = true;
+                }
             }
             
             // Regenerate Shield
@@ -823,17 +838,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             if (DEBUG && DEBUG_MovePlayer) Debug.LogFormat("PlayerManager: MovePlayer() t.position = {0}", t.position);
 
-            /*
-            transform.GetComponent<FirstPersonController>().enabled = false; // disables the first person controller so we can manually move the player's position
-            //transform.position = t.position;
-            transform.localRotation = t.rotation;
-            GetComponentInChildren<Camera>().transform.localRotation = Quaternion.Euler(Vector3.zero);
-            Update();
-            transform.GetComponent<FirstPersonController>().enabled = true;
-            */
-
             // Move the player to the target position
-            GetComponent<CharacterController>().Move(t.position - transform.position);
+            //GetComponent<CharacterController>().Move(t.position - transform.position);
+            GetComponent<FirstPersonController>().enabled = false;
+            transform.position = t.position;
+
+            // Set to 0 so Update() method can check that it has actually moved the player before re-enabling the FirstPersonController Component
+            firstPersonControllerReenablerCounter = 0; 
 
             if (DEBUG && DEBUG_MovePlayer) Debug.LogFormat("PlayerManager: MovePlayer() transform.position = {0}", transform.position);
         }
@@ -850,27 +861,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 ResetHealth();
                 ResetShield();
-
-                /*
-                // If KEY_MODE is set in player's CustomProperties...
-                if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(KEY_MODE, out object modeValueProp))
-                {
-                    // If player is dead and spectating...
-                    if (VALUE_MODE_DEAD_SPECT.Equals((string)modeValueProp))
-                    {
-                        // Undo the changes we made to the player's GO in StartDeadSpectatorMode()
-                        StopDeadSpectatorMode();
-                    }
-                }
-                */
-
-                /*
-                // Temporary respawning action: Pretend the player has respawned by raising him in the air a bit
-                transform.GetComponent<FirstPersonController>().enabled = false; // disables the first person controller so we can manually move the player's position
-                transform.position = transform.position + new Vector3(0f, 20f, 0f);
-                Update();
-                transform.GetComponent<FirstPersonController>().enabled = true;*/
-                
+                                
                 // Move player to spawn point
                 MovePlayer(playerSpawnPoint);
             }
