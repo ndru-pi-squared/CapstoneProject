@@ -885,21 +885,33 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     return;
                 }
 
-                if (Shield > 0)
+                if (Shield > 0 && Health != -1)
                 {
                     // Player's Shield takes damage equal to amount of damage inflicted
                     Shield -= amount;
                     // Player's health takes damage proportional to the amount of shield they have left
                     Health -= (1 - Shield / MAX_SHIELD) * amount;
+
+                    if (Health <= 0)
+                    {
+                        Health = 0; 
+                    }
                 }
-                else
+                else if (Health != -1)
                 {
                     Health -= amount;
+                    if (Health <= 0)
+                    {
+                        Health = 0;
+                    }
                 }
+                
 
                 // If player should die...
-                if (Health <= 0)
+                if (Health == 0)
                 {
+                    Health = -1;
+
                     // Make this player die on all clients
                     photonView.RPC("Die", RpcTarget.All); // calls the [PunRPC] Die method over photon network
 
