@@ -1542,37 +1542,41 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 }
 
-                if (Input.GetKeyUp(KeyCode.K))
-                {
-                    if (photonView.IsMine)
-                    {
-                        //Add Kill to player's db stats
-                        var addKillScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
-                        addKillScript.IncrementKillCount();
-                    }
+                //TEST KILL INCREMENT
+                //if (Input.GetKeyUp(KeyCode.K))
+                //{
+                //    if (photonView.IsMine)
+                //    {
+                //        //Add Kill to player's db stats
+                //        var addKillScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
+                //        addKillScript.IncrementKillCount();
+                //    }
 
-                }
+                //}
 
-                if (Input.GetKeyUp(KeyCode.Y))
-                {
-                    if (photonView.IsMine)
-                    {
-                        //Add Death to player's db stats
-                        incrementPlayerDeathStat();
-                    }
+                //TEST DEATH INCREMENT
+                //if (Input.GetKeyUp(KeyCode.Y))
+                //{
+                //    if (photonView.IsMine)
+                //    {
+                //        //Add Death to player's db stats
+                //        incrementPlayerDeathStat();
+                //    }
 
-                }
+                //}
 
-                if (Input.GetKeyUp(KeyCode.L))
-                {
-                    if (photonView.IsMine)
-                    {
-                        //Add Death to player's db stats
-                        var addRoundWinScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
-                        addRoundWinScript.IncrementRoundWins();
-                    }
 
-                }
+                //TEST ROUND WIN INCREMENT
+                //if (Input.GetKeyUp(KeyCode.L))
+                //{
+                //    if (photonView.IsMine)
+                //    {
+                //        //Add Death to player's db stats
+                //        var addRoundWinScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
+                //        addRoundWinScript.IncrementRoundWins();
+                //    }
+
+                //}
 
                 if (Input.GetKeyUp(KeyCode.T))
                 {
