@@ -1345,6 +1345,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             //var addKillScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
             //addKillScript.IncrementKillCount();
 
+            Debug.Log("SHIIIIIT");
+
             // Get current deaths for this player
             photonView.Owner.CustomProperties.TryGetValue(KEY_KILLS, out object value);
             int kills = (value == null) ? 0 : Convert.ToInt32(value);
@@ -1523,6 +1525,28 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         //Add Kill to player's db stats
                         var addKillScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
                         addKillScript.IncrementKillCount();
+                    }
+
+                }
+
+                if (Input.GetKeyUp(KeyCode.Y))
+                {
+                    if (photonView.IsMine)
+                    {
+                        //Add Death to player's db stats
+                        var addDeathScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
+                        addDeathScript.IncrementDeathCount();
+                    }
+
+                }
+
+                if (Input.GetKeyUp(KeyCode.L))
+                {
+                    if (photonView.IsMine)
+                    {
+                        //Add Death to player's db stats
+                        var addRoundWinScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
+                        addRoundWinScript.IncrementRoundWins();
                     }
 
                 }

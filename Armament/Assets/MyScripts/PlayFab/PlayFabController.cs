@@ -38,6 +38,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public GameObject OpenLoginAgain;
         public GameObject progressLabel;
 
+        [SerializeField] private Dropdown leaderboardFilterDropdown;
+        [Tooltip("Names of Leaderboards to show")]
+        [SerializeField] private string[] namesOfLeaderboards;
+        public int leaderboardFilterIndex;
+        public string selectedLeaderboardFilter;
+
         //convenience variables
         private EventSystem system;
         public bool autoLogin;
@@ -119,6 +125,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             _sharedGroupMembers = new List<string>();
 
             system = EventSystem.current;
+
+            List<Dropdown.OptionData> leaderboardOptions = new List<Dropdown.OptionData>();
+            foreach (string leaderboardName in namesOfLeaderboards)
+            {
+                leaderboardOptions.Add(new Dropdown.OptionData(leaderboardName));
+            }
+            leaderboardFilterDropdown.AddOptions(leaderboardOptions);
         }
 
         // Update is called once per frame
@@ -143,6 +156,10 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 OnClickLogin();
             }
+
+            // Get the leaderboard filter information
+            leaderboardFilterIndex = leaderboardFilterDropdown.value;
+            selectedLeaderboardFilter = leaderboardFilterDropdown.options[leaderboardFilterIndex].text;
         }
 
         void OnSceneWasSwitched()
@@ -298,7 +315,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         //Register section
         public void OnClickRegister()
         {
-            var registerRequest = new RegisterPlayFabUserRequest { Email = userEmail, Password = userPassword, Username = username, DisplayName = displayName };
+            var registerRequest = new RegisterPlayFabUserRequest { Email = userEmail, Password = userPassword, Username = username, DisplayName = username };
             PlayFabClientAPI.RegisterPlayFabUser(registerRequest, OnRegisterSuccess, OnRegisterFailure);
         }
 
@@ -497,10 +514,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public GameObject leaderboardPanel;
         public GameObject listingPrefab;
         public Transform listingContainer;
+        public string statisticName;
 
         public void GetLeaderboard()
         {
-            var requestLeaderboard = new GetLeaderboardRequest { StartPosition = 0, StatisticName = "PlayerKillCount", MaxResultsCount = 20 };
+            statisticName = selectedLeaderboardFilter;
+            var requestLeaderboard = new GetLeaderboardRequest { StartPosition = 0, StatisticName = statisticName, MaxResultsCount = 20 };
             PlayFabClientAPI.GetLeaderboard(requestLeaderboard, OnGetLeaderboard, OnErrorLeaderboard);
         }
 
@@ -530,6 +549,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             Debug.LogError(error.GenerateErrorReport());
         }
+
+
 
         #endregion Leaderboard
 
