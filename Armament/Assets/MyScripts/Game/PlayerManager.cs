@@ -920,6 +920,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     photonView.RPC("Die", RpcTarget.All); // calls the [PunRPC] Die method over photon network
 
                     // Log the kill for the player who caused the damage 
+                    Debug.Log("NOOOOO");
+                    playerWhoCausedDamage.incrementPlayerKillStat();
                     playerWhoCausedDamage.AddKill();
                 }
                 else
@@ -1332,6 +1334,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Add a death for this player
             photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_DEATHS, ++deaths } });
 
+            //Add Death to player's db stats
+            incrementPlayerDeathStat();
+
             if (DEBUG) Debug.LogFormat("PlayerManager: AddDeath() deaths = {0}, photonView.Owner.NickName = {1}", deaths, photonView.Owner.NickName);
         }
 
@@ -1342,10 +1347,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         void AddKill()
         {
             //Add Kill to player's db stats
+            //incrementPlayerKillStat
             //var addKillScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
             //addKillScript.IncrementKillCount();
-
-            Debug.Log("SHIIIIIT");
 
             // Get current deaths for this player
             photonView.Owner.CustomProperties.TryGetValue(KEY_KILLS, out object value);
@@ -1355,6 +1359,26 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             photonView.Owner.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_KILLS, ++kills } });
 
             if (DEBUG) Debug.LogFormat("PlayerManager: AddKill() kills = {0}, photonView.Owner.NickName = {1}", kills, photonView.Owner.NickName);
+        }
+
+        public void incrementPlayerKillStat() {
+            //Add Kill to player's db stats
+            var addKillScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
+            addKillScript.IncrementKillCount();
+        }
+
+        public void incrementPlayerDeathStat()
+        {
+            //Add Death to player's db stats
+            var addDeathScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
+            addDeathScript.IncrementDeathCount();
+        }
+
+        public void incrementRoundWinStat()
+        {
+            //Add Round Win to player's db stats
+            var addRoundWinScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
+            addRoundWinScript.IncrementRoundWins();
         }
 
         IEnumerator DestroyCar(GameObject fragGrenade)
@@ -1534,8 +1558,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     if (photonView.IsMine)
                     {
                         //Add Death to player's db stats
-                        var addDeathScript = GameObject.Find("GamePlayFabController").GetComponent<GamePlayFabController>();
-                        addDeathScript.IncrementDeathCount();
+                        incrementPlayerDeathStat();
                     }
 
                 }

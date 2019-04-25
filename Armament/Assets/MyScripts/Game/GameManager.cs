@@ -649,6 +649,16 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // If a team won
             if (winningTeamName != null)
             {
+                foreach (Player player in PhotonNetwork.PlayerList) {
+                    PlayerManager PM = ((GameObject)player.TagObject).GetComponent<PlayerManager>();
+                    if (PM.GetTeam().Equals(winningTeamName)) {
+                        //Add Round win to player's db stats
+                        PM.incrementRoundWinStat();
+                    }
+
+                }
+
+
                 // Set Winning Team Banner Panel Text to "Team [Team name]\nWins!"
                 GameObject winningTeamBannerPanel = canvas.transform.Find("Winning Team Banner Panel").gameObject;
                 winningTeamBannerPanel.GetComponentInChildren<TextMeshProUGUI>().text = "Team " + winningTeamName + "\nWins!";
