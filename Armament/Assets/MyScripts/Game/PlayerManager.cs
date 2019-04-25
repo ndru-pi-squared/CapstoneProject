@@ -59,6 +59,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private GameObject medkitIcon;
         private GameObject[] grenadeIcons;
 
+        public string qualityString = "";
+
         float deltaTime = 0.0f;
         GameObject FPStext, PingText;
         private float fps = 0.0f;
@@ -321,6 +323,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         void Start()
         {
+            qualityString = QualityString;
+
             if (PhotonNetwork.IsMasterClient)
             {
                 GameObject PlayerNameText = GameObject.Find("Player Name Text");
@@ -1549,6 +1553,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     photonView.RPC("SwapActiveGun", RpcTarget.All, previousActiveGunType);
                 }
 
+                if (Input.GetKeyUp(KeyCode.Minus))
+                {
+                    ClickQualityDown();
+                    qualityString = QualityString;
+                }
+                if (Input.GetKeyDown(KeyCode.Equals)) // PLUS key
+                {
+                    ClickQualityUp();
+                    qualityString = QualityString;
+                }
+
 
 
 
@@ -1595,6 +1610,24 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 
 
+            }
+        }
+
+        void ClickQualityUp()
+        {
+            QualitySettings.IncreaseLevel();
+        }
+
+        void ClickQualityDown()
+        {
+            QualitySettings.DecreaseLevel();
+        }
+
+        string QualityString
+        {
+            get
+            {
+                return QualitySettings.names[QualitySettings.GetQualityLevel()];
             }
         }
 
