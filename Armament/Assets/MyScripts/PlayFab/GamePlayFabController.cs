@@ -45,6 +45,8 @@ public class GamePlayFabController : MonoBehaviour
         PlayFabClientAPI.GetAccountInfo(request, OnGetAccountInfoSuccess, OnPlayFabCallbackError);
 
         playerKillCountThisGame = 0;
+        playerDeathCountThisGame = 0;
+        playerRoundWinsThisGame = 0;
         //setStats();
         //getStats();
     }
@@ -66,13 +68,21 @@ public class GamePlayFabController : MonoBehaviour
     private int playerKillCountThisGame;
     private int playerTotalKills;
 
+    private int playerDeathCountThisGame;
+    private int playerTotalDeaths;
+
+    private int playerRoundWinsThisGame;
+    private int playerTotalRoundWins;
+
     public void setStats()
     {
         PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
         {
             // request.Statistics is a list, so multiple StatisticUpdate objects can be defined if required.
             Statistics = new List<StatisticUpdate> {
-            new StatisticUpdate { StatisticName = "PlayerKillCount", Value = playerTotalKills + playerKillCountThisGame }
+            new StatisticUpdate { StatisticName = "PlayerKillCount", Value = playerTotalKills + playerKillCountThisGame  },
+            new StatisticUpdate { StatisticName = "PlayerDeathCount", Value = playerTotalDeaths + playerDeathCountThisGame  },
+            new StatisticUpdate { StatisticName = "PlayerRoundWins", Value = playerTotalRoundWins + playerRoundWinsThisGame }
             }
         },
         result => { Debug.Log("User statistics updated"); },
@@ -99,6 +109,12 @@ public class GamePlayFabController : MonoBehaviour
                 case "PlayerKillCount":
                     playerTotalKills = eachStat.Value;
                     break;
+                case "PlayerDeathCount":
+                    playerTotalDeaths = eachStat.Value;
+                    break;
+                case "PlayerRoundWins":
+                    playerTotalRoundWins = eachStat.Value;
+                    break;
             }
         }
     }
@@ -109,11 +125,12 @@ public class GamePlayFabController : MonoBehaviour
         PlayFabClientAPI.ExecuteCloudScript(new ExecuteCloudScriptRequest()
         {
             FunctionName = "UpdatePlayerStats", // Arbitrary function name (must exist in your uploaded cloud.js file)
-            FunctionParameter = new { pKillCount = playerTotalKills + playerKillCountThisGame }, // The parameter provided to your function
+            FunctionParameter = new { pKillCount = playerTotalKills + playerKillCountThisGame, 
+                                      pDeathCount = playerTotalDeaths + playerDeathCountThisGame,
+                                      pRoundWins = playerTotalRoundWins + playerRoundWinsThisGame }, // The parameter provided to your function
             GeneratePlayStreamEvent = true, // Optional - Shows this event in PlayStream
         }, OnCloudUpdateStats, OnErrorShared);
     }
-
 
     private static void OnCloudUpdateStats(ExecuteCloudScriptResult result)
     {
@@ -134,6 +151,20 @@ public class GamePlayFabController : MonoBehaviour
     {
         Debug.Log("Incrementing Kill Count...");
         playerKillCountThisGame++;
+        StartCloudUpdatePlayerStats();
+    }
+
+    public void IncrementDeathCount()
+    {
+        Debug.Log("Incrementing Death Count...");
+        playerDeathCountThisGame++;
+        StartCloudUpdatePlayerStats();
+    }
+
+    public void IncrementRoundWins()
+    {
+        Debug.Log("Incrementing Round Wins...");
+        playerRoundWinsThisGame++;
         StartCloudUpdatePlayerStats();
     }
 

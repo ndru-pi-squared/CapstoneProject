@@ -204,9 +204,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     if (DEBUG && DEBUG_OnTriggerEnter) Debug.LogFormat("AICharacterControl: OnTriggerEnter() " +
                         "REMOVING gun in UnclaimedGunsInView [{0}]", thisGun);
 
-                    if (DEBUG && DEBUG_OnTriggerEnter) Debug.LogFormat("AICharacterControl: OnTriggerEnter() " +
-                        "UnclaimedGunsInView CONTAINS (thisGun = [{0}]) = {1}", thisGun, pm.UnclaimedGunsInView.Contains(thisGun));
-                    pm.UnclaimedGunsInView.Remove(thisGun);
+                   // if (DEBUG && DEBUG_OnTriggerEnter) Debug.LogFormat("AICharacterControl: OnTriggerEnter() " +
+                     //   "UnclaimedGunsInView CONTAINS (thisGun = [{0}]) = {1}", thisGun, pm.UnclaimedGunsInView.Contains(thisGun));
+                   // pm.UnclaimedGunsInView.Remove(thisGun);
                 }
             }
         }
@@ -233,7 +233,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         "TARGETING gun = {0}", gun);
 
                         // Target the gun's transform
-                        SetTarget(gun.transform);
+                        if(gun != null)
+                            SetTarget(gun.transform);
                     }
                     else
                     {
