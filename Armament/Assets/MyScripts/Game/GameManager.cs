@@ -726,6 +726,50 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     // Network-Destroy the GameObject associated with photonView
                     PhotonNetwork.Destroy(photonView);
                 }
+
+
+                //  If this photonView is on a Medkit...
+                Medkit medkit = photonView.gameObject.GetComponent<Medkit>();
+                if (medkit != null)
+                {
+                    if (DEBUG && DEBUG_DestroyAllItems) Debug.LogFormat("GameManger: DestroyAllItems() medkit = {0}", medkit.ToString());
+
+                    // Get the owner of the medkit
+                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(photonView.ViewID.ToString(), out object owner);
+
+                    if (owner != null)
+                    {
+                        if (DEBUG && DEBUG_DestroyAllItems) Debug.LogFormat("GameManger: DestroyAllItems() owner = {0}", owner.ToString());
+                    }
+
+                    // Remove room custom property for the medkit ownership
+                    PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { photonView.ViewID.ToString(), null } });
+
+                    // Network-Destroy the GameObject associated with photonView
+                    PhotonNetwork.Destroy(photonView);
+                }
+
+
+                //  If this photonView is on a FragGrenade...
+                FragGrenade grenade = photonView.gameObject.GetComponent<FragGrenade>();
+                if (grenade != null)
+                {
+                    if (DEBUG && DEBUG_DestroyAllItems) Debug.LogFormat("GameManger: DestroyAllItems() grenade = {0}", grenade.ToString());
+
+                    // Get the owner of the grenade
+                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(photonView.ViewID.ToString(), out object owner);
+
+                    if (owner != null)
+                    {
+                        if (DEBUG && DEBUG_DestroyAllItems) Debug.LogFormat("GameManger: DestroyAllItems() owner = {0}", owner.ToString());
+                    }
+
+                    // Remove room custom property for the grenade ownership
+                    PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { photonView.ViewID.ToString(), null } });
+
+                    // Network-Destroy the GameObject associated with photonView
+                    PhotonNetwork.Destroy(photonView);
+                }
             }
         }
 
