@@ -1281,9 +1281,6 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 8bc94ec6ed537e743b481638bdcd503d, type: 3}
   m_JumpSound: {fileID: 8300000, guid: 5897aeed9b676024fbb8c694b421a861, type: 3}
   m_LandSound: {fileID: 8300000, guid: 3b09d59f4499d45428baa7a21e954296, type: 3}
-  leftJoystick: {fileID: 0}
-  rightJoystick: {fileID: 0}
-  rotationSpeed: 8
 --- !u!114 &3900
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1300,6 +1297,7 @@ MonoBehaviour:
   Shield: 100
   ShieldRegenerationRate: 5
   medkitPrefab: {fileID: 522, guid: 4cdcc6c16809ba5439c8798d9bb925f4, type: 3}
+  qualityString: 
   deathSound1: {fileID: 8300000, guid: 9b630e6c1d8084261b5d3d27f7aeb620, type: 3}
   deathSound2: {fileID: 8300000, guid: f93e978a5b02f47629ae1881412a2113, type: 3}
   painSound: {fileID: 8300000, guid: 0e6b76160e87ae44a9afb100dba8aeaf, type: 3}
@@ -1429,7 +1427,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   directionDampTime: 0.25
-  leftJoystick: {fileID: 0}
 --- !u!195 &3743
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -4468,7 +4465,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   directionDampTime: 0.25
-  leftJoystick: {fileID: 0}
 --- !u!1 &676
 GameObject:
   m_ObjectHideFlags: 0
