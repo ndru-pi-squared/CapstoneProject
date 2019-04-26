@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 170076734}
-  m_IndirectSpecularColor: {r: 0.5444051, g: 0.50699955, b: 0.5242514, a: 1}
+  m_IndirectSpecularColor: {r: 0.5444145, g: 0.50700045, b: 0.5242461, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -554,6 +554,77 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 6519157859644779366}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1828162712
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 8937606582304413129}
+    m_Modifications:
+    - target: {fileID: 734579987826221858, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+        type: 3}
+      propertyPath: m_Name
+      value: Toggle AI Control Button
+      objectReference: {fileID: 0}
+    - target: {fileID: 2217058933116462194, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2217058933116462194, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 280.04
+      objectReference: {fileID: 0}
+    - target: {fileID: 2217058933116462194, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 116.52
+      objectReference: {fileID: 0}
+    - target: {fileID: 5267978900346176654, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5267978900346176654, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2033645109}
+    - target: {fileID: 5267978900346176654, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnToggleAIControlButtonClicked
+      objectReference: {fileID: 0}
+    - target: {fileID: 5267978900346176654, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 5267978900346176654, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+        type: 3}
+      propertyPath: m_Interactable
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7321952599708574735, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+        type: 3}
+      propertyPath: m_Text
+      value: Toggle AI Control
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: bd0cf1e5f3e8e484ab3e4613a8e23677, type: 3}
+--- !u!114 &1828162713 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5267978900346176654, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
+    type: 3}
+  m_PrefabInstance: {fileID: 1828162712}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1392445389, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1844636765 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6519157861193369403, guid: 4c23e69ee0b960e48a820ef33bb98be0,
@@ -1101,6 +1172,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 4772060183095244490, guid: c7c20e00edc26bf49a9248816acf0c3e,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8937606582914199881, guid: c7c20e00edc26bf49a9248816acf0c3e,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1249,7 +1325,7 @@ PrefabInstance:
     - target: {fileID: 77578304234738022, guid: c7c20e00edc26bf49a9248816acf0c3e,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 77578304234738022, guid: c7c20e00edc26bf49a9248816acf0c3e,
         type: 3}
@@ -1290,6 +1366,36 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_BoolArgument
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 77578304234738022, guid: c7c20e00edc26bf49a9248816acf0c3e,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Mode
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 77578304234738022, guid: c7c20e00edc26bf49a9248816acf0c3e,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 77578304234738022, guid: c7c20e00edc26bf49a9248816acf0c3e,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Target
+      value: 
+      objectReference: {fileID: 1828162713}
+    - target: {fileID: 77578304234738022, guid: c7c20e00edc26bf49a9248816acf0c3e,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
+      value: set_interactable
+      objectReference: {fileID: 0}
+    - target: {fileID: 77578304234738022, guid: c7c20e00edc26bf49a9248816acf0c3e,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 77578304234738022, guid: c7c20e00edc26bf49a9248816acf0c3e,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_BoolArgument
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4118805620668242635, guid: c7c20e00edc26bf49a9248816acf0c3e,
         type: 3}
@@ -1344,7 +1450,12 @@ PrefabInstance:
     - target: {fileID: 6254533080846971290, guid: c7c20e00edc26bf49a9248816acf0c3e,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 173
+      value: 129.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 6254533080846971290, guid: c7c20e00edc26bf49a9248816acf0c3e,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 72.71
       objectReference: {fileID: 0}
     - target: {fileID: 2273726004488866801, guid: c7c20e00edc26bf49a9248816acf0c3e,
         type: 3}
@@ -1391,3 +1502,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponItemPrefab: {fileID: 8197309065436075343, guid: 1e929de24b7b16f48beacf49326bfadc,
     type: 3}
+--- !u!224 &8937606582304413129 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 8937606582062775799, guid: c7c20e00edc26bf49a9248816acf0c3e,
+    type: 3}
+  m_PrefabInstance: {fileID: 8937606582304413126}
+  m_PrefabAsset: {fileID: 0}

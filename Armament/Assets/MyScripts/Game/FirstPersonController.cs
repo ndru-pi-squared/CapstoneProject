@@ -56,6 +56,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private bool m_Jumping;
         private AudioSource m_AudioSource;
 
+#if MOBILE_INPUT
+        public LeftJoystick leftJoystick; // the game object containing the LeftJoystick script
+        public RightJoystick rightJoystick; // the game object containing the RightJoystick script
+        public int rotationSpeed = 8; // rotation speed of the player character
+        private Vector3 leftJoystickInput; // holds the input of the Left Joystick
+        private Vector3 rightJoystickInput; // hold the input of the Right Joystick
+#endif
+
         ///<summary>
         /// I created this method to allow PlayerManager to access the MouseLook.SetCursorLock method
         /// so it could "Remove cursor lock to enable the Leave Game UI button to be clicked" 
@@ -154,7 +162,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             ProgressStepCycle(speed);
             UpdateCameraPosition(speed);
 
+#if !MOBILE_INPUT
             m_MouseLook.UpdateCursorLock();
+#endif
         }
 
 
@@ -227,17 +237,28 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         private void GetInput(out float speed)
         {
-            // Read input
-            float horizontal = CrossPlatformInputManager.GetAxis("Horizontal");
-            float vertical = CrossPlatformInputManager.GetAxis("Vertical");
-
+            float horizontal;
+            float vertical;
             bool waswalking = m_IsWalking;
 
+#if MOBILE_INPUT
+            // get input from left joystick
+            leftJoystickInput = leftJoystick.GetInputDirection();
+
+            horizontal = leftJoystickInput.x; // The horizontal movement from joystick 01
+            vertical = leftJoystickInput.y; // The vertical movement from joystick 01
+#endif
+
 #if !MOBILE_INPUT
+            // Read input
+            horizontal = CrossPlatformInputManager.GetAxis("Horizontal");
+            vertical = CrossPlatformInputManager.GetAxis("Vertical");
+
             // On standalone builds, walk/run speed is modified by a key press.
             // keep track of whether or not the character is walking or running
             m_IsWalking = Input.GetKey(KeyCode.LeftShift);
 #endif
+
             // set the desired speed to be walking or running
             speed = m_IsWalking ? m_WalkSpeed : m_RunSpeed;
             m_Input = new Vector2(horizontal, vertical);
@@ -260,14 +281,42 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         // Called once every Update() call
         private void RotateView()
         {
-            float maxLocalCameraRotation = 0.5739346f;
-            float setLocalCameraRotation = 70f;
+            float maxLocalCameraXRotationDown = 0.5739346f;
+            float setLocalCameraXRotationDown = 70f;
+            float maxLocalCameraXRotationUp = -0.7071068f;
+            float setLocalCameraXRotationUp = -90f;
+            float x;
+            float y;
+            float z;
+
+#if MOBILE_INPUT
+            // get input from right joystick
+            rightJoystickInput = rightJoystick.GetInputDirection();
+
+            x = rightJoystickInput.x * rotationSpeed * 10 * Time.deltaTime; // The horizontal movement from joystick 01
+            y = rightJoystickInput.y * rotationSpeed * 10 * Time.deltaTime; // The vertical movement from joystick 01
+
+            // Tbh I have no idea why this works, but it does. I'll have to revisit later.
+            m_Camera.transform.transform.Rotate(-y, 0, 0);
+            this.transform.Rotate(0, x, 0);
+#endif
+
+#if !MOBILE_INPUT
             m_MouseLook.LookRotation(transform, m_Camera.transform);
-            if (m_Camera.transform.localRotation.x >= maxLocalCameraRotation)
+#endif
+
+            if (m_Camera.transform.localRotation.x >= maxLocalCameraXRotationDown)
             {
-                float y = m_Camera.transform.localRotation.y;
-                float z = m_Camera.transform.localRotation.z;
-                m_Camera.transform.localRotation = Quaternion.Euler(setLocalCameraRotation, y, z);
+                y = m_Camera.transform.localRotation.y;
+                z = m_Camera.transform.localRotation.z;
+                m_Camera.transform.localRotation = Quaternion.Euler(setLocalCameraXRotationDown, y, z);
+            }
+
+            if (m_Camera.transform.localRotation.x <= maxLocalCameraXRotationUp)
+            {
+                y = m_Camera.transform.localRotation.y;
+                z = m_Camera.transform.localRotation.z;
+                m_Camera.transform.localRotation = Quaternion.Euler(setLocalCameraXRotationUp, y, z);
             }
         }
 
