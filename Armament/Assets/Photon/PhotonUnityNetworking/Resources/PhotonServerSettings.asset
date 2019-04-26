@@ -47,5 +47,8 @@ MonoBehaviour:
   - PlayNewRoundSound
   - Explode
   - spawnExplosion
+  - RPC_SendMessageToChat
+  - PlaySound
+  - DestroyRPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1
