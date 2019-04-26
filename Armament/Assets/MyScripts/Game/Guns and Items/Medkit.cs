@@ -61,7 +61,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         void DestroyRPC()
         {
             if (PhotonNetwork.IsMasterClient)
+            {
                 PhotonNetwork.Destroy(this.gameObject);
+                PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { photonView.ViewID.ToString(), null } });
+            }
+               
         }
 
         void RestoreHealth()
