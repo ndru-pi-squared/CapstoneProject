@@ -425,7 +425,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 }
                 
             }
-            if (photonView.IsMine)
+            else if (photonView.IsMine)
                 ProcessInputs();
 
             // Regenerate Shield
