@@ -145,6 +145,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
         }
 
+        void OnSceneWasSwitched()
+        {
+            username = "wtfwtf";
+            userPassword = "wtfwtf";
+            OnClickLogin();
+        }
         #region Login
 
         //Login section

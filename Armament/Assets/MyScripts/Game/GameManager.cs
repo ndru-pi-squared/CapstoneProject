@@ -79,13 +79,29 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [SerializeField] private Transform[] weaponSpawnPoints;
         [Tooltip("Whether players can damage players on same team")]
         [SerializeField] private bool friendlyFire;
+
+        [Tooltip("")]
+        [SerializeField] private GameObject playerData;
+
         [Tooltip("Whether round ends when last opponent dies")]
         [SerializeField] private bool roundEndsWhenLastOpponentDies = true;
         [Tooltip("Audio Clip to play when a round starts.")]
         [SerializeField] private AudioClip newRoundSound;
+         [Tooltip("True if this is the first round")]
+        [SerializeField] private bool firstRound = true;
+        [Tooltip("Audio Clip to play when game begins.")]
+        [SerializeField] private AudioClip armamentSound;
+        [Tooltip("Audio Clip to play when stage one begins.")]
+        [SerializeField] private AudioClip stageOneSound;
+        [Tooltip("Audio Clip to play when stage two begins.")]
+        [SerializeField] private AudioClip stageTwoSound;
+        [Tooltip("Audio Clip to play when wall is destroyed.")]
+        [SerializeField] private AudioClip wallDownSound;
+        [Tooltip("Audio Clip to play when red team wins.")]
+        [SerializeField] private AudioClip redWinSound;
+        [Tooltip("Audio Clip to play when blue team wins.")]
+        [SerializeField] private AudioClip blueWinSound;
 
-        [Tooltip("")]
-        [SerializeField] private GameObject playerData;
 
         #endregion Private Serialized Fields
 
@@ -97,7 +113,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         // Debug flags
         private const bool DEBUG = true;
         private const bool DEBUG_ReturnVanishedItems = false;
-        private const bool DEBUG_RemoveUnclaimedItems = false;
+        private const bool DEBUG_RemoveUnclaimedItems = true;
         private const bool DEBUG_DestroyAllItems = true;
         private const bool DEBUG_InstantiateLocalPlayer = false;
         private const bool DEBUG_OnStage1TimerIsExpired = true;
@@ -115,7 +131,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_OnPlayerDeath = false;
         private const bool DEBUG_OnWallReachedDropPosition = false;
         private const bool DEBUG_OnPlayerPickedUpGun = true;
-        private const bool DEBUG_OnWallIsDead = true; 
+        private const bool DEBUG_OnWallIsDead = true;
 
         // Event codes
         private readonly byte InstantiatePlayer = 0;
@@ -176,7 +192,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         #endregion
 
         #region Public Methods
-        
+
         public void ExtendStage1Time()
         {
             if (!PhotonNetwork.IsMasterClient)
@@ -220,7 +236,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     RemoveUnclaimedItems();
                 }
             }
-
+            photonView.RPC("PlaySound", RpcTarget.All, "stageTwoSound");
         }
 
         /// <summary>
@@ -240,11 +256,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         public void OnWallIsDead()
         {
+            //play wall is down sound
+            photonView.RPC("PlaySound", RpcTarget.All, "wallDownSound");
             if (DEBUG && DEBUG_OnWallIsDead) Debug.LogFormat("GameManager: OnWallIsDead() PhotonNetwork.IsMasterClient = {0}", PhotonNetwork.IsMasterClient);
-            
+
             // Set the Stage 1 start time to Stage1Time seconds ago so CountdownTimer thinks it's time to end stage 1
             // *** Kind of a hacky way to accomplish this, but that fastest way to implement an "end of stage 1" action.
-            PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_STAGE_1_COUNTDOWN_START_TIME, (float)PhotonNetwork.Time-Stage1Time } });
+            PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { KEY_STAGE_1_COUNTDOWN_START_TIME, (float)PhotonNetwork.Time - Stage1Time } });
         }
 
         /// <summary>
@@ -256,7 +274,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (DEBUG && DEBUG_OnWallReachedDropPosition) Debug.LogFormat("GameManger: OnWallReachedDropPosition()");
             UpdateNavMesh();
         }
-        
+
         /// <Summary> 
         /// Event Handler for Leave Room button being clicked
         /// </Summary>
@@ -272,7 +290,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Leave the photon game room
             PhotonNetwork.LeaveRoom();
-
+            PhotonNetwork.LoadLevel("Launcher");
             // Make sure the cursor is visible again and not locked
             // This code might not work as expected... 
             Cursor.lockState = CursorLockMode.None;
@@ -296,7 +314,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient };
             SendOptions sendOptions = new SendOptions { Reliability = true };
             PhotonNetwork.RaiseEvent(InstantiatePlayer, content, raiseEventOptions, sendOptions);
-
+            photonView.RPC("PlaySound", RpcTarget.All, "stageOneSound");
             //Create an AI player
             //object[] content2 = new object[] { PhotonNetwork.LocalPlayer.ActorNumber };
             //PhotonNetwork.RaiseEvent(InstantiatePlayer, content2, raiseEventOptions, sendOptions);
@@ -512,6 +530,49 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { photonView.ViewID.ToString(), VALUE_VANISHED_ITEM } });
                     }
                 }
+
+                Medkit medkit = photonView.gameObject.GetComponent<Medkit>();
+                if (medkit != null)
+                {
+                    if (DEBUG && DEBUG_RemoveUnclaimedItems) Debug.LogFormat("GameManger: RemoveUnclaimedItems() medkit = {0}", medkit.ToString());
+                    // Get the owner of the medkit
+                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(photonView.ViewID.ToString(), out object owner);
+
+                    // If the medkit is not owned by a player
+                    if (VALUE_UNCLAIMED_ITEM.Equals((string)owner))
+                    {
+                        if (DEBUG && DEBUG_RemoveUnclaimedItems) Debug.LogFormat("GameManger: RemoveUnclaimedItems() owner = {0}", owner.ToString());
+
+                        Vector3 medkitPosition = photonView.gameObject.transform.position;
+                        medkitPosition.y += 1000f;
+                        photonView.gameObject.transform.position = medkitPosition;
+
+                        // Set the gun's owner to VALUE_VANISHED_ITEM
+                        PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { photonView.ViewID.ToString(), VALUE_VANISHED_ITEM } });
+                    }
+                }
+
+                FragGrenade grenade = photonView.gameObject.GetComponent<FragGrenade>();
+                if (grenade != null)
+                {
+                    if (DEBUG && DEBUG_RemoveUnclaimedItems) Debug.LogFormat("GameManger: RemoveUnclaimedItems() grenade = {0}", grenade.ToString());
+                    // Get the owner of the medkit
+                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(photonView.ViewID.ToString(), out object owner);
+
+                    // If the medkit is not owned by a player
+                    if (VALUE_UNCLAIMED_ITEM.Equals((string)owner))
+                    {
+                        if (DEBUG && DEBUG_RemoveUnclaimedItems) Debug.LogFormat("GameManger: RemoveUnclaimedItems() owner = {0}", owner.ToString());
+
+                        Vector3 grenadePosition = photonView.gameObject.transform.position;
+                        grenadePosition.y += 1000f;
+                        photonView.gameObject.transform.position = grenadePosition;
+
+                        // Set the gun's owner to VALUE_VANISHED_ITEM
+                        PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { photonView.ViewID.ToString(), VALUE_VANISHED_ITEM } });
+                    }
+                }
+
             }
 
             // Make it clear to all clients that items were made to vanish
@@ -561,7 +622,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // *** Make sure madeItemsReturn is reliably synchronized on network.
             madeItemsReturn = true;
         }
-        
+
         void DisableWinningTeamBannerPanel()
         {
             // Disable Winning Team Banner Panel 
@@ -594,6 +655,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 // Enable Winning Team Banner Panel 
                 winningTeamBannerPanel.SetActive(true);
+                //Play win audio for appropriate team
+                if (winningTeamName == "A")
+                {
+                    // Play blue team win sound
+                    photonView.RPC("PlaySound", RpcTarget.All, "blueWinSound");
+                }
+                else
+                {
+                    // Play red team win sound
+                    photonView.RPC("PlaySound", RpcTarget.All, "redWinSound");
+                }
                 Update();
 
                 Invoke("DisableWinningTeamBannerPanel", 5f); // invoke after some number of seconds
@@ -650,7 +722,51 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                     // Remove room custom property for the gun ownership
                     PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { photonView.ViewID.ToString(), null } });
-                    
+
+                    // Network-Destroy the GameObject associated with photonView
+                    PhotonNetwork.Destroy(photonView);
+                }
+
+
+                //  If this photonView is on a Medkit...
+                Medkit medkit = photonView.gameObject.GetComponent<Medkit>();
+                if (medkit != null)
+                {
+                    if (DEBUG && DEBUG_DestroyAllItems) Debug.LogFormat("GameManger: DestroyAllItems() medkit = {0}", medkit.ToString());
+
+                    // Get the owner of the medkit
+                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(photonView.ViewID.ToString(), out object owner);
+
+                    if (owner != null)
+                    {
+                        if (DEBUG && DEBUG_DestroyAllItems) Debug.LogFormat("GameManger: DestroyAllItems() owner = {0}", owner.ToString());
+                    }
+
+                    // Remove room custom property for the medkit ownership
+                    PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { photonView.ViewID.ToString(), null } });
+
+                    // Network-Destroy the GameObject associated with photonView
+                    PhotonNetwork.Destroy(photonView);
+                }
+
+
+                //  If this photonView is on a FragGrenade...
+                FragGrenade grenade = photonView.gameObject.GetComponent<FragGrenade>();
+                if (grenade != null)
+                {
+                    if (DEBUG && DEBUG_DestroyAllItems) Debug.LogFormat("GameManger: DestroyAllItems() grenade = {0}", grenade.ToString());
+
+                    // Get the owner of the grenade
+                    PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(photonView.ViewID.ToString(), out object owner);
+
+                    if (owner != null)
+                    {
+                        if (DEBUG && DEBUG_DestroyAllItems) Debug.LogFormat("GameManger: DestroyAllItems() owner = {0}", owner.ToString());
+                    }
+
+                    // Remove room custom property for the grenade ownership
+                    PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { photonView.ViewID.ToString(), null } });
+
                     // Network-Destroy the GameObject associated with photonView
                     PhotonNetwork.Destroy(photonView);
                 }
@@ -767,7 +883,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             photonView.RPC("ResetPlayerPosition", RpcTarget.All);
 
             // Make all clients reset their local player's position
-            photonView.RPC("PlayNewRoundSound", RpcTarget.All);
+            // If this is the first round of gameplay...
+            if (firstRound)
+            {
+                // Play first round sound
+                photonView.RPC("PlaySound", RpcTarget.All, "armamentSound");
+                firstRound = false;
+            }
+            else
+            {
+                // Play new round sound
+                photonView.RPC("PlaySound", RpcTarget.All, "newRoundSound");
+            }
 
             // Spawn new items
             SpawnNewItems();
@@ -777,14 +904,46 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         }
 
         [PunRPC]
-        void PlayNewRoundSound()
+        void PlaySound(String audioClipName)
         {
+            AudioClip audioClip;
+
+            //Switch statement instead of simple parameter passing because Photon requires serialization for stream objects such as AudioClips
+            switch (audioClipName)
+            {
+                case "armamentSound":
+                    audioClip = armamentSound;
+                    break;
+                case "newRoundSound":
+                    audioClip = newRoundSound;
+                    break;
+                case "stageOneSound":
+                    audioClip = stageOneSound;
+                    break;
+                case "stageTwoSound":
+                    audioClip = stageTwoSound;
+                    break;
+                case "wallDownSound":
+                    audioClip = wallDownSound;
+                    break;
+                case "redWinSound":
+                    audioClip = redWinSound;
+                    break;
+                case "blueWinSound":
+                    audioClip = blueWinSound;
+                    break;
+                default:
+                    audioClip = null;
+                    break;
+
+            }
             GameObject announcer = new GameObject("Announcer");
             AudioSource audioSource = announcer.AddComponent<AudioSource>();
-            Debug.LogFormat("PlayerManager: Die() audioSource = {0}, newRoundSound = {1}", audioSource, newRoundSound);
+            Debug.LogFormat("PlayerManager: Die() audioSource = {0}, " + audioClip.name + "= {1}", audioSource, audioClip);
+
 
             // Play death sound
-            audioSource.PlayOneShot(newRoundSound); // I read somewhere online that this allows the sounds to overlap
+            audioSource.PlayOneShot(audioClip); // I read somewhere online that this allows the sounds to overlap
             Destroy(announcer, 5f);
         }
 
@@ -807,18 +966,39 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             SpawnedWeaponsList = new ArrayList();
 
             // Instantiate our two weapons at different spawn points for team A. Add each newly spawned weapon to the list
-            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[0].name, weaponSpawnPoints[0].position, weaponSpawnPoints[0].rotation, 0));
+            //i would like to change this hardcoded implementation
+            ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable();
+            for (int i = 0, j = 0; i <= weaponSpawnPoints.Length - 1; i++, j++)
+            {
+                SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[j].name, weaponSpawnPoints[i].position, weaponSpawnPoints[i].rotation, 0));
+                if (j == weaponsPrefabs.Length - 1)
+                {
+                    j = 0;
+                }
+                properties.Add(((GameObject)SpawnedWeaponsList[i]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM);
+            }
+            PhotonNetwork.CurrentRoom.SetCustomProperties(properties);
+
+            /*SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[0].name, weaponSpawnPoints[0].position, weaponSpawnPoints[0].rotation, 0));
             SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[1].name, weaponSpawnPoints[1].position, weaponSpawnPoints[1].rotation, 0));
-            // Instantiate our two weapons at different spawn points for team B. Add each newly spawned weapon to the list
-            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[0].name, weaponSpawnPoints[2].position, weaponSpawnPoints[2].rotation, 0));
-            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[1].name, weaponSpawnPoints[3].position, weaponSpawnPoints[3].rotation, 0));
+            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[2].name, weaponSpawnPoints[2].position, weaponSpawnPoints[2].rotation, 0));
+            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[3].name, weaponSpawnPoints[3].position, weaponSpawnPoints[3].rotation, 0));
+            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[0].name, weaponSpawnPoints[4].position, weaponSpawnPoints[4].rotation, 0));
+            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[1].name, weaponSpawnPoints[5].position, weaponSpawnPoints[5].rotation, 0));
+            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[2].name, weaponSpawnPoints[6].position, weaponSpawnPoints[6].rotation, 0));
+            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[3].name, weaponSpawnPoints[7].position, weaponSpawnPoints[7].rotation, 0));*/
 
             // Add the spawned weapon (key) and it's owner (value) to the properties for the current room
-            PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable {
+            /*PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable {
                         { ((GameObject)SpawnedWeaponsList[0]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
                         { ((GameObject)SpawnedWeaponsList[1]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
                         { ((GameObject)SpawnedWeaponsList[2]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
-                        { ((GameObject)SpawnedWeaponsList[3]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM } });
+                        { ((GameObject)SpawnedWeaponsList[3]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
+                        { ((GameObject)SpawnedWeaponsList[4]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
+                        { ((GameObject)SpawnedWeaponsList[5]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
+                        { ((GameObject)SpawnedWeaponsList[6]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
+                        { ((GameObject)SpawnedWeaponsList[7]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM }
+            });*/
 
             if (DEBUG && DEBUG_SpawnNewItems) Debug.LogFormat("GameManager: SpawnNewItems() " +
                 "((GameObject)spawnedWeaponsList[0]).GetPhotonView().ViewID = {0} " +
@@ -1045,7 +1225,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 if (DEBUG && DEBUG_OnPlayerDeath) Debug.Log("GameManager: OnPlayerDeath() NOT MASTER CLIENT: Doing nothing...");
                 return;
             }
-            
+
             if (!roundEndsWhenLastOpponentDies)
             {
                 if (DEBUG && DEBUG_OnPlayerDeath) Debug.Log("GameManager: OnPlayerDeath() CLIENT IS MasterClient: " +
@@ -1083,11 +1263,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 if (DEBUG && DEBUG_OnPlayerDeath) Debug.Log("GameManager: OnPlayerDeath() CLIENT IS MasterClient: " +
                     "morePlayersOnTeamStillAlive = false, so Ending this round...");
-                
+
                 string winningTeamName = (!PlayerManager.VALUE_TEAM_NAME_A.Equals(deadPlayer.GetTeam())
                     ? PlayerManager.VALUE_TEAM_NAME_A
                     : PlayerManager.VALUE_TEAM_NAME_B);
-                
+
                 // End this round (which will start a new round)
                 EndRound(winningTeamName);
             }

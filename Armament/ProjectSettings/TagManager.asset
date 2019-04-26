@@ -9,6 +9,10 @@ TagManager:
   - PlayerName
   - Button
   - InputField
+  - FragGrenade
+  - Medkit
+  - GrenadeIcon
+  - MedkitIcon
   layers:
   - Default
   - TransparentFX
