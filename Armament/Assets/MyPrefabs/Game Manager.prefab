@@ -49,11 +49,13 @@ MonoBehaviour:
   weaponsPrefabs:
   - {fileID: 381, guid: db4932928b1f2e648a7cbb22e950e0cf, type: 3}
   - {fileID: 380, guid: 7f76b63222a574a4ba64ba2451b768ee, type: 3}
+  botPrefabs: []
   dividingWallPrefab: {fileID: 385, guid: 133dbba72a6b21745b71d1c4289bf0fe, type: 3}
   environment: {fileID: 0}
   canvas: {fileID: 0}
+  navMesh: {fileID: 0}
   sceneCameras: []
-  stage1Time: 30
+  stage1Time: 45
   stage2Time: 30
   makeItemsVanish: 1
   teamAPlayerSpawnPoints: []
@@ -64,6 +66,7 @@ MonoBehaviour:
   newRoundSound: {fileID: 8300000, guid: cd859ddd2770c4d4cb84cc123412a378, type: 3}
   playerData: {fileID: 5906270027394405360, guid: c6c749e8608a44271a8a1c8e2e9922d0,
     type: 3}
+  AIBotsToSpawn: 0
 --- !u!114 &312477208123618658
 MonoBehaviour:
   m_ObjectHideFlags: 0
