@@ -302,6 +302,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         public void OnPlayButtonClicked()
         {
+            CreateNewPlayerGO();
+        }
+
+        public void CreateNewPlayerGO()
+        {
             // Send request to master client for team to join
             // Raise Event for only the master client to respond to. 
             // *** There is a chance the master client leaves before handling the event. I think that might be alright
@@ -314,6 +319,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.MasterClient };
             SendOptions sendOptions = new SendOptions { Reliability = true };
             PhotonNetwork.RaiseEvent(InstantiatePlayer, content, raiseEventOptions, sendOptions);
+
             photonView.RPC("PlaySound", RpcTarget.All, "stageOneSound");
             //Create an AI player
             //object[] content2 = new object[] { PhotonNetwork.LocalPlayer.ActorNumber };

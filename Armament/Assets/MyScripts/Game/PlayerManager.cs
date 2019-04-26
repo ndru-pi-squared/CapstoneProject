@@ -97,7 +97,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private const bool DEBUG_OnTriggerEnter = false;
         private const bool DEBUG_OnRoomPropertiesUpdate = false;
         private const bool DEBUG_OnPlayerPropertiesUpdate = false;
-        private const bool DEBUG_MovePlayer = false;
+        private const bool DEBUG_MovePlayer = true;
         private const bool DEBUG_Respawn = false;
         private const bool DEBUG_SetActiveGun = false;
         private const bool DEBUG_DropGun = false;
@@ -134,6 +134,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private GameObject kyleRobotPrefab;
         private Animator animator;
         private Color originalTopPanelColor;
+
+        private int firstPersonControllerReenablerCounter = -1;
 
         #endregion
 
@@ -398,11 +400,23 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // Figure out what should be done if this is the player I'm controlling
             if (PhotonNetwork.IsMasterClient)
             {
+                ProcessInputs();
+
+                // If we're counting the number of frames since the FirstPersonController was turned off...
+                if (firstPersonControllerReenablerCounter >= 0 && firstPersonControllerReenablerCounter < 5)
+                {
+                    //Debug.LogFormat("PlayerManager: Update() ***** transform.position = {0}", transform.position);
+
+                    // Increment frame counter
+                    firstPersonControllerReenablerCounter++;
+
+                    // Make sure that the Update method is called a couple times before turning the FirstPersonController back on.
+                    if (firstPersonControllerReenablerCounter == 2)
+                        GetComponent<FirstPersonController>().enabled = true;
+                }
                 frameCount++;
                 if(frameCount >= 7)
                 {
-                    fps = 1.0f / Time.deltaTime;
-                    //float msec = deltaTime * 1000.0f;
                     fps = 1.0f / deltaTime;
                     //Debug.Log(fps);
                     FPStext.GetComponent<Text>().text = "FPS: " + fps;
@@ -959,17 +973,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         {
             if (DEBUG && DEBUG_MovePlayer) Debug.LogFormat("PlayerManager: MovePlayer() t.position = {0}", t.position);
 
-            /*
-            transform.GetComponent<FirstPersonController>().enabled = false; // disables the first person controller so we can manually move the player's position
-            //transform.position = t.position;
-            transform.localRotation = t.rotation;
-            GetComponentInChildren<Camera>().transform.localRotation = Quaternion.Euler(Vector3.zero);
-            Update();
-            transform.GetComponent<FirstPersonController>().enabled = true;
-            */
-
             // Move the player to the target position
-            GetComponent<CharacterController>().Move(t.position - transform.position);
+            //GetComponent<CharacterController>().Move(t.position - transform.position);
+            GetComponent<FirstPersonController>().enabled = false;
+            transform.position = t.position;
+
+            // Set to 0 so Update() method can check that it has actually moved the player before re-enabling the FirstPersonController Component
+            firstPersonControllerReenablerCounter = 0; 
 
             if (DEBUG && DEBUG_MovePlayer) Debug.LogFormat("PlayerManager: MovePlayer() transform.position = {0}", transform.position);
         }
