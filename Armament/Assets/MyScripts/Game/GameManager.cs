@@ -989,7 +989,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[j].name, weaponSpawnPoints[i].position, weaponSpawnPoints[i].rotation, 0));
                 if (j == weaponsPrefabs.Length - 1)
                 {
-                    j = 0;
+                    j = -1;
                 }
                 properties.Add(((GameObject)SpawnedWeaponsList[i]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM);
             }

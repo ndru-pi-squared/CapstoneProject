@@ -1114,7 +1114,14 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Set active gun type
             // *** Will need to change how we instantiate based on type of gun
-            activeGunType = gunToBeActivated.name.Contains("Gun 1") ? 1 : 2;
+            //activeGunType = gunToBeActivated.name.Contains("Gun 1") ? 1 : 2;
+            if (gunToBeActivated.name.Contains("Gun 1") || gunToBeActivated.name.Contains("Space_Pistol"))
+            {
+                activeGunType = 1;
+            }
+            else {
+                activeGunType = 2;
+            }
 
             // Instantiate show Gun based on type of gun
             // *** Will need to change how we instantiate based on type of gun

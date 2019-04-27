@@ -1189,9 +1189,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_IsWalking: 0
   m_WalkSpeed: 10
-  m_RunSpeed: 20
+  m_RunSpeed: 15
   m_RunstepLenghten: 0.2
-  m_JumpSpeed: 40
+  m_JumpSpeed: 10
   m_StickToGroundForce: 100
   m_GravityMultiplier: 2
   m_MouseLook:
@@ -1275,7 +1275,7 @@ MonoBehaviour:
   m_JumpBob:
     BobDuration: 0.2
     BobAmount: 0.1
-  m_StepInterval: 7
+  m_StepInterval: 10
   m_FootstepSounds:
   - {fileID: 8300000, guid: 42e65e088b3f4374e851b8dbd38f3df9, type: 3}
   - {fileID: 8300000, guid: 8bc94ec6ed537e743b481638bdcd503d, type: 3}
@@ -2170,7 +2170,6 @@ GameObject:
   - component: {fileID: 2329}
   - component: {fileID: 3677}
   - component: {fileID: 3722}
-  - component: {fileID: 3208}
   - component: {fileID: 3886}
   m_Layer: 0
   m_Name: FirstPersonCharacter
@@ -2255,15 +2254,6 @@ Behaviour:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 502}
   m_Enabled: 0
---- !u!45 &3208
-Skybox:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 502}
-  m_Enabled: 1
-  m_CustomSkybox: {fileID: 2100000, guid: 4067de1a02072244798361060c5e7325, type: 2}
 --- !u!114 &3886
 MonoBehaviour:
   m_ObjectHideFlags: 0
