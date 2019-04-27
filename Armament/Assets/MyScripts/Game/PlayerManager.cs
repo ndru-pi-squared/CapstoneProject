@@ -1022,11 +1022,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 MovePlayer(playerSpawnPoint);
             }
         }
-        
-        public void StartDeadSpectatorMode()
-        {
-            // Sync player's mode (whether they are alive or dead and spectating)
-            SetMode(VALUE_MODE_DEAD_SPECT);
 
         public void StartDeadSpectatorMode()
         {
