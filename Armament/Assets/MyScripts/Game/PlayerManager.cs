@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using UnityEngine.AI;
 using UnityStandardAssets.Characters.ThirdPerson;
 using UnityEngine.UI;
+using UnityStandardAssets.CrossPlatformInput;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
@@ -257,6 +258,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             }
 
+            // Play button irrelevant once we are in the game
+            GameManager.Instance.canvas.transform.Find("Top Panel").transform.Find("Play Button").gameObject.SetActive(false);
+
 #if MOBILE_INPUT
             GameObject leftStick = GameManager.Instance.canvas.transform.Find("Left Joystick").gameObject;
             GameObject rightStick = GameManager.Instance.canvas.transform.Find("Right Joystick").gameObject;
@@ -264,11 +268,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             rightStick.SetActive(true);
             GameManager.Instance.canvas.transform.Find("Dual-Joystick Touch Controller").gameObject.SetActive(true);
             GameManager.Instance.canvas.transform.Find("Mobile Jump Button").gameObject.SetActive(true);
+            GameManager.Instance.canvas.transform.Find("Mobile Cycle Weapon Button").gameObject.SetActive(true);
+            GameManager.Instance.canvas.transform.Find("Mobile Use Grenade Button").gameObject.SetActive(true);
+            GameManager.Instance.canvas.transform.Find("Mobile Use Health Button").gameObject.SetActive(true);
+            GameManager.Instance.canvas.transform.Find("Top Panel").transform.Find("Show Stats Button").gameObject.SetActive(true);
+            GameManager.Instance.canvas.transform.Find("Top Panel").transform.Find("Toggle AI Button").gameObject.SetActive(true);
+            GameManager.Instance.canvas.transform.Find("Top Panel").transform.Find("Toggle Chat Button").gameObject.SetActive(true);
+            GameManager.Instance.canvas.transform.Find("Chat").transform.Find("ChatBox").transform.localScale += new Vector3(1.4F, 1F, 0);
+            GameManager.Instance.canvas.transform.Find("Chat").transform.Find("ChatBox").transform.localPosition += new Vector3(0, 155F, 0);
             GetComponent<FirstPersonController>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
             GetComponent<PlayerAnimatorManager>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
             _fpLegs.GetComponent<PlayerAnimatorManager>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
             GetComponent<FirstPersonController>().rightJoystick = rightStick.GetComponent<RightJoystick>();
-            GameManager.Instance.canvas.transform.Find("Weapon Inventory Menu").GetComponent<WeaponsMenuManager>().OpenMenu();
 #endif
 
             // #Critical
@@ -1402,7 +1413,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// (This method should only be called in Update if photonView.IsMine)
         /// </summary>
         void ProcessInputs()
-        {
+        { 
             // If user wants to select a weapon
             if (Input.mouseScrollDelta.y != 0)
             {
@@ -1480,7 +1491,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
 
 
-                if (Input.GetKeyUp(KeyCode.F) && playerGrenadeCount > 0)
+                if ( ( Input.GetKeyUp(KeyCode.F) || CrossPlatformInputManager.GetButtonUp("Grenade") ) && playerGrenadeCount > 0)
                 {
                     //var TimeToKeepAlive = 5;
                     if (DEBUG && DEBUG_ProcessInputs) Debug.Log("keycode F");
@@ -1518,7 +1529,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     //photonView.RPC("DropActiveGun", RpcTarget.All);
                 }
 
-                if (Input.GetKeyUp(KeyCode.H))
+                if (Input.GetKeyUp(KeyCode.H) || CrossPlatformInputManager.GetButtonUp("Health"))
                 {
                     //var TimeToKeepAlive = 5;
                     if (DEBUG && DEBUG_ProcessInputs) Debug.Log("keycode H");
@@ -1588,7 +1599,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 //}
 
-                if (Input.GetKeyUp(KeyCode.T))
+                if (Input.GetKeyUp(KeyCode.T) || CrossPlatformInputManager.GetButtonUp("Toggle AI"))
                 {
                     if (DEBUG && DEBUG_ProcessInputs) Debug.Log("PlayerManager: ProcessInputs() KeyCode T");
 
@@ -1608,7 +1619,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     photonView.RPC("SwapActiveGun", RpcTarget.All, 2);
                 }
 
-                if (Input.GetKeyUp(KeyCode.Q))
+                if (Input.GetKeyUp(KeyCode.Q) || CrossPlatformInputManager.GetButtonUp("Cycle Gun") )
                 {
                     // Call the [PunRPC] Shoot method over photon network
                     photonView.RPC("SwapActiveGun", RpcTarget.All, previousActiveGunType);
@@ -1625,7 +1636,26 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     qualityString = QualityString;
                 }
 
-
+                if(CrossPlatformInputManager.GetButtonDown("Chat"))
+                {
+                    GameManager.Instance.canvas.transform.Find("Chat").transform.SetAsLastSibling();
+                }
+                if(CrossPlatformInputManager.GetButtonUp("Chat"))
+                {
+                    GameManager.Instance.canvas.transform.Find("Chat").transform.SetAsFirstSibling();
+                }
+                if (CrossPlatformInputManager.GetButtonDown("Toggle Stats"))
+                {
+                    GameManager.Instance.canvas.transform.Find("Player Info Panel").gameObject.SetActive(true);
+                    GameManager.Instance.canvas.transform.Find("Player Info Panel").transform.SetAsLastSibling();
+                    GameManager.Instance.canvas.transform.Find("Player Info Panel").transform.Find("Player Info List Scroll View").gameObject.SetActive(true);
+                }
+                if (CrossPlatformInputManager.GetButtonUp("Toggle Stats"))
+                {
+                    GameManager.Instance.canvas.transform.Find("Player Info Panel").gameObject.SetActive(false);
+                    GameManager.Instance.canvas.transform.Find("Player Info Panel").transform.SetAsFirstSibling();
+                    GameManager.Instance.canvas.transform.Find("Player Info Panel").transform.Find("Player Info List Scroll View").gameObject.SetActive(false);
+                }
 
 
 
