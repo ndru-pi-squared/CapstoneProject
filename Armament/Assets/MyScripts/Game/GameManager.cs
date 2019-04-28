@@ -1004,27 +1004,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
             PhotonNetwork.CurrentRoom.SetCustomProperties(properties);
 
-            /*SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[0].name, weaponSpawnPoints[0].position, weaponSpawnPoints[0].rotation, 0));
-            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[1].name, weaponSpawnPoints[1].position, weaponSpawnPoints[1].rotation, 0));
-            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[2].name, weaponSpawnPoints[2].position, weaponSpawnPoints[2].rotation, 0));
-            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[3].name, weaponSpawnPoints[3].position, weaponSpawnPoints[3].rotation, 0));
-            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[0].name, weaponSpawnPoints[4].position, weaponSpawnPoints[4].rotation, 0));
-            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[1].name, weaponSpawnPoints[5].position, weaponSpawnPoints[5].rotation, 0));
-            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[2].name, weaponSpawnPoints[6].position, weaponSpawnPoints[6].rotation, 0));
-            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[3].name, weaponSpawnPoints[7].position, weaponSpawnPoints[7].rotation, 0));*/
-
-            // Add the spawned weapon (key) and it's owner (value) to the properties for the current room
-            /*PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable {
-                        { ((GameObject)SpawnedWeaponsList[0]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
-                        { ((GameObject)SpawnedWeaponsList[1]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
-                        { ((GameObject)SpawnedWeaponsList[2]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
-                        { ((GameObject)SpawnedWeaponsList[3]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
-                        { ((GameObject)SpawnedWeaponsList[4]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
-                        { ((GameObject)SpawnedWeaponsList[5]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
-                        { ((GameObject)SpawnedWeaponsList[6]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
-                        { ((GameObject)SpawnedWeaponsList[7]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM }
-            });*/
-
             if (DEBUG && DEBUG_SpawnNewItems) Debug.LogFormat("GameManager: SpawnNewItems() " +
                 "((GameObject)spawnedWeaponsList[0]).GetPhotonView().ViewID = {0} " +
                 "((GameObject)spawnedWeaponsList[1]).GetPhotonView().ViewID = {1}",
@@ -1105,27 +1084,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Tutorial comment: we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
             GameObject playerGO = PhotonNetwork.InstantiateSceneObject(playerPrefab.name, playerSpawnPoint.position, playerSpawnPoint.rotation, 0, new[] { (object)actorNumber, teamToJoin });
-            //give FPS controller both models I guess? seems like there would be unnecessary amnts of memory stored, so maybe i can fix later
-            //here
-            //kyleRobotPrefab = playerGO.transform.GetChild(1).gameObject;
-            //unityChanPrefab = playerGO.transform.GetChild(2).gameObject;
-            //here
-            /*if (photonView.IsMine)
-            {
-                if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "KyleRobot")//TODO change hardcoded string 
-                {
-                    Debug.Log("GameManager: Player chose KyleRobot");
-                    unityChanPrefab.SetActive(false);//it's only doing it on the master
-
-                    //set animator to kyle robot, or maybe do nothing since he's the default
-                }
-                else if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "UnityChan")
-                {
-                    Debug.Log("GameManager: Player chose UnityChan");
-                    kyleRobotPrefab.SetActive(false);//it's only doing it on the master because this code is only called on the master client
-                    //set animator to unity chan
-                }
-            }*/
+           //playerGO.GetComponent<PlayerManager>().ZeroIconsAtStart();
 
             return playerGO;
         }
@@ -1398,15 +1357,15 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(PlayerManager.KEY_TEAM, out object teamNameProp))
             {
                 // If player is on team A... pick a random team A spawn point. Else... pick a random team B spawn point
-                //Transform playerSpawnPoint = ((string)teamNameProp).Equals(PlayerManager.VALUE_TEAM_NAME_A) ?
-                    //teamAPlayerSpawnPoints[new System.Random().Next(teamAPlayerSpawnPoints.Length)] :
-                    //teamBPlayerSpawnPoints[new System.Random().Next(teamBPlayerSpawnPoints.Length)];
+                Transform playerSpawnPoint = ((string)teamNameProp).Equals(PlayerManager.VALUE_TEAM_NAME_A) ?
+                    teamAPlayerSpawnPoints[new System.Random().Next(teamAPlayerSpawnPoints.Length)] :
+                    teamBPlayerSpawnPoints[new System.Random().Next(teamBPlayerSpawnPoints.Length)];
 
                 // Get the player's GameObject (we set the TagObject in PlayerManager)
                 GameObject playerGO = PlayerManager.LocalPlayerInstance;
 
                 // Move the player to the spawn point
-                //playerGO.GetComponent<PlayerManager>().Respawn(playerSpawnPoint);
+                playerGO.GetComponent<PlayerManager>().Respawn(playerSpawnPoint);
 
                 // Reset player health
                 playerGO.GetComponent<PlayerManager>().ResetHealth();

@@ -149,20 +149,29 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region MonoBehaviour CallBacks
 
-        public void ZeroOutGrenadesAndIcons()
+        public void ZeroOutGrenadeCount()
         {
             //if (photonView.IsMine)
             //{
                 if (playerGrenadeCount != 0)//|| grenadeIcons[0] != null) //i need to check
                 {
                     playerGrenadeCount = 0;
-                    for (int i = 0; i <= maxGrenadesPerPlayer - 1; i++)
+                    /*for (int i = 0; i <= maxGrenadesPerPlayer - 1; i++)
                     {
 
-                        grenadeIcons[i].SetActive(false);
-                    }
+                        grenadeIczons[i].SetActive(false);
+                    }*/
                 }
            //} 
+        }
+
+        public void ZeroIconsAtStart()
+        {
+            for (int i = 0; i <= maxGrenadesPerPlayer - 1; i++)
+            {
+
+                grenadeIcons[i].SetActive(false);
+            }
         }
 
         public void DropMedkitAndIcon()
@@ -214,7 +223,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 maxGrenadesPerPlayer = 5;
                 //playerOwnsMedkit = false;//handled in dropmedkit
                 grenadeIcons = GameObject.FindGameObjectsWithTag("GrenadeIcon");
-                ZeroOutGrenadesAndIcons();
+                ZeroIconsAtStart();
+                ZeroOutGrenadeCount();
                 medkitIcon = GameObject.FindGameObjectWithTag("MedkitIcon");
                 medkitIcon.SetActive(false);
                 playerOwnsMedkit = false;
@@ -1265,7 +1275,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             //if (DEBUG && DEBUG_DropAllItems) Debug.LogFormat("PlayerManager: DropAllItems() Found gun to drop -> ActiveGun = [{0}]", ActiveGun);
             DropGun(ActiveGun);
             }
-            ZeroOutGrenadesAndIcons();
+            ZeroOutGrenadeCount();
             DropMedkitAndIcon();
             
         }
