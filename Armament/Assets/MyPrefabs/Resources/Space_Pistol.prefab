@@ -483,8 +483,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 13.64884, y: 5.325948, z: 6.8512826}
-  m_Center: {x: 6.324428, y: 2.162976, z: 0.059405327}
+  m_Size: {x: 15.274898, y: 15, z: 15}
+  m_Center: {x: 7.137457, y: 2.2772837, z: -0.19952177}
 --- !u!54 &4356526669395123909
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -508,35 +508,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1848}
     m_Modifications:
-    - target: {fileID: 6197443874369672789, guid: 9405cf038837b49419ecf0a1f894e082,
+    - target: {fileID: 6197443874369675202, guid: 9405cf038837b49419ecf0a1f894e082,
         type: 3}
-      propertyPath: InitialModule.startColor.maxColor.r
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6197443874369672789, guid: 9405cf038837b49419ecf0a1f894e082,
-        type: 3}
-      propertyPath: InitialModule.startColor.maxColor.g
-      value: 0.56902766
-      objectReference: {fileID: 0}
-    - target: {fileID: 6197443874369672789, guid: 9405cf038837b49419ecf0a1f894e082,
-        type: 3}
-      propertyPath: InitialModule.startColor.maxColor.b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6197443874369672789, guid: 9405cf038837b49419ecf0a1f894e082,
-        type: 3}
-      propertyPath: InitialModule.startColor.minColor.r
-      value: 0.9934075
-      objectReference: {fileID: 0}
-    - target: {fileID: 6197443874369672789, guid: 9405cf038837b49419ecf0a1f894e082,
-        type: 3}
-      propertyPath: InitialModule.startColor.minColor.g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6197443874369672789, guid: 9405cf038837b49419ecf0a1f894e082,
-        type: 3}
-      propertyPath: InitialModule.startColor.minColor.b
-      value: 0
+      propertyPath: m_Name
+      value: MuzzleFlash (1)
       objectReference: {fileID: 0}
     - target: {fileID: 6197443874369673893, guid: 9405cf038837b49419ecf0a1f894e082,
         type: 3}
@@ -608,10 +583,35 @@ PrefabInstance:
       propertyPath: m_LocalScale.z
       value: 0.5
       objectReference: {fileID: 0}
-    - target: {fileID: 6197443874369675202, guid: 9405cf038837b49419ecf0a1f894e082,
+    - target: {fileID: 6197443874369672789, guid: 9405cf038837b49419ecf0a1f894e082,
         type: 3}
-      propertyPath: m_Name
-      value: MuzzleFlash (1)
+      propertyPath: InitialModule.startColor.maxColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6197443874369672789, guid: 9405cf038837b49419ecf0a1f894e082,
+        type: 3}
+      propertyPath: InitialModule.startColor.maxColor.g
+      value: 0.56902766
+      objectReference: {fileID: 0}
+    - target: {fileID: 6197443874369672789, guid: 9405cf038837b49419ecf0a1f894e082,
+        type: 3}
+      propertyPath: InitialModule.startColor.maxColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6197443874369672789, guid: 9405cf038837b49419ecf0a1f894e082,
+        type: 3}
+      propertyPath: InitialModule.startColor.minColor.r
+      value: 0.9934075
+      objectReference: {fileID: 0}
+    - target: {fileID: 6197443874369672789, guid: 9405cf038837b49419ecf0a1f894e082,
+        type: 3}
+      propertyPath: InitialModule.startColor.minColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6197443874369672789, guid: 9405cf038837b49419ecf0a1f894e082,
+        type: 3}
+      propertyPath: InitialModule.startColor.minColor.b
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9405cf038837b49419ecf0a1f894e082, type: 3}

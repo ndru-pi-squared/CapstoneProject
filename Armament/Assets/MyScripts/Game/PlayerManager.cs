@@ -1119,9 +1119,19 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 activeGunType = 1;
             }
-            else {
+            else if (gunToBeActivated.name.Contains("Gun 2") || gunToBeActivated.name.Contains("hellwailer"))
+            {
                 activeGunType = 2;
             }
+            else if (gunToBeActivated.name.Contains("archtronic"))
+            {
+                activeGunType = 3;
+            }
+            else if (gunToBeActivated.name.Contains("fire_sleet"))
+            {
+                activeGunType = 4;
+            }
+
 
             // Instantiate show Gun based on type of gun
             // *** Will need to change how we instantiate based on type of gun
@@ -1131,9 +1141,19 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 gunPrefab = GameManager.Instance.weaponsPrefabs[0];
                 transform.Find("FirstPersonCharacter/Show Weapon").transform.localPosition = new Vector3(0, 0, 0.18f);
             }
-            else
+            else if(activeGunType == 2)
             {
                 gunPrefab = GameManager.Instance.weaponsPrefabs[1];
+                transform.Find("FirstPersonCharacter/Show Weapon").transform.localPosition = new Vector3(0, 0.05f, 0);
+            }
+            else if (activeGunType == 3)
+            {
+                gunPrefab = GameManager.Instance.weaponsPrefabs[2];
+                transform.Find("FirstPersonCharacter/Show Weapon").transform.localPosition = new Vector3(0, 0.05f, 0);
+            }
+            else
+            {
+                gunPrefab = GameManager.Instance.weaponsPrefabs[3];
                 transform.Find("FirstPersonCharacter/Show Weapon").transform.localPosition = new Vector3(0, 0.05f, 0);
             }
 
