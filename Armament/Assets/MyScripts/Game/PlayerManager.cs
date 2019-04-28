@@ -1129,17 +1129,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 activeGunType = 1;
             }
-            else if (gunToBeActivated.name.Contains("Gun 2") || gunToBeActivated.name.Contains("hellwailer"))
+            else if (gunToBeActivated.name.Contains("Gun 2"))
             {
                 activeGunType = 2;
             }
-            else if (gunToBeActivated.name.Contains("archtronic"))
+            else if (gunToBeActivated.name.Contains("hellwailer"))
             {
                 activeGunType = 3;
             }
-            else if (gunToBeActivated.name.Contains("fire_sleet"))
+            else if (gunToBeActivated.name.Contains("archtronic"))
             {
                 activeGunType = 4;
+            }
+            else if (gunToBeActivated.name.Contains("fire_sleet"))
+            {
+                activeGunType = 5;
             }
 
 
@@ -1151,19 +1155,24 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 gunPrefab = GameManager.Instance.weaponsPrefabs[0];
                 transform.Find("FirstPersonCharacter/Show Weapon").transform.localPosition = new Vector3(0, 0, 0.18f);
             }
-            else if(activeGunType == 2)
+            else if (activeGunType == 2)
             {
                 gunPrefab = GameManager.Instance.weaponsPrefabs[1];
                 transform.Find("FirstPersonCharacter/Show Weapon").transform.localPosition = new Vector3(0, 0.05f, 0);
             }
             else if (activeGunType == 3)
             {
-                gunPrefab = GameManager.Instance.weaponsPrefabs[2];
+                gunPrefab = GameManager.Instance.weaponsPrefabs[4];
+                transform.Find("FirstPersonCharacter/Show Weapon").transform.localPosition = new Vector3(0, 0.05f, 0);
+            }
+            else if (activeGunType == 4)
+            {
+                gunPrefab = GameManager.Instance.weaponsPrefabs[6];
                 transform.Find("FirstPersonCharacter/Show Weapon").transform.localPosition = new Vector3(0, 0.05f, 0);
             }
             else
             {
-                gunPrefab = GameManager.Instance.weaponsPrefabs[3];
+                gunPrefab = GameManager.Instance.weaponsPrefabs[7];
                 transform.Find("FirstPersonCharacter/Show Weapon").transform.localPosition = new Vector3(0, 0.05f, 0);
             }
 
