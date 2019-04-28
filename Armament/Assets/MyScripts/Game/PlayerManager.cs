@@ -151,18 +151,26 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public void ZeroOutGrenadesAndIcons()
         {
-            playerGrenadeCount = 0;
-            for (int i = 0; i <= maxGrenadesPerPlayer - 1; i++)
+            if (playerGrenadeCount != 0 || grenadeIcons[0].activeSelf)
             {
+                playerGrenadeCount = 0;
+                for (int i = 0; i <= maxGrenadesPerPlayer - 1; i++)
+                {
 
-                grenadeIcons[i].SetActive(false);
+                    grenadeIcons[i].SetActive(false);
+                }
             }
+            
         }
 
         public void DropMedkitAndIcon()
         {
-            playerOwnsMedkit = false;
-            medkitIcon.SetActive(false);
+            if(playerOwnsMedkit == true)
+            {
+                playerOwnsMedkit = false;
+                medkitIcon.SetActive(false);
+            }
+                
         }
 
         /// <summary>
@@ -1513,7 +1521,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     if (DEBUG && DEBUG_ProcessInputs) Debug.Log("keycode F");
                     if (photonView.IsMine)
                     {
-                        GameObject fragGrenade = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
+                        Vector3 augmentedPosition = gameObject.transform.position;
+                        //augmentedPosition.x++; augmentedPosition.y++; 
+                        //static positoin
+                        //get player rotation, and increment that axis a few times.
+                        augmentedPosition.y++; augmentedPosition.y++;
+                        GameObject fragGrenade = PhotonNetwork.Instantiate("FragGrenade", augmentedPosition, gameObject.transform.rotation);//gameObject.transform.position
                         fragGrenade.GetComponent<FragGrenade>().playerWhoOwnsThisGrenade = this;//setting this for TakeDamage(int/float,playerwhoowns...)
 
                         //Debug.Log("Keycode f playerGrenadeCount pre decrement: " + playerGrenadeCount);
