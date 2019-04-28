@@ -1248,14 +1248,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         public void DropAllItems()
         {
-            if (DEBUG && DEBUG_DropAllItems) Debug.LogFormat("PlayerManager: DropAllItems()");
+            //if (DEBUG && DEBUG_DropAllItems) Debug.LogFormat("PlayerManager: DropAllItems()");
+            if (!PhotonNetwork.IsMasterClient)
+                Debug.Log("~~~~~~~~~~~~~~~~~~~~~~THIS IS NOT THE MASTER CLIENT. CALLING DROP ALL ITEMS");
             while (ActiveGun != null)
             {
-                if (DEBUG && DEBUG_DropAllItems) Debug.LogFormat("PlayerManager: DropAllItems() Found gun to drop -> ActiveGun = [{0}]", ActiveGun);
-                DropGun(ActiveGun);
+            //if (DEBUG && DEBUG_DropAllItems) Debug.LogFormat("PlayerManager: DropAllItems() Found gun to drop -> ActiveGun = [{0}]", ActiveGun);
+            DropGun(ActiveGun);
             }
             ZeroOutGrenadesAndIcons();
             DropMedkitAndIcon();
+            
         }
 
         #endregion Public Methods
@@ -1283,6 +1286,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="gun">The gun. Must be gun that is currently being held by a player.</param>
         void DropGun(Gun gun)
         {
+            //if photonview is mine?
             // Do nothing if there is no gun to drop
             if (gun == null)
             {

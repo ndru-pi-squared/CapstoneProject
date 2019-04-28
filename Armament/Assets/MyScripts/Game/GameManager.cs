@@ -646,11 +646,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // For now, we're just going to start a new round when the current round ends...
             // Later, we might figure out more interesting logic
 
-            if (!PhotonNetwork.IsMasterClient)
-            {
-                if (DEBUG && DEBUG_EndRound) Debug.Log("GameManager: EndRound() NOT MASTER CLIENT: Not responsible for ending rounds");
-                return;
-            }
+            //if (!PhotonNetwork.IsMasterClient)
+           // {
+                //if (DEBUG && DEBUG_EndRound) Debug.Log("GameManager: EndRound() NOT MASTER CLIENT: Not responsible for ending rounds");
+                //return;
+            //}
 
             // If a team won
             if (winningTeamName != null)
@@ -714,8 +714,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (DEBUG && DEBUG_DestroyAllItems) Debug.LogFormat("GameManger: DestroyAllItems()");
 
             // Make all players drop all their items
-            foreach (Player player in PhotonNetwork.PlayerList)
-                ((GameObject)player.TagObject).GetComponent<PlayerManager>().DropAllItems();
+            Debug.Log("DROPPING ALL ITEMS");
+            foreach (Player player in PhotonNetwork.PlayerList)//not working on rc
+                ((GameObject)player.TagObject).GetComponent<PlayerManager>().DropAllItems();//not working on rc
 
             // Go through all PhotonViews
             foreach (PhotonView photonView in PhotonNetwork.PhotonViews)
@@ -1397,15 +1398,15 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(PlayerManager.KEY_TEAM, out object teamNameProp))
             {
                 // If player is on team A... pick a random team A spawn point. Else... pick a random team B spawn point
-                Transform playerSpawnPoint = ((string)teamNameProp).Equals(PlayerManager.VALUE_TEAM_NAME_A) ?
-                    teamAPlayerSpawnPoints[new System.Random().Next(teamAPlayerSpawnPoints.Length)] :
-                    teamBPlayerSpawnPoints[new System.Random().Next(teamBPlayerSpawnPoints.Length)];
+                //Transform playerSpawnPoint = ((string)teamNameProp).Equals(PlayerManager.VALUE_TEAM_NAME_A) ?
+                    //teamAPlayerSpawnPoints[new System.Random().Next(teamAPlayerSpawnPoints.Length)] :
+                    //teamBPlayerSpawnPoints[new System.Random().Next(teamBPlayerSpawnPoints.Length)];
 
                 // Get the player's GameObject (we set the TagObject in PlayerManager)
                 GameObject playerGO = PlayerManager.LocalPlayerInstance;
 
                 // Move the player to the spawn point
-                playerGO.GetComponent<PlayerManager>().Respawn(playerSpawnPoint);
+                //playerGO.GetComponent<PlayerManager>().Respawn(playerSpawnPoint);
 
                 // Reset player health
                 playerGO.GetComponent<PlayerManager>().ResetHealth();
