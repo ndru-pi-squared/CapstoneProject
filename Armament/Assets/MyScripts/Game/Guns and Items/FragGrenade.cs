@@ -137,7 +137,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public void Throw()//called from playermanager. pulling into here makes it more modular in PlayerManager since theres a lot of cod ethere. Similar to shoot. 
         {
-            //GetComponent<BoxCollider>().isTrigger = false;
+            GetComponent<BoxCollider>().isTrigger = false;
             //add up and forward forces to lob it
             thrown = true;
             this.gameObject.GetComponent<Rigidbody>().AddForce(transform.forward * 1500.0f);

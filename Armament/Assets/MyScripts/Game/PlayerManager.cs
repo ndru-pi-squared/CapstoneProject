@@ -1486,7 +1486,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     if (DEBUG && DEBUG_ProcessInputs) Debug.Log("keycode F");
                     if (photonView.IsMine)
                     {
-                        GameObject fragGrenade = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
+                        Vector3 augmentedPosition = gameObject.transform.position;
+                        //augmentedPosition.x++; augmentedPosition.y++; 
+                        //static positoin
+                        //get player rotation, and increment that axis a few times.
+                        augmentedPosition.y++; augmentedPosition.y++;
+                        GameObject fragGrenade = PhotonNetwork.Instantiate("FragGrenade", augmentedPosition, gameObject.transform.rotation);//gameObject.transform.position
                         fragGrenade.GetComponent<FragGrenade>().playerWhoOwnsThisGrenade = this;//setting this for TakeDamage(int/float,playerwhoowns...)
 
                         //Debug.Log("Keycode f playerGrenadeCount pre decrement: " + playerGrenadeCount);
