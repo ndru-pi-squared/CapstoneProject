@@ -165,7 +165,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
            //} 
         }
 
-        public void ZeroIconsAtStart()
+        public void ZeroIcons()
         {
             for (int i = 0; i <= maxGrenadesPerPlayer - 1; i++)
             {
@@ -223,7 +223,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 maxGrenadesPerPlayer = 5;
                 //playerOwnsMedkit = false;//handled in dropmedkit
                 grenadeIcons = GameObject.FindGameObjectsWithTag("GrenadeIcon");
-                ZeroIconsAtStart();
+                ZeroIcons();
                 ZeroOutGrenadeCount();
                 medkitIcon = GameObject.FindGameObjectWithTag("MedkitIcon");
                 medkitIcon.SetActive(false);

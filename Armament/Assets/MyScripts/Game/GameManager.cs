@@ -1084,7 +1084,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Tutorial comment: we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
             GameObject playerGO = PhotonNetwork.InstantiateSceneObject(playerPrefab.name, playerSpawnPoint.position, playerSpawnPoint.rotation, 0, new[] { (object)actorNumber, teamToJoin });
-           //playerGO.GetComponent<PlayerManager>().ZeroIconsAtStart();
+           //playerGO.GetComponent<PlayerManager>().ZeroIcons();
 
             return playerGO;
         }
@@ -1367,6 +1367,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Move the player to the spawn point
                 playerGO.GetComponent<PlayerManager>().Respawn(playerSpawnPoint);
 
+                playerGO.GetComponent<PlayerManager>().ZeroIcons();
                 // Reset player health
                 playerGO.GetComponent<PlayerManager>().ResetHealth();
                 // Reset player shield
