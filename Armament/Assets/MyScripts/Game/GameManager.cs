@@ -987,10 +987,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             for (int i = 0, j = 0; i <= weaponSpawnPoints.Length - 1; i++, j++)
             {
                 SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[j].name, weaponSpawnPoints[i].position, weaponSpawnPoints[i].rotation, 0));
-                if (j == weaponsPrefabs.Length - 1)
+                if (j == (weaponsPrefabs.Length - 1))
                 {
+
+                    Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~inside if statement j: " + j);
+
                     j = -1;
+
                 }
+
+                Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~outside if statement j: " + j);
+
+
                 properties.Add(((GameObject)SpawnedWeaponsList[i]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM);
             }
             PhotonNetwork.CurrentRoom.SetCustomProperties(properties);

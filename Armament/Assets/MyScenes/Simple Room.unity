@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 170076734}
-  m_IndirectSpecularColor: {r: 0.5425668, g: 0.5047162, b: 0.52498007, a: 1}
+  m_IndirectSpecularColor: {r: 0.5444145, g: 0.50700045, b: 0.5242461, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -628,7 +628,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.1875, y: 0.14711112}
   m_AnchorMax: {x: 0.83750004, y: 0.24222223}
-  m_AnchoredPosition: {x: -10.000015, y: -8}
+  m_AnchoredPosition: {x: -10, y: -8}
   m_SizeDelta: {x: -420, y: 196}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &196521995
@@ -992,7 +992,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.1875, y: 0.88888884}
   m_AnchorMax: {x: 0.83750004, y: 0.97111106}
-  m_AnchoredPosition: {x: -10.000015, y: 0}
+  m_AnchoredPosition: {x: -10, y: 0}
   m_SizeDelta: {x: -420, y: 119}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &277971744
@@ -1641,7 +1641,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.1875, y: 0.037}
   m_AnchorMax: {x: 0.83750004, y: 0.13155556}
-  m_AnchoredPosition: {x: -10.000015, y: -8}
+  m_AnchoredPosition: {x: -10, y: -8}
   m_SizeDelta: {x: -420, y: 113}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &725101533
@@ -4848,12 +4848,12 @@ PrefabInstance:
         type: 3}
       propertyPath: PlayerPrefab2
       value: 
-      objectReference: {fileID: 377, guid: 471ef303437b3b94cafe139c76521f7f, type: 3}
+      objectReference: {fileID: 382, guid: 471ef303437b3b94cafe139c76521f7f, type: 3}
     - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
         type: 3}
       propertyPath: PlayerPrefab1
       value: 
-      objectReference: {fileID: 470, guid: 7a2069557e07c174f9364c44d359bfa0, type: 3}
+      objectReference: {fileID: 473, guid: 7a2069557e07c174f9364c44d359bfa0, type: 3}
     - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
         type: 3}
       propertyPath: navMesh
@@ -4863,12 +4863,12 @@ PrefabInstance:
         type: 3}
       propertyPath: weaponsPrefabs.Array.data[2]
       value: 
-      objectReference: {fileID: 508, guid: 8be0c7f6621952d4cb1cf44ae84288a6, type: 3}
+      objectReference: {fileID: 509, guid: 8be0c7f6621952d4cb1cf44ae84288a6, type: 3}
     - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
         type: 3}
       propertyPath: weaponsPrefabs.Array.data[3]
       value: 
-      objectReference: {fileID: 522, guid: 4cdcc6c16809ba5439c8798d9bb925f4, type: 3}
+      objectReference: {fileID: 525, guid: 4cdcc6c16809ba5439c8798d9bb925f4, type: 3}
     - target: {fileID: 7519147237559217297, guid: 7ac2123401479ef47a6d48780e05ab48,
         type: 3}
       propertyPath: weaponSpawnPoints.Array.data[4]

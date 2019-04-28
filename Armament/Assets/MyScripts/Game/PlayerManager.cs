@@ -151,16 +151,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public void ZeroOutGrenadesAndIcons()
         {
-            if (playerGrenadeCount != 0 || grenadeIcons[0].activeSelf)
-            {
-                playerGrenadeCount = 0;
-                for (int i = 0; i <= maxGrenadesPerPlayer - 1; i++)
+            //if (photonView.IsMine)
+            //{
+                if (playerGrenadeCount != 0)//|| grenadeIcons[0] != null) //i need to check
                 {
+                    playerGrenadeCount = 0;
+                    for (int i = 0; i <= maxGrenadesPerPlayer - 1; i++)
+                    {
 
-                    grenadeIcons[i].SetActive(false);
+                        grenadeIcons[i].SetActive(false);
+                    }
                 }
-            }
-            
+           //} 
         }
 
         public void DropMedkitAndIcon()
@@ -423,7 +425,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         GetComponent<FirstPersonController>().enabled = true;
                 }
                 frameCount++;
-                if(frameCount >= 7)
+                if(frameCount >= 7)//&& if (fpstext.getcomponent text .text != null)
                 {
                     fps = 1.0f / deltaTime;
                     //Debug.Log(fps);
@@ -1330,21 +1332,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     activeShowGun = null;
                 }
 
-                Transform trannyWannyDooDa = transform.Find("FirstPersonCharacter/Inactive Weapons");
+                Transform inactiveWeaponsTransform = transform.Find("FirstPersonCharacter/Inactive Weapons");
 
                 if (DEBUG && DEBUG_DropGun)
                 {
-                    for (int i = 0; i < trannyWannyDooDa.childCount; i++)
+                    for (int i = 0; i < inactiveWeaponsTransform.childCount; i++)
                     {
-                        Transform childTransform = trannyWannyDooDa.GetChild(i);
+                        Transform childTransform = inactiveWeaponsTransform.GetChild(i);
                         Debug.LogFormat("PlayerManager: DropGun() child #{1}: childTransform.gameObject = {0}", childTransform.gameObject, i);
                     }
                 }
 
                 // Automatically select next gun in Player's inventory to be new active gun 
-                if (trannyWannyDooDa.childCount > 0)
+                if (inactiveWeaponsTransform.childCount > 0)
                 {
-                    int gunViewID = trannyWannyDooDa.GetChild(0).GetComponent<PhotonView>().ViewID;
+                    int gunViewID = inactiveWeaponsTransform.GetChild(0).GetComponent<PhotonView>().ViewID;
                     SetActiveGun(gunViewID);
                 }
             }
