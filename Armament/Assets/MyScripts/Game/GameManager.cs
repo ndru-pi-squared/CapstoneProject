@@ -236,7 +236,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     RemoveUnclaimedItems();
                 }
             }
-            photonView.RPC("PlaySound", RpcTarget.All, "stageTwoSound");
+
+            PlaySound("stageTwoSound");
         }
 
         /// <summary>
@@ -257,7 +258,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         public void OnWallIsDead()
         {
             //play wall is down sound
-            photonView.RPC("PlaySound", RpcTarget.All, "wallDownSound");
+            PlaySound("wallDownSound");
             if (DEBUG && DEBUG_OnWallIsDead) Debug.LogFormat("GameManager: OnWallIsDead() PhotonNetwork.IsMasterClient = {0}", PhotonNetwork.IsMasterClient);
 
             // Set the Stage 1 start time to Stage1Time seconds ago so CountdownTimer thinks it's time to end stage 1
@@ -320,7 +321,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             SendOptions sendOptions = new SendOptions { Reliability = true };
             PhotonNetwork.RaiseEvent(InstantiatePlayer, content, raiseEventOptions, sendOptions);
 
-            photonView.RPC("PlaySound", RpcTarget.All, "stageOneSound");
+            PlaySound("stageOneSound");
             //Create an AI player
             //object[] content2 = new object[] { PhotonNetwork.LocalPlayer.ActorNumber };
             //PhotonNetwork.RaiseEvent(InstantiatePlayer, content2, raiseEventOptions, sendOptions);
@@ -675,12 +676,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 if (winningTeamName == "A")
                 {
                     // Play blue team win sound
-                    photonView.RPC("PlaySound", RpcTarget.All, "blueWinSound");
+                    PlaySound("blueWinSound");
                 }
                 else
                 {
                     // Play red team win sound
-                    photonView.RPC("PlaySound", RpcTarget.All, "redWinSound");
+                    PlaySound("redWinSound");
                 }
                 Update();
 
@@ -904,13 +905,13 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (firstRound)
             {
                 // Play first round sound
-                photonView.RPC("PlaySound", RpcTarget.All, "armamentSound");
+                PlaySound("armamentSound");
                 firstRound = false;
             }
             else
             {
                 // Play new round sound
-                photonView.RPC("PlaySound", RpcTarget.All, "newRoundSound");
+                PlaySound("newRoundSound");
             }
 
             // Spawn new items
@@ -920,7 +921,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             //ReturnVanishedItems();
         }
 
-        [PunRPC]
         void PlaySound(String audioClipName)
         {
             AudioClip audioClip;
