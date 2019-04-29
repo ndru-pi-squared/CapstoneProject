@@ -646,11 +646,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             // For now, we're just going to start a new round when the current round ends...
             // Later, we might figure out more interesting logic
 
-            if (!PhotonNetwork.IsMasterClient)
-            {
-                if (DEBUG && DEBUG_EndRound) Debug.Log("GameManager: EndRound() NOT MASTER CLIENT: Not responsible for ending rounds");
-                return;
-            }
+            //if (!PhotonNetwork.IsMasterClient)
+           // {
+                //if (DEBUG && DEBUG_EndRound) Debug.Log("GameManager: EndRound() NOT MASTER CLIENT: Not responsible for ending rounds");
+                //return;
+            //}
 
             // If a team won
             if (winningTeamName != null)
@@ -714,8 +714,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (DEBUG && DEBUG_DestroyAllItems) Debug.LogFormat("GameManger: DestroyAllItems()");
 
             // Make all players drop all their items
-            foreach (Player player in PhotonNetwork.PlayerList)
-                ((GameObject)player.TagObject).GetComponent<PlayerManager>().DropAllItems();
+            Debug.Log("DROPPING ALL ITEMS");
+            foreach (Player player in PhotonNetwork.PlayerList)//not working on rc
+                ((GameObject)player.TagObject).GetComponent<PlayerManager>().DropAllItems();//not working on rc
 
             // Go through all PhotonViews
             foreach (PhotonView photonView in PhotonNetwork.PhotonViews)
@@ -987,34 +988,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             for (int i = 0, j = 0; i <= weaponSpawnPoints.Length - 1; i++, j++)
             {
                 SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[j].name, weaponSpawnPoints[i].position, weaponSpawnPoints[i].rotation, 0));
-                if (j == weaponsPrefabs.Length - 1)
+                if (j == (weaponsPrefabs.Length - 1))
                 {
-                    j = 0;
+
+                    Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~inside if statement j: " + j);
+
+                    j = -1;
+
                 }
+
+                Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~outside if statement j: " + j);
+
+
                 properties.Add(((GameObject)SpawnedWeaponsList[i]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM);
             }
             PhotonNetwork.CurrentRoom.SetCustomProperties(properties);
-
-            /*SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[0].name, weaponSpawnPoints[0].position, weaponSpawnPoints[0].rotation, 0));
-            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[1].name, weaponSpawnPoints[1].position, weaponSpawnPoints[1].rotation, 0));
-            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[2].name, weaponSpawnPoints[2].position, weaponSpawnPoints[2].rotation, 0));
-            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[3].name, weaponSpawnPoints[3].position, weaponSpawnPoints[3].rotation, 0));
-            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[0].name, weaponSpawnPoints[4].position, weaponSpawnPoints[4].rotation, 0));
-            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[1].name, weaponSpawnPoints[5].position, weaponSpawnPoints[5].rotation, 0));
-            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[2].name, weaponSpawnPoints[6].position, weaponSpawnPoints[6].rotation, 0));
-            SpawnedWeaponsList.Add(PhotonNetwork.InstantiateSceneObject(this.weaponsPrefabs[3].name, weaponSpawnPoints[7].position, weaponSpawnPoints[7].rotation, 0));*/
-
-            // Add the spawned weapon (key) and it's owner (value) to the properties for the current room
-            /*PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable {
-                        { ((GameObject)SpawnedWeaponsList[0]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
-                        { ((GameObject)SpawnedWeaponsList[1]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
-                        { ((GameObject)SpawnedWeaponsList[2]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
-                        { ((GameObject)SpawnedWeaponsList[3]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
-                        { ((GameObject)SpawnedWeaponsList[4]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
-                        { ((GameObject)SpawnedWeaponsList[5]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
-                        { ((GameObject)SpawnedWeaponsList[6]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM },
-                        { ((GameObject)SpawnedWeaponsList[7]).GetPhotonView().ViewID.ToString(), VALUE_UNCLAIMED_ITEM }
-            });*/
 
             if (DEBUG && DEBUG_SpawnNewItems) Debug.LogFormat("GameManager: SpawnNewItems() " +
                 "((GameObject)spawnedWeaponsList[0]).GetPhotonView().ViewID = {0} " +
@@ -1055,7 +1043,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             {
                 // Instantiate the dividing wall for "Space_Arena" level
                 Vector3 wallPosition = new Vector3(0f, 39.5f, 0f); // copied vector3s from "Original Dividing Wall" and "Scene Props" transform positions in Unity before it was turned into a prefab
-                Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, 0f, 0f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
+                Quaternion wallRotation = Quaternion.Euler(new Vector3(0f, 90f, 180f)); // copied vector3 from Original Dividing Wall transform rotation in Unity before it was turned into a prefab
                 dividingWallGO = PhotonNetwork.InstantiateSceneObject(this.dividingWallPrefab.name, wallPosition, wallRotation, 0, new[] { (object)wallPosition });
             }
 
@@ -1096,27 +1084,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Tutorial comment: we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
             GameObject playerGO = PhotonNetwork.InstantiateSceneObject(playerPrefab.name, playerSpawnPoint.position, playerSpawnPoint.rotation, 0, new[] { (object)actorNumber, teamToJoin });
-            //give FPS controller both models I guess? seems like there would be unnecessary amnts of memory stored, so maybe i can fix later
-            //here
-            //kyleRobotPrefab = playerGO.transform.GetChild(1).gameObject;
-            //unityChanPrefab = playerGO.transform.GetChild(2).gameObject;
-            //here
-            /*if (photonView.IsMine)
-            {
-                if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "KyleRobot")//TODO change hardcoded string 
-                {
-                    Debug.Log("GameManager: Player chose KyleRobot");
-                    unityChanPrefab.SetActive(false);//it's only doing it on the master
-
-                    //set animator to kyle robot, or maybe do nothing since he's the default
-                }
-                else if (PlayerData.GetComponent<PlayerData>().GetAvatarChoice() == "UnityChan")
-                {
-                    Debug.Log("GameManager: Player chose UnityChan");
-                    kyleRobotPrefab.SetActive(false);//it's only doing it on the master because this code is only called on the master client
-                    //set animator to unity chan
-                }
-            }*/
+           //playerGO.GetComponent<PlayerManager>().ZeroIcons();
 
             return playerGO;
         }
@@ -1399,6 +1367,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Move the player to the spawn point
                 playerGO.GetComponent<PlayerManager>().Respawn(playerSpawnPoint);
 
+                playerGO.GetComponent<PlayerManager>().ZeroIcons();
                 // Reset player health
                 playerGO.GetComponent<PlayerManager>().ResetHealth();
                 // Reset player shield
