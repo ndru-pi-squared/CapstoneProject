@@ -279,9 +279,11 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             }
 
             // Play button irrelevant once we are in the game
+            Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ just before turning on joystick");
             GameManager.Instance.canvas.transform.Find("Top Panel").transform.Find("Play Button").gameObject.SetActive(false);
 
 #if MOBILE_INPUT
+            Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~entering mobile input to turn on joystick");
             GameObject leftStick = GameManager.Instance.canvas.transform.Find("Left Joystick").gameObject;
             GameObject rightStick = GameManager.Instance.canvas.transform.Find("Right Joystick").gameObject;
             leftStick.SetActive(true);
@@ -300,6 +302,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             GetComponent<PlayerAnimatorManager>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
             _fpLegs.GetComponent<PlayerAnimatorManager>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
             GetComponent<FirstPersonController>().rightJoystick = rightStick.GetComponent<RightJoystick>();
+            Debug.Log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~after turning on joystick");
 #endif
 
             // #Critical
