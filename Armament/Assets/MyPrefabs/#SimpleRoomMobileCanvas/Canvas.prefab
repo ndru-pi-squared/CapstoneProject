@@ -687,7 +687,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3483553027189239708
 RectTransform:
   m_ObjectHideFlags: 0
@@ -952,7 +952,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3483553027244781342
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1997,7 +1997,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3483553027749538559
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2509,7 +2509,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3483553027886665252
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2648,7 +2648,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &3483553028000905052
 Transform:
   m_ObjectHideFlags: 0
@@ -2913,7 +2913,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3483553028423579054
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3422,7 +3422,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3483553028512267374
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3808,16 +3808,17 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Press TAB to toggle this display\n\nGame Room Name = 9d8089b4-d4aa-49e4-9e5e-81ae6d3f890a:\n\tmap
-    = 3\n\tcurScn = Space_Arena\n\tWall Health for Team A = 100\n\tWall Health for
-    Team B = 100\n\tStage 1 Start Time = 353759.6\n\t4 = Unclaimed\n\t5 = Unclaimed\n\t6
-    = Unclaimed\n\t7 = Unclaimed\n\t8 = Unclaimed\n\t9 = Unclaimed\n\t10 = Unclaimed\n\t11
-    = Unclaimed\n\t12 = Unclaimed\n\t13 = Unclaimed\n\t14 = Unclaimed\n\t15 = Unclaimed\n\t16
-    = Unclaimed\n\t17 = Unclaimed\n\t18 = Unclaimed\n\t19 = Unclaimed\n\t20 = Unclaimed\n\t21
-    = Unclaimed\n\t22 = Unclaimed\n\t23 = Unclaimed\n\t24 = Unclaimed\n\t25 = Unclaimed\n\t26
-    = Unclaimed\n\t27 = Unclaimed\n\t28 = Unclaimed\n\t29 = Unclaimed\n\t30 = Unclaimed\n\t31
-    = Unclaimed\n\t32 = Unclaimed\n\t33 = Unclaimed\n\t34 = Unclaimed\n\t35 = Unclaimed\n\nNickName
-    = [], ActorNumber = [ 1], UserId = [31ceea34-7baf-4e58-8051-49e1c6764d98]:\n\n"
+  m_Text: "Press TAB to toggle this display\n\nGame Room Name = bcvbcb:\n\tcurScn
+    = Space_Arena\n\tWall Health for Team A = 100\n\tWall Health for Team B = 100\n\tStage
+    1 Start Time = 355803.9\n\t68 = Unclaimed\n\t67 = Unclaimed\n\t66 = Unclaimed\n\t65
+    = Unclaimed\n\t64 = Unclaimed\n\t63 = Unclaimed\n\t62 = Unclaimed\n\t61 = Unclaimed\n\t60
+    = Unclaimed\n\t59 = Unclaimed\n\t58 = Unclaimed\n\t57 = Unclaimed\n\t56 = Unclaimed\n\t55
+    = Unclaimed\n\t54 = Unclaimed\n\t53 = Unclaimed\n\t52 = Unclaimed\n\t51 = Unclaimed\n\t50
+    = Unclaimed\n\t49 = Unclaimed\n\t48 = Unclaimed\n\t47 = Unclaimed\n\t46 = Unclaimed\n\t45
+    = Unclaimed\n\t44 = Unclaimed\n\t43 = Unclaimed\n\t42 = Unclaimed\n\t41 = Unclaimed\n\t40
+    = Unclaimed\n\t39 = Unclaimed\n\t38 = Unclaimed\n\tTeam B Size = 0\n\tTeam A Size
+    = 1\n\t37 = Unclaimed\n\nNickName = [kjhjkhk], ActorNumber = [ 1], UserId = [a031a277-ae7c-43bd-a07e-f457699e70a6]:\n\tTeam
+    = A\n\n"
 --- !u!1 &3483553028704745626
 GameObject:
   m_ObjectHideFlags: 0
@@ -4469,7 +4470,7 @@ RectTransform:
   m_GameObject: {fileID: 3483553029186567856}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.4, y: 2, z: 1}
+  m_LocalScale: {x: 6.6000004, y: 5, z: 1}
   m_Children:
   - {fileID: 4589358060324841504}
   - {fileID: 4589358061337484593}
@@ -4479,7 +4480,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 155}
+  m_AnchoredPosition: {x: 0, y: 620}
   m_SizeDelta: {x: 297.5, y: 176.8}
   m_Pivot: {x: 0, y: 0}
 --- !u!222 &3483553029186567870
@@ -6902,7 +6903,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &807723061108534
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7135,7 +7136,7 @@ PrefabInstance:
     - target: {fileID: 734579987826221858, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5267978900346176654, guid: bd0cf1e5f3e8e484ab3e4613a8e23677,
         type: 3}
