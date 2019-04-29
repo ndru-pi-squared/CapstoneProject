@@ -1253,7 +1253,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     : PlayerManager.VALUE_TEAM_NAME_B);
 
                 // End this round (which will start a new round)
-                EndRound(winningTeamName);
+                //EndRound(winningTeamName);
             }
 
         }
