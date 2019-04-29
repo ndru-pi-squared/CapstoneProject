@@ -52,10 +52,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             if (Physics.Raycast(localPlayerPM.gameObject.GetComponentInChildren<Camera>().transform.position, direction, out RaycastHit hit, 1000))
             {
                 //Debug.LogFormat("AIGunWatcher: OnBecameVisible() HIT thisGun.transform = [{0}], hit.transform = [{1}]", thisGun.transform, hit.transform);
-                if (!hit.transform.Equals(GameManager.Instance.DividingWallGO.transform))
+                if(hit.transform == null)
                 {
-                    objectIsInSightOfPlayer = true;
+                    Debug.Log("This probalby wont even print but hit.transform was null");
                 }
+                if(hit.transform != null)
+                {
+                    if (!hit.transform.Equals(GameManager.Instance.DividingWallGO.transform))
+                    {
+                        objectIsInSightOfPlayer = true;
+                    }
+                }
+                
             }
 
 
