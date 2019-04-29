@@ -141,6 +141,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         private ArrayList teamAList;
         private ArrayList teamBList;
         private GameObject dividingWallGO;
+        PlayerManager[] players;
 
         //AICount
         public int AIBotsToSpawn;
@@ -151,7 +152,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         private bool madeItemsVanish; // default = false
         private bool madeItemsReturn; // default = false;
-
+        private bool someoneHasDied;
         #endregion Private Fields
 
         #region Properties
@@ -665,7 +666,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 }
 
-
+                someoneHasDied = false;
                 // Set Winning Team Banner Panel Text to "Team [Team name]\nWins!"
                 GameObject winningTeamBannerPanel = canvas.transform.Find("Winning Team Banner Panel").gameObject;
                 winningTeamBannerPanel.GetComponentInChildren<TextMeshProUGUI>().text = "Team " + winningTeamName + "\nWins!";
@@ -1122,6 +1123,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         void Awake()
         {
+            someoneHasDied = false;
             Debug.Log("Awake():");
             // Singleton!
             Instance = this;
@@ -1200,6 +1202,24 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public void OnPlayerDeath(PlayerManager deadPlayer)
         {
+            someoneHasDied = true;
+            
+                PlayerManager qPlayerManager;
+                
+                int playersAlive = 0;
+                foreach (Player player in PhotonNetwork.PlayerList)
+                {
+                    qPlayerManager = ((GameObject)player.TagObject).GetComponent<PlayerManager>();
+                    if (qPlayerManager.Health > 0)
+                {
+                    playersAlive++;
+                    players[playersAlive] = qPlayerManager;
+                }
+                       
+
+                }
+            if (playersAlive == 1)
+                EndRound(players[0].GetTeam());
             // TODO if master client, figure out if player was last one on team and if so, start next round
 
             if (DEBUG && DEBUG_OnPlayerDeath) Debug.Log("GameManager: OnPlayerDeath()");
@@ -1219,7 +1239,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             if (DEBUG && DEBUG_OnPlayerDeath) Debug.Log("GameManager: OnPlayerDeath() CLIENT IS MasterClient: " +
                 "roundEndsWhenLastOpponentDies = true, so Checking if player who just died was last one alive on team...");
-
+            
             // Figure out if player who just died was last one alive on team
             bool morePlayersOnTeamStillAlive = false;
             foreach (Player player in PhotonNetwork.PlayerList)
@@ -1253,7 +1273,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     : PlayerManager.VALUE_TEAM_NAME_B);
 
                 // End this round (which will start a new round)
-                EndRound(winningTeamName);
+                //EndRound(winningTeamName);
             }
 
         }

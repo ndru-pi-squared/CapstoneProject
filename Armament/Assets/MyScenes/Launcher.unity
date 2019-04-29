@@ -16162,7 +16162,7 @@ MonoBehaviour:
   - PlayerRoundWins
   leaderboardFilterIndex: 0
   selectedLeaderboardFilter: 
-  autoLogin: 0
+  autoLogin: 1
   playerKillCount: 0
   leaderboardPanel: {fileID: 8438668094501747692}
   listingPrefab: {fileID: 288885600897221755, guid: 14da9c1d32d164396b8b255f2bcdcce0,
