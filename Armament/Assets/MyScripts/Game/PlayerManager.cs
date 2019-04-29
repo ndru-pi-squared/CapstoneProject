@@ -276,10 +276,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Call SetTarget() on PlayerInfoUI component so the PlayerInfoUI will follow be linked to this player 
                 playerInfoUIGO.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
 
+                GameManager.Instance.canvas.transform.Find("Top Panel").transform.Find("Play Button").gameObject.SetActive(false);
+
             }
 
             // Play button irrelevant once we are in the game
-            GameManager.Instance.canvas.transform.Find("Top Panel").transform.Find("Play Button").gameObject.SetActive(false);
+            //GameManager.Instance.canvas.transform.Find("Top Panel").transform.Find("Play Button").gameObject.SetActive(false);
 
 #if MOBILE_INPUT
             GameObject leftStick = GameManager.Instance.canvas.transform.Find("Left Joystick").gameObject;
