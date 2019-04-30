@@ -12,12 +12,12 @@ public class SpinModels : MonoBehaviour
     {
         if (avatarModels.Length != 2)
         {
-            Debug.LogError("SpinModels: Start() Wrong number of avatar models specified in inspector, you dickhead!");
+            Debug.LogError("SpinModels: Start() Wrong number of avatar models specified in inspector!");
             return;
         }
         if (avatarModels[0] == null || avatarModels[1] == null)
         {
-            Debug.LogError("SpinModels: Start() You forgot to set up the avatar models in the inspector, you shitstain!");
+            Debug.LogError("SpinModels: Start() You forgot to set up the avatar models in the inspector!");
             return;
         }
     }

@@ -19,10 +19,6 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         [Tooltip("The player who is holding the medkit. **This implementation might need revision**")]
         public PlayerManager playerWhoOwnsThisMedkit;
         // Start is called before the first frame update
-        void Start()
-        {
-
-        }
 
         private void Awake()
         {
