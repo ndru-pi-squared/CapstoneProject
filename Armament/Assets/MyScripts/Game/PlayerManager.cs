@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using UnityEngine.AI;
 using UnityStandardAssets.Characters.ThirdPerson;
 using UnityEngine.UI;
+using UnityStandardAssets.CrossPlatformInput;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
@@ -149,9 +150,24 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         #region MonoBehaviour CallBacks
 
-        public void ZeroOutGrenadesAndIcons()
+        public void ZeroOutGrenadeCount()
         {
-            playerGrenadeCount = 0;
+            //if (photonView.IsMine)
+            //{
+                if (playerGrenadeCount != 0)//|| grenadeIcons[0] != null) //i need to check
+                {
+                    playerGrenadeCount = 0;
+                    /*for (int i = 0; i <= maxGrenadesPerPlayer - 1; i++)
+                    {
+
+                        grenadeIczons[i].SetActive(false);
+                    }*/
+                }
+           //} 
+        }
+
+        public void ZeroIcons()
+        {
             for (int i = 0; i <= maxGrenadesPerPlayer - 1; i++)
             {
 
@@ -161,8 +177,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         public void DropMedkitAndIcon()
         {
-            playerOwnsMedkit = false;
-            medkitIcon.SetActive(false);
+            if(playerOwnsMedkit == true)
+            {
+                playerOwnsMedkit = false;
+                medkitIcon.SetActive(false);
+            }
+                
         }
 
         /// <summary>
@@ -204,7 +224,8 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 maxGrenadesPerPlayer = 5;
                 //playerOwnsMedkit = false;//handled in dropmedkit
                 grenadeIcons = GameObject.FindGameObjectsWithTag("GrenadeIcon");
-                ZeroOutGrenadesAndIcons();
+                ZeroIcons();
+                ZeroOutGrenadeCount();
                 medkitIcon = GameObject.FindGameObjectWithTag("MedkitIcon");
                 medkitIcon.SetActive(false);
                 playerOwnsMedkit = false;
@@ -255,7 +276,12 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Call SetTarget() on PlayerInfoUI component so the PlayerInfoUI will follow be linked to this player 
                 playerInfoUIGO.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
 
+                GameManager.Instance.canvas.transform.Find("Top Panel").transform.Find("Play Button").gameObject.SetActive(false);
+
             }
+
+            // Play button irrelevant once we are in the game
+            //GameManager.Instance.canvas.transform.Find("Top Panel").transform.Find("Play Button").gameObject.SetActive(false);
 
 #if MOBILE_INPUT
             GameObject leftStick = GameManager.Instance.canvas.transform.Find("Left Joystick").gameObject;
@@ -264,11 +290,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
             rightStick.SetActive(true);
             GameManager.Instance.canvas.transform.Find("Dual-Joystick Touch Controller").gameObject.SetActive(true);
             GameManager.Instance.canvas.transform.Find("Mobile Jump Button").gameObject.SetActive(true);
+            GameManager.Instance.canvas.transform.Find("Mobile Cycle Weapon Button").gameObject.SetActive(true);
+            GameManager.Instance.canvas.transform.Find("Mobile Use Grenade Button").gameObject.SetActive(true);
+            GameManager.Instance.canvas.transform.Find("Mobile Use Health Button").gameObject.SetActive(true);
+            GameManager.Instance.canvas.transform.Find("Top Panel").transform.Find("Show Stats Button").gameObject.SetActive(true);
+            GameManager.Instance.canvas.transform.Find("Top Panel").transform.Find("Toggle AI Button").gameObject.SetActive(true);
+            GameManager.Instance.canvas.transform.Find("Top Panel").transform.Find("Toggle Chat Button").gameObject.SetActive(true);
+            GameManager.Instance.canvas.transform.Find("Chat").transform.Find("ChatBox").transform.localScale += new Vector3(1.4F, 1F, 0);
+            GameManager.Instance.canvas.transform.Find("Chat").transform.Find("ChatBox").transform.localPosition += new Vector3(0, 155F, 0);
             GetComponent<FirstPersonController>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
             GetComponent<PlayerAnimatorManager>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
             _fpLegs.GetComponent<PlayerAnimatorManager>().leftJoystick = leftStick.GetComponent<LeftJoystick>();
             GetComponent<FirstPersonController>().rightJoystick = rightStick.GetComponent<RightJoystick>();
-            GameManager.Instance.canvas.transform.Find("Weapon Inventory Menu").GetComponent<WeaponsMenuManager>().OpenMenu();
 #endif
 
             // #Critical
@@ -415,7 +448,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                         GetComponent<FirstPersonController>().enabled = true;
                 }
                 frameCount++;
-                if(frameCount >= 7)
+                if(frameCount >= 7)//&& if (fpstext.getcomponent text .text != null)
                 {
                     fps = 1.0f / deltaTime;
                     //Debug.Log(fps);
@@ -1114,7 +1147,28 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
             // Set active gun type
             // *** Will need to change how we instantiate based on type of gun
-            activeGunType = gunToBeActivated.name.Contains("Gun 1") ? 1 : 2;
+            //activeGunType = gunToBeActivated.name.Contains("Gun 1") ? 1 : 2;
+            if (gunToBeActivated.name.Contains("Gun 1") || gunToBeActivated.name.Contains("Space_Pistol"))
+            {
+                activeGunType = 1;
+            }
+            else if (gunToBeActivated.name.Contains("Gun 2"))
+            {
+                activeGunType = 2;
+            }
+            else if (gunToBeActivated.name.Contains("hellwailer"))
+            {
+                activeGunType = 3;
+            }
+            else if (gunToBeActivated.name.Contains("archtronic"))
+            {
+                activeGunType = 4;
+            }
+            else if (gunToBeActivated.name.Contains("fire_sleet"))
+            {
+                activeGunType = 5;
+            }
+
 
             // Instantiate show Gun based on type of gun
             // *** Will need to change how we instantiate based on type of gun
@@ -1124,9 +1178,24 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 gunPrefab = GameManager.Instance.weaponsPrefabs[0];
                 transform.Find("FirstPersonCharacter/Show Weapon").transform.localPosition = new Vector3(0, 0, 0.18f);
             }
-            else
+            else if (activeGunType == 2)
             {
                 gunPrefab = GameManager.Instance.weaponsPrefabs[1];
+                transform.Find("FirstPersonCharacter/Show Weapon").transform.localPosition = new Vector3(0, 0.05f, 0);
+            }
+            else if (activeGunType == 3)
+            {
+                gunPrefab = GameManager.Instance.weaponsPrefabs[4];
+                transform.Find("FirstPersonCharacter/Show Weapon").transform.localPosition = new Vector3(0, 0.05f, 0);
+            }
+            else if (activeGunType == 4)
+            {
+                gunPrefab = GameManager.Instance.weaponsPrefabs[6];
+                transform.Find("FirstPersonCharacter/Show Weapon").transform.localPosition = new Vector3(0, 0.05f, 0);
+            }
+            else
+            {
+                gunPrefab = GameManager.Instance.weaponsPrefabs[7];
                 transform.Find("FirstPersonCharacter/Show Weapon").transform.localPosition = new Vector3(0, 0.05f, 0);
             }
 
@@ -1211,14 +1280,17 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// </summary>
         public void DropAllItems()
         {
-            if (DEBUG && DEBUG_DropAllItems) Debug.LogFormat("PlayerManager: DropAllItems()");
+            //if (DEBUG && DEBUG_DropAllItems) Debug.LogFormat("PlayerManager: DropAllItems()");
+            if (!PhotonNetwork.IsMasterClient)
+                Debug.Log("~~~~~~~~~~~~~~~~~~~~~~THIS IS NOT THE MASTER CLIENT. CALLING DROP ALL ITEMS");
             while (ActiveGun != null)
             {
-                if (DEBUG && DEBUG_DropAllItems) Debug.LogFormat("PlayerManager: DropAllItems() Found gun to drop -> ActiveGun = [{0}]", ActiveGun);
-                DropGun(ActiveGun);
+            //if (DEBUG && DEBUG_DropAllItems) Debug.LogFormat("PlayerManager: DropAllItems() Found gun to drop -> ActiveGun = [{0}]", ActiveGun);
+            DropGun(ActiveGun);
             }
-            ZeroOutGrenadesAndIcons();
+            ZeroOutGrenadeCount();
             DropMedkitAndIcon();
+            
         }
 
         #endregion Public Methods
@@ -1246,6 +1318,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// <param name="gun">The gun. Must be gun that is currently being held by a player.</param>
         void DropGun(Gun gun)
         {
+            //if photonview is mine?
             // Do nothing if there is no gun to drop
             if (gun == null)
             {
@@ -1295,21 +1368,21 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     activeShowGun = null;
                 }
 
-                Transform trannyWannyDooDa = transform.Find("FirstPersonCharacter/Inactive Weapons");
+                Transform inactiveWeaponsTransform = transform.Find("FirstPersonCharacter/Inactive Weapons");
 
                 if (DEBUG && DEBUG_DropGun)
                 {
-                    for (int i = 0; i < trannyWannyDooDa.childCount; i++)
+                    for (int i = 0; i < inactiveWeaponsTransform.childCount; i++)
                     {
-                        Transform childTransform = trannyWannyDooDa.GetChild(i);
+                        Transform childTransform = inactiveWeaponsTransform.GetChild(i);
                         Debug.LogFormat("PlayerManager: DropGun() child #{1}: childTransform.gameObject = {0}", childTransform.gameObject, i);
                     }
                 }
 
                 // Automatically select next gun in Player's inventory to be new active gun 
-                if (trannyWannyDooDa.childCount > 0)
+                if (inactiveWeaponsTransform.childCount > 0)
                 {
-                    int gunViewID = trannyWannyDooDa.GetChild(0).GetComponent<PhotonView>().ViewID;
+                    int gunViewID = inactiveWeaponsTransform.GetChild(0).GetComponent<PhotonView>().ViewID;
                     SetActiveGun(gunViewID);
                 }
             }
@@ -1402,7 +1475,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         /// (This method should only be called in Update if photonView.IsMine)
         /// </summary>
         void ProcessInputs()
-        {
+        { 
             // If user wants to select a weapon
             if (Input.mouseScrollDelta.y != 0)
             {
@@ -1480,13 +1553,18 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
 
 
-                if (Input.GetKeyUp(KeyCode.F) && playerGrenadeCount > 0)
+                if ( ( Input.GetKeyUp(KeyCode.F) || CrossPlatformInputManager.GetButtonUp("Grenade") ) && playerGrenadeCount > 0)
                 {
                     //var TimeToKeepAlive = 5;
                     if (DEBUG && DEBUG_ProcessInputs) Debug.Log("keycode F");
                     if (photonView.IsMine)
                     {
-                        GameObject fragGrenade = PhotonNetwork.Instantiate("FragGrenade", gameObject.transform.position, gameObject.transform.rotation);
+                        Vector3 augmentedPosition = gameObject.transform.position;
+                        //augmentedPosition.x++; augmentedPosition.y++; 
+                        //static positoin
+                        //get player rotation, and increment that axis a few times.
+                        augmentedPosition.y++; augmentedPosition.y++;
+                        GameObject fragGrenade = PhotonNetwork.Instantiate("FragGrenade", augmentedPosition, gameObject.transform.rotation);//gameObject.transform.position
                         fragGrenade.GetComponent<FragGrenade>().playerWhoOwnsThisGrenade = this;//setting this for TakeDamage(int/float,playerwhoowns...)
 
                         //Debug.Log("Keycode f playerGrenadeCount pre decrement: " + playerGrenadeCount);
@@ -1518,7 +1596,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     //photonView.RPC("DropActiveGun", RpcTarget.All);
                 }
 
-                if (Input.GetKeyUp(KeyCode.H))
+                if (Input.GetKeyUp(KeyCode.H) || CrossPlatformInputManager.GetButtonUp("Health"))
                 {
                     //var TimeToKeepAlive = 5;
                     if (DEBUG && DEBUG_ProcessInputs) Debug.Log("keycode H");
@@ -1588,7 +1666,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
                 //}
 
-                if (Input.GetKeyUp(KeyCode.T))
+                if (Input.GetKeyUp(KeyCode.T) || CrossPlatformInputManager.GetButtonUp("Toggle AI"))
                 {
                     if (DEBUG && DEBUG_ProcessInputs) Debug.Log("PlayerManager: ProcessInputs() KeyCode T");
 
@@ -1608,7 +1686,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     photonView.RPC("SwapActiveGun", RpcTarget.All, 2);
                 }
 
-                if (Input.GetKeyUp(KeyCode.Q))
+                if (Input.GetKeyUp(KeyCode.Q) || CrossPlatformInputManager.GetButtonUp("Cycle Gun") )
                 {
                     // Call the [PunRPC] Shoot method over photon network
                     photonView.RPC("SwapActiveGun", RpcTarget.All, previousActiveGunType);
@@ -1625,7 +1703,26 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     qualityString = QualityString;
                 }
 
-
+                if(CrossPlatformInputManager.GetButtonDown("Chat"))
+                {
+                    GameManager.Instance.canvas.transform.Find("Chat").transform.SetAsLastSibling();
+                }
+                if(CrossPlatformInputManager.GetButtonUp("Chat"))
+                {
+                    GameManager.Instance.canvas.transform.Find("Chat").transform.SetAsFirstSibling();
+                }
+                if (CrossPlatformInputManager.GetButtonDown("Toggle Stats"))
+                {
+                    GameManager.Instance.canvas.transform.Find("Player Info Panel").gameObject.SetActive(true);
+                    GameManager.Instance.canvas.transform.Find("Player Info Panel").transform.SetAsLastSibling();
+                    GameManager.Instance.canvas.transform.Find("Player Info Panel").transform.Find("Player Info List Scroll View").gameObject.SetActive(true);
+                }
+                if (CrossPlatformInputManager.GetButtonUp("Toggle Stats"))
+                {
+                    GameManager.Instance.canvas.transform.Find("Player Info Panel").gameObject.SetActive(false);
+                    GameManager.Instance.canvas.transform.Find("Player Info Panel").transform.SetAsFirstSibling();
+                    GameManager.Instance.canvas.transform.Find("Player Info Panel").transform.Find("Player Info List Scroll View").gameObject.SetActive(false);
+                }
 
 
 

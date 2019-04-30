@@ -83,7 +83,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                 // Get the current health of the wall from Room CustomProperties
                 if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(KEY_WALL_HEALTH_TEAM_B, out value))
                 {
-                    teamA_health = (float)value;
+                    teamB_health = (float)value;
                     UpdateWallColor();
                 }
             }

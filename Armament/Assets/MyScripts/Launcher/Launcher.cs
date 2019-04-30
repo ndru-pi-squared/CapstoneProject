@@ -405,7 +405,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         //Sets the string for Join Specific Room to be the shared group room name
         public void OnClickReadyPrivateRoom() {
-            roomNameInputField.text = playFabControl.GetComponent<PlayFabController>().sharedGroupRoom;
+            roomNameInputField.text = "TestRoom";
         }
     }
 }

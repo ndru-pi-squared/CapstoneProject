@@ -4,6 +4,7 @@ using UnityEngine;
 using Photon.Pun;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityStandardAssets.CrossPlatformInput;
 
 namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 {
@@ -56,7 +57,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
         void Update()
         {
             if (!CB.activeSelf) {
-                if (Input.GetKeyDown(KeyCode.Return))
+                if (Input.GetKeyDown(KeyCode.Return) || CrossPlatformInputManager.GetButtonDown("Chat"))
                 {
                     CB.SetActive(true);
                     chatBox.ActivateInputField();
@@ -84,7 +85,7 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
                     setToDisable = true;
                 }
 
-                else if (Input.GetKeyDown(KeyCode.Return) && setToDisable)
+                else if ((Input.GetKeyDown(KeyCode.Return) && setToDisable ) || CrossPlatformInputManager.GetButtonUp("Chat"))
                 {
                     setToDisable = false;
                     CB.SetActive(false);
