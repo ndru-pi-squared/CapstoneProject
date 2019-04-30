@@ -68,7 +68,9 @@ namespace Com.Kabaj.TestPhotonMultiplayerFPSGame
 
         void CreateDistanceGraph()
         {
-            Transform[] allWeaponSpawnPoints = GameManager.Instance.WeaponSpawnPoints;
+            Transform[] allWeaponSpawnPoints =  new Transform[GameManager.Instance.WeaponSpawnPoints.Length];
+
+            Array.Copy(GameManager.Instance.WeaponSpawnPoints, allWeaponSpawnPoints, allWeaponSpawnPoints.Length);
 
             // SLOPPY SLOPPY SLOPPY
             // Get the position of the weapon that was spawned instead of the actual spawn point (because they're a little different)
